@@ -14,157 +14,9 @@ apt update
 apt install -y librewolf --no-install-recommends
 
 # SYSTEMD HARDENING
-SERVICES_TO_DISABLE=(
-"accounts-daemon.service"
-"anacron.service"
-"anacron.timer"
-"apport.service"
-"apt-daily-upgrade.timer"
-"apt-daily.timer"
-"avahi-daemon.service"
-"avahi-daemon.socket"
-"bluetooth.service"
-"bluetooth.target"
-"bluez"
-"bolt.service"
-"brltty.service"
-"chef-client.service"
-"cloud-config.service"
-"cloud-final.service"
-"cloud-init-local.service"
-"cloud-init.service"
-"cockpit.service"
-"cockpit.socket"
-"colord.service"
-"containerd.service"
-"cron.service"
-"cups-browsed"
-"cups-browsed.service"
-"cups.path"
-"cups.service"
-"cups.socket"
-"debug-shell.service"
-"docker.service"
-"docker.socket"
-"e2scrub_all.timer"
-"exim4.service"
-"fprintd.service"
-"fwupd-refresh.timer"
-"fwupd.service"
-"geoclue.service"
-"gnome-remote-desktop.service"
-"gnome-software-service.service"
-"hv-fcopy-daemon.service"
-"hv-kvp-daemon.service"
-"hv-vss-daemon.service"
-"iio-sensor-proxy.service"
-"iscsi.service"
-"iscsid.service"
-"iscsid.socket"
-"kerneloops.service"
-"krb5-admin-server.service"
-"krb5-kdc.service"
-"libvirtd-admin.socket"
-"libvirtd-ro.socket"
-"libvirtd.service"
-"libvirtd.socket"
-"lvm2-lvmpolld.service"
-"lvm2-lvmpolld.socket"
-"lxc-net.service"
-"lxc.service"
-"lxd.service"
-"lxd.socket"
-"man-db.timer"
-"ModemManager.service"
-"motd-news.timer"
-"multipassd.service"
-"multipathd.service"
-"nfs-client.target"
-"nfs-common.service"
-"nfs-mountd.service"
-"nfs-server.service"
-"nmbd.service"
-"nscd.service"
-"nslcd.service"
-"nvmefc-boot-connections.service"
-"nvmf-autoconnect.service"
-"open-iscsi.service"
-"packagekit.service"
-"pcscd.socket"
-"podman.service"
-"podman.socket"
-"postfix.service"
-"power-profiles-daemon.service"
-"proftpd.service"
-"puppet.service"
-"pure-ftpd.service"
-"qemu-guest-agent.service"
-"rpcbind.service"
-"rpcbind.socket"
-"rsync.service"
-"rtkit-daemon.service"
-"salt-minion.service"
-"samba-ad-dc.service"
-"samba.service"
-"sendmail.service"
-"serial-getty@*.service"
-"smbd.service"
-"snapd.seeded.service"
-"snapd.service"
-"snapd.socket"
-"snmpd.service"
-"snmptrapd.service"
-"speech-dispatcher"
-"speech-dispatcher.service"
-"spice-vdagentd.service"
-"spice-vdagentd.socket"
-"ssh.service"
-"ssh.socket"
-"sshd.service"
-"sssd.service"
-"switcheroo-control.service"
-"systemd-binfmt.service"
-"systemd-journal-gatewayd.socket"
-"systemd-journal-remote.socket"
-"systemd-journal-upload.service"
-"tigervnc.service"
-"tracker-extract-3.service"
-"tracker-miner-fs-3.service"
-"tracker-miner-rss-3.service"
-"tracker-writeback-3.service"
-"udisks2.service"
-"unattended-upgrades"
-"unattended-upgrades.service"
-"upower.service"
-"usbmuxd.service"
-"vboxautostart-service.service"
-"vboxballoonctrl-service.service"
-"vboxdrv.service"
-"vboxweb-service.service"
-"vino-server.service"
-"virtlockd.service"
-"virtlockd.socket"
-"virtlogd.service"
-"virtlogd.socket"
-"vmtoolsd.service"
-"vmware-vmblock-fuse.service"
-"vsftpd.service"
-"webmin.service"
-"whoopsie.service"
-"winbind.service"
-"wpa_supplicant"
-"x11vnc.service"
-"xrdp-sesman.service"
-"xrdp.service"
-)
+systemctl disable --now ssh.service ssh.socket vino-server.service x11vnc.service tigervnc.service xrdp.service xrdp-sesman.service serial-getty@*.service systemd-journal-remote.socket systemd-journal-gatewayd.socket systemd-journal-upload.service cockpit.socket cockpit.service webmin.service nfs-client.target nfs-common.service nfs-mountd.service nfs-server.service rpcbind.socket rpcbind.service iscsid.socket iscsid.service iscsi.service open-iscsi.service nvmf-autoconnect.service nvmefc-boot-connections.service smbd.service nmbd.service samba.service samba-ad-dc.service vsftpd.service proftpd.service pure-ftpd.service sssd.service krb5-kdc.service krb5-admin-server.service nslcd.service nscd.service winbind.service libvirtd.service libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket virtlogd.service virtlogd.socket virtlockd.service virtlockd.socket qemu-guest-agent.service vboxdrv.service vboxballoonctrl-service.service vboxautostart-service.service vboxweb-service.service vmtoolsd.service vmware-vmblock-fuse.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service docker.service docker.socket containerd.service podman.socket podman.service lxd.socket lxd.service lxc.service lxc-net.service multipassd.service snmpd.service snmptrapd.service salt-minion.service puppet.service chef-client.service cloud-init.service cloud-init-local.service cloud-config.service cloud-final.service spice-vdagentd.service spice-vdagentd.socket usbmuxd.service ModemManager.service unattended-upgrades wpa_supplicant speech-dispatcher bluez bluetooth.service apport.service avahi-daemon.socket avahi-daemon.service cups-browsed cups.socket cups.path cups.service debug-shell.service accounts-daemon.service colord.service geoclue.service switcheroo-control.service power-profiles-daemon.service bolt.service fwupd.service packagekit.service rtkit-daemon.service iio-sensor-proxy.service apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer motd-news.timer kerneloops.service anacron.timer anacron.service cron.service rsync.service pcscd.socket udisks2.service fprintd.service systemd-binfmt.service 2>/dev/null || true
 
-for svc in "${SERVICES_TO_DISABLE[@]}"; do
-    echo "    [-] Disabling ${svc}"
-    systemctl stop "$svc" 2>/dev/null || true
-    systemctl disable "$svc" 2>/dev/null || true
-    systemctl mask "$svc" 2>/dev/null || true
-done
-
+systemctl mask ssh.service ssh.socket telnet.socket inetd.service xinetd.service vino-server.service x11vnc.service tigervnc.service xrdp.service xrdp-sesman.service xrdp.socket serial-getty@.service getty@ttyS0.service console-getty.service debug-shell.service systemd-journal-remote.socket systemd-journal-gatewayd.socket systemd-journal-upload.service cockpit.socket cockpit.service webmin.service nfs-client.target nfs-common.service nfs-mountd.service nfs-server.service nfs-blkmap.service nfs-idmapd.service rpcbind.socket rpcbind.service rpcbind.target iscsid.socket iscsid.service iscsi.service open-iscsi.service nvmf-autoconnect.service nvmefc-boot-connections.service smbd.service nmbd.service samba.service samba-ad-dc.service remote-fs.target remote-fs-pre.target remote-cryptsetup.target vsftpd.service proftpd.service pure-ftpd.service sssd.socket sssd-nss.socket sssd-pam.socket sssd-sudo.socket sssd-autofs.socket sssd-ssh.socket sssd-pac.socket sssd-kcm.socket krb5-kdc.service krb5-admin-server.service nslcd.service winbind.service libvirtd.service libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket virtlogd.service virtlogd.socket virtlockd.service virtlockd.socket libvirt-guests.service qemu-guest-agent.service vboxdrv.service vboxballoonctrl-service.service vboxautostart-service.service vboxweb-service.service vboxadd.service vboxadd-service.service vmtoolsd.service vmware-vmblock-fuse.service vmware-tools.service open-vm-tools.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service docker.service docker.socket containerd.service podman.socket podman.service lxd.socket lxd.service lxc.service lxc-net.service systemd-nspawn@.service machines.target multipassd.service snmpd.service snmptrapd.service salt-minion.service puppet.service chef-client.service cloud-init.target cloud-init.service cloud-init-local.service cloud-config.service cloud-final.service spice-vdagentd.service spice-vdagentd.socket usbip.service usbipd.service usbmuxd.service usbmuxd.socket ModemManager.service debug-shell.service ctrl-alt-del.target kexec.target systemd-kexec.service proc-sys-fs-binfmt_misc.mount proc-sys-fs-binfmt_misc.automount printer.target remote-fs.target remote-cryptsetup.target usb-gadget.target systemd-coredump.socket 2>/dev/null || true
 
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
 APT::Get::AllowUnauthenticated "false";
@@ -214,9 +66,293 @@ iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
+# PACKAGE REMOVAL/RESTRICTING
+apt purge -y zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute
+
+install -d /etc/apt/preferences.d
+cat >/etc/apt/preferences.d/deny.pref <<'EOF'
+Package: openssh*
+Pin: release *
+Pin-Priority: -1
+
+Package: dropbear*
+Pin: release *
+Pin-Priority: -1
+
+Package: ssh*
+Pin: release *
+Pin-Priority: -1
+
+Package: tinyssh*
+Pin: release *
+Pin-Priority: -1
+
+Package: qemu*
+Pin: release *
+Pin-Priority: -1
+
+Package: libvirt*
+Pin: release *
+Pin-Priority: -1
+
+Package: uml*
+Pin: release *
+Pin-Priority: -1
+
+Package: virt*
+Pin: release *
+Pin-Priority: -1
+
+Package: courier*
+Pin: release *
+Pin-Priority: -1
+
+Package: dma*
+Pin: release *
+Pin-Priority: -1
+
+Package: tripwire*
+Pin: release *
+Pin-Priority: -1
+
+Package: avahi*
+Pin: release *
+Pin-Priority: -1
+
+Package: samba*
+Pin: release *
+Pin-Priority: -1
+
+Package: pmount*
+Pin: release *
+Pin-Priority: -1
+
+Package: sane*
+Pin: release *
+Pin-Priority: -1
+
+Package: netcat*
+Pin: release *
+Pin-Priority: -1
+
+Package: os-prober*
+Pin: release *
+Pin-Priority: -1
+
+Package: bluetooth*
+Pin: release *
+Pin-Priority: -1
+
+Package: bluez*
+Pin: release *
+Pin-Priority: -1
+
+Package: rpcbind*
+Pin: release *
+Pin-Priority: -1
+
+Package: nfs-common*
+Pin: release *
+Pin-Priority: -1
+
+Package: nfs-kernel-server*
+Pin: release *
+Pin-Priority: -1
+
+Package: cups*
+Pin: release *
+Pin-Priority: -1
+
+Package: anacron*
+Pin: release *
+Pin-Priority: -1
+
+Package: exim*
+Pin: release *
+Pin-Priority: -1
+
+Package: postfix*
+Pin: release *
+Pin-Priority: -1
+
+Package: sendmail*
+Pin: release *
+Pin-Priority: -1
+
+Package: printer-driver*
+Pin: release *
+Pin-Priority: -1
+
+Package: vagrant*
+Pin: release *
+Pin-Priority: -1
+
+Package: lxc*
+Pin: release *
+Pin-Priority: -1
+
+Package: docker*
+Pin: release *
+Pin-Priority: -1
+
+Package: podman*
+Pin: release *
+Pin-Priority: -1
+
+Package: xen*
+Pin: release *
+Pin-Priority: -1
+
+Package: bochs*
+Pin: release *
+Pin-Priority: -1
+
+Package: gnustep*
+Pin: release *
+Pin-Priority: -1
+
+Package: modemmanager*
+Pin: release *
+Pin-Priority: -1
+
+Package: wpasupplicant*
+Pin: release *
+Pin-Priority: -1
+
+Package: wireless*
+Pin: release *
+Pin-Priority: -1
+
+Package: inet*
+Pin: release *
+Pin-Priority: -1
+
+Package: nftables*
+Pin: release *
+Pin-Priority: -1
+
+Package: gcc-[0-9]*
+Pin: release *
+Pin-Priority: -1
+
+Package: g++-[0-9]*
+Pin: release *
+Pin-Priority: -1
+
+Package: gdb*
+Pin: release *
+Pin-Priority: -1
+
+Package: lldb*
+Pin: release *
+Pin-Priority: -1
+
+Package: strace*
+Pin: release *
+Pin-Priority: -1
+
+Package: ltrace*
+Pin: release *
+Pin-Priority: -1
+
+Package: build-essential*
+Pin: release *
+Pin-Priority: -1
+
+Package: automake*
+Pin: release *
+Pin-Priority: -1
+
+Package: autoconf*
+Pin: release *
+Pin-Priority: -1
+
+Package: cmake*
+Pin: release *
+Pin-Priority: -1
+
+Package: nasm*
+Pin: release *
+Pin-Priority: -1
+
+Package: yasm*
+Pin: release *
+Pin-Priority: -1
+
+Package: nodejs*
+Pin: release *
+Pin-Priority: -1
+
+Package: npm*
+Pin: release *
+Pin-Priority: -1
+
+Package: php*
+Pin: release *
+Pin-Priority: -1
+
+Package: ruby*
+Pin: release *
+Pin-Priority: -1
+
+Package: traceroute*
+Pin: release *
+Pin-Priority: -1
+EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis macchanger unhide tcpd fonts-liberation gnome-core xfce4-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin xfce4-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme gdebi-core opensnitch python3-opensnitch*
+
+systemctl enable acct
+systemctl start acct
+
+systemctl enable apparmor
+systemctl start apparmor
+aa-enforce /etc/apparmor.d/*
+
+# AUDITD
+apt install -y auditd audispd-plugins
+systemctl enable auditd
+
+install -d /etc/audit/rules.d
+cat >/etc/audit/rules.d/privilege-escalation.rules <<'EOF'
+# Delete all existing rules
+-D
+
+# Buffer size
+-b 8192
+
+# Failure mode (2 = panic)
+-f 2
+
+# Identity file changes
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/sudoers -p wa -k privilege_escalation
+-w /etc/sudoers.d -p wa -k privilege_escalation
+-w /etc/pam.d -p wa -k pam_config
+-w /etc/security -p wa -k security_config
+-w /usr/bin/sudo -p x -k privilege_escalation
+-w /usr/bin/su -p x -k privilege_escalation
+-w /usr/bin/passwd -p x -k privilege_escalation
+-w /usr/bin/chsh -p x -k privilege_escalation
+-w /usr/bin/chfn -p x -k privilege_escalation
+-w /usr/bin/newgrp -p x -k privilege_escalation
+-w /sbin/insmod -p x -k module_load
+-w /sbin/rmmod -p x -k module_load
+-w /sbin/modprobe -p x -k module_load
+-w /etc/hosts -p wa -k network_config
+-w /etc/iptables -p wa -k firewall_config
+
+-a always,exit -F arch=b64 -S execve -F euid=0 -F auid>=1000 -F auid!=4294967295 -k root_commands
+-a always,exit -F arch=b32 -S execve -F euid=0 -F auid>=1000 -F auid!=4294967295 -k root_commands
+-e 2
+EOF
+
+chmod 640 /etc/audit/rules.d/privilege-escalation.rules
+chown root:root /etc/audit/rules.d/privilege-escalation.rules
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -227,9 +363,7 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
-if ! getent group wheel &>/dev/null; then
-    groupadd wheel
-fi
+groupadd wheel
 usermod -aG wheel dev
 
 cat > /etc/security/faillock.conf <<'EOF'
@@ -359,6 +493,7 @@ cat >/etc/pam.d/login <<'EOF'
 auth       required    pam_securetty.so
 auth       required    pam_nologin.so
 auth       include     common-auth
+account    required    pam_access.so
 account    include     common-account
 session    required    pam_limits.so
 session    required    pam_loginuid.so
@@ -415,8 +550,7 @@ Defaults    mail_no_perms
 Defaults    !env_editor
 Defaults    editor=/bin/false
 
-root  ALL=(ALL) ALL
-%wheel ALL=(ALL) ALL
+dev ALL=(ALL) ALL
 EOF
 chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
@@ -433,12 +567,12 @@ EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
 *           hard    nproc         2048
-*            -      maxlogins     1
-*            -      maxsyslogins  1
-dev          -      maxlogins     1
-dev          -      maxsyslogins  1
-root         -      maxlogins     1
-root         -      maxsyslogin   1
+*           hard    maxlogins     1
+*           hard    maxsyslogins  1
+dev         hard    maxlogins     1
+dev         hard    maxsyslogins  1
+root        hard    maxlogins     1
+root        hard    maxsyslogins  1
 root        hard    nproc         65536
 *           hard    core          0
 EOF
@@ -459,12 +593,6 @@ echo "ALL: LOCAL, 127.0.0.1" >> /etc/hosts.allow
 echo "ALL: ALL" > /etc/hosts.deny
 chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
-
-cat > /etc/profile.d/autologout.sh <<'EOF'
-TMOUT=600
-readonly TMOUT
-export TMOUT
-EOF
 
 cat > /etc/security/access.conf << EOF
 # Single user access
