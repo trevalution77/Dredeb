@@ -143,27 +143,27 @@ Package: os-prober*
 Pin: release *
 Pin-Priority: -1
 
-Package: bluetooth*
+Package: blue*
 Pin: release *
 Pin-Priority: -1
 
-Package: bluez*
+Package: mobile*
 Pin: release *
 Pin-Priority: -1
 
-Package: rpcbind*
+Package: rpc*
 Pin: release *
 Pin-Priority: -1
 
-Package: nfs-common*
+Package: gvfs*
 Pin: release *
 Pin-Priority: -1
 
-Package: nfs-kernel-server*
+Package: nfs*
 Pin: release *
 Pin-Priority: -1
 
-Package: cups*
+Package: cup*
 Pin: release *
 Pin-Priority: -1
 
@@ -183,7 +183,7 @@ Package: sendmail*
 Pin: release *
 Pin-Priority: -1
 
-Package: printer-driver*
+Package: print*
 Pin: release *
 Pin-Priority: -1
 
@@ -219,7 +219,7 @@ Package: modemmanager*
 Pin: release *
 Pin-Priority: -1
 
-Package: wpasupplicant*
+Package: wpa*
 Pin: release *
 Pin-Priority: -1
 
@@ -235,11 +235,11 @@ Package: nftables*
 Pin: release *
 Pin-Priority: -1
 
-Package: gcc-[0-9]*
+Package: gcc*
 Pin: release *
 Pin-Priority: -1
 
-Package: g++-[0-9]*
+Package: g++*
 Pin: release *
 Pin-Priority: -1
 
@@ -259,7 +259,7 @@ Package: ltrace*
 Pin: release *
 Pin-Priority: -1
 
-Package: build-essential*
+Package: build*
 Pin: release *
 Pin-Priority: -1
 
@@ -367,15 +367,11 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
-groupadd wheel
-usermod -aG wheel dev
-
 cat > /etc/security/faillock.conf <<'EOF'
 deny = 3
 unlock_time = 900
 silent
 EOF
-chattr +i /etc/security/faillock.conf
 
 cat >/etc/pam.d/chfn <<'EOF'
 #%PAM-1.0
