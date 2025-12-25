@@ -216,42 +216,12 @@ netfilter-persistent save
 
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis macchanger unhide tcpd fonts-liberation gnome-core gnome-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
-
-SERVICES_TO_ENABLE=(
-"systemd-journald.service"
-"systemd-udevd.service"
-"systemd-logind.service"
-"dbus.service"
-"polkit.service"
-"gdm.service"
-"NetworkManager.service"
-"NetworkManager-wait-online.service"
-"wg-quick@wg0.service"
-"pipewire.socket"
-"pipewire-pulse.socket"
-"wireplumber.service"
-"opensnitchd.service"
-"iptables-restore.service"
-"pcscd.service"
-"pcscd.socket"
-"systemd-timesyncd.service"
-"upower.service"
-"thermald.service"
-"systemd-logind.service"
-)
-
-for svc in "${SERVICES_TO_ENABLE[@]}"; do
-    echo "    [+] Enabling ${svc}"
-    systemctl unmask "$svc" 2>/dev/null || true
-    systemctl enable "$svc" 2>/dev/null || true
-done
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis macchanger unhide tcpd fonts-liberation gnome-core xfce4-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
 chmod 0400 /etc/security/u2f_keys
 chown root:root /etc/security/u2f_keys
-chattr +i /etc/security/u2f_keys
 mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
