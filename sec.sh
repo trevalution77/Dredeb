@@ -296,6 +296,12 @@ Pin-Priority: -1
 Package: traceroute*
 Pin: release *
 Pin-Priority: -1
+
+Package: pp*
+Pin: release *
+Pin-Priority: -1
+
+
 EOF
 
 # PACKAGE INSTALLATION
@@ -947,6 +953,379 @@ chown root:adm -R /var/log
 chmod -R 0640 /var/log
 chmod 0750 /var/log
 
+apt install -y libcap2-bin 2>/dev/null || true
+
+# Remove ALL capabilities from dangerous binaries
+# These should never need special privileges
+STRIP_CAPS_BINARIES=(
+    /usr/bin/perl
+    /usr/bin/perl5*
+    /usr/bin/python*
+    /usr/bin/ruby*
+    /usr/bin/lua*
+    /usr/bin/node
+    /usr/bin/nodejs
+    /usr/bin/php*
+    /usr/bin/awk
+    /usr/bin/gawk
+    /usr/bin/mawk
+    /usr/bin/nawk
+    /usr/bin/sed
+    /usr/bin/ed
+    /usr/bin/vi
+    /usr/bin/vim*
+    /usr/bin/nano
+    /usr/bin/emacs*
+    /usr/bin/tar
+    /usr/bin/zip
+    /usr/bin/unzip
+    /usr/bin/gzip
+    /usr/bin/bzip2
+    /usr/bin/xz
+    /usr/bin/7z*
+    /usr/bin/curl
+    /usr/bin/wget
+    /usr/bin/nc
+    /usr/bin/ncat
+    /usr/bin/netcat
+    /usr/bin/socat
+    /usr/bin/telnet
+    /usr/bin/ftp
+    /usr/bin/ssh
+    /usr/bin/scp
+    /usr/bin/sftp
+    /usr/bin/rsync
+    /usr/bin/dd
+    /usr/bin/xxd
+    /usr/bin/od
+    /usr/bin/hexdump
+    /usr/bin/strings
+    /usr/bin/objdump
+    /usr/bin/readelf
+    /usr/bin/nm
+    /usr/bin/as
+    /usr/bin/ld
+    /usr/bin/ar
+    /usr/sbin/tcpdump
+    /usr/sbin/nmap
+    /usr/bin/tshark
+    /usr/bin/wireshark
+)
+
+for bin in "${STRIP_CAPS_BINARIES[@]}"; do
+    for f in $bin; do
+        if [ -f "$f" ]; then
+            setcap -r "$f" 2>/dev/null || true
+        fi
+    done
+done
+
+# Set MINIMAL required capabilities on specific binaries
+# ping needs net_raw only
+if [ -f /usr/bin/ping ]; then
+    setcap cap_net_raw+ep /usr/bin/ping 2>/dev/null || true
+fi
+
+# Remove capabilities from network tools entirely
+for bin in /usr/bin/traceroute /usr/bin/mtr /usr/sbin/arping; do
+    if [ -f "$bin" ]; then
+        setcap -r "$bin" 2>/dev/null || true
+    fi
+done
+
+# Compilers and build tools
+COMPILER_PACKAGES=(
+    gcc 
+    gcc-* 
+    g++ 
+    g++-* 
+    cpp 
+    cpp-*
+    clang 
+    clang-* 
+    llvm 
+    llvm-*
+    gfortran 
+    gfortran-*
+    rustc 
+    cargo
+    golang 
+    golang-*
+    ghc 
+    ghc-*
+    fpc
+    nasm 
+    yasm
+    as86 
+    bin86
+    make 
+    cmake 
+    ninja-build 
+    meson
+    autoconf 
+    automake 
+    libtool
+    bison 
+    flex 
+    byacc
+    swig
+    m4
+)
+
+# Interpreters that can execute arbitrary code
+INTERPRETER_PACKAGES=(
+    perl 
+    perl-base 
+    perl-modules
+    python2* 
+    python3* 
+    python-is-python*
+    ruby 
+    ruby-*
+    lua* 
+    tcl tcl-*
+    php* 
+    php-*
+    nodejs 
+    node 
+    npm
+    openjdk-* 
+    default-jdk 
+    default-jre 
+    java-*
+    mono-* 
+    libmono-*
+    gawk 
+    mawk
+    guile-*
+    pike*
+    racket*
+    erlang*
+    elixir*
+    julia
+    octave*
+    r-base 
+    r-cran-*
+    maxima*
+    gap*
+)
+
+# Debuggers and injection tools
+DEBUG_INJECT_PACKAGES=(
+    gdb 
+    gdb-*
+    lldb 
+    lldb-*
+    strace 
+    ltrace
+    valgrind
+    binutils
+    elfutils
+    patchelf
+    execstack
+    prelink
+    chrpath
+    dwarfdump
+    objdump
+    readelf
+    radare2 
+    r2*
+    ghidra
+    ida-*
+    hopper*
+    nasm 
+    ndisasm
+    xxd 
+    hexedit 
+    bvi
+    binwalk
+    upx 
+    upx-ucl
+    msfvenom 
+    metasploit*
+)
+
+# Network injection/sniffing tools
+NETWORK_INJECT_PACKAGES=(
+    nmap zenmap
+    masscan
+    netcat 
+    netcat-* 
+    nc 
+    ncat 
+    socat
+    hping3
+    scapy
+    ettercap*
+    bettercap
+    mitmproxy
+    sslstrip
+    tcpdump
+    wireshark* 
+    tshark
+    dsniff
+    arpspoof
+    macchanger
+    aircrack-ng*
+)
+
+echo "Purging compilers..."
+for pkg in "${COMPILER_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
+
+echo "Purging interpreters..."
+for pkg in "${INTERPRETER_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
+
+echo "Purging debuggers and injection tools..."
+for pkg in "${DEBUG_INJECT_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
+
+echo "Purging network injection tools..."
+for pkg in "${NETWORK_INJECT_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
+
+apt autoremove -y 2>/dev/null || true
+
+# Remove any remaining binaries that weren't package-managed
+DANGEROUS_BINARIES=(
+    /usr/bin/gcc 
+    /usr/bin/g++
+    /usr/bin/cc 
+    /usr/bin/c++
+    /usr/bin/as 
+    /usr/bin/ld 
+    /usr/bin/ar 
+    /usr/bin/nm
+    /usr/bin/make 
+    /usr/bin/cmake
+    /usr/bin/perl
+    /usr/bin/perl5*
+    /usr/bin/python
+    /usr/bin/python2*
+    /usr/bin/python3*
+    /usr/bin/ruby
+    /usr/bin/irb
+    /usr/bin/erb
+    /usr/bin/lua 
+    /usr/bin/luac
+    /usr/bin/node
+    /usr/bin/nodejs
+    /usr/bin/npm
+    /usr/bin/php
+    /usr/bin/php-cgi
+    /usr/bin/php-fpm
+    /usr/bin/gdb 
+    /usr/bin/lldb
+    /usr/bin/strace
+    /usr/bin/ltrace
+    /usr/bin/nc 
+    /usr/bin/ncat 
+    /usr/bin/netcat
+    /usr/bin/nmap 
+    /usr/bin/masscan
+    /usr/bin/socat
+    /usr/bin/xxd 
+    /usr/bin/hexdump
+    /usr/bin/objdump
+    /usr/bin/readelf
+    /usr/bin/run0
+    /usr/bin/su
+)
+
+echo "Removing remaining dangerous binaries..."
+for bin in "${DANGEROUS_BINARIES[@]}"; do
+    for f in $bin; do
+        if [ -f "$f" ] && [ ! -L "$f" ]; then
+            echo "Removing: $f"
+            rm -f "$f" 2>/dev/null || true
+        fi
+    done
+done
+
+echo "[6/9] Compilers and injection tools removed."
+
+# PURGE SHELLS
+# Shells to remove
+SHELL_PACKAGES=(
+    zsh 
+    zsh-*
+    fish
+    tcsh 
+    csh
+    ksh 
+    ksh93  
+    mksh 
+    pdksh
+    dash
+    ash 
+    busybox
+    rc
+    es
+    sash
+    yash
+)
+
+for pkg in "${SHELL_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
+
+# Remove shell binaries
+SHELL_BINARIES=(
+    /bin/sh   
+    /bin/dash
+    /bin/zsh
+    /bin/fish
+    /bin/tcsh 
+    /bin/csh
+    /bin/ksh
+    /bin/ksh93 
+    /bin/mksh
+    /bin/pdksh
+    /bin/ash
+    /bin/rc
+    /bin/es
+    /bin/sash
+    /bin/yash
+    /usr/bin/zsh
+    /usr/bin/fish
+    /usr/bin/tcsh
+    /usr/bin/csh
+    /usr/bin/ksh*
+)
+
+for shell in "${SHELL_BINARIES[@]}"; do
+    if [ -f "$shell" ] && [ "$shell" != "/bin/bash" ]; then
+        # Check if it's not bash
+        if ! [ "$shell" -ef "/bin/bash" ]; then
+            rm -f "$shell" 2>/dev/null || true
+        fi
+    fi
+done
+
+# Ensure /bin/sh points to bash (not dash)
+if [ -L /bin/sh ]; then
+    rm /bin/sh
+fi
+ln -sf /bin/bash /bin/sh
+
+chmod 644 /etc/shells
+chattr +i /etc/shells
+
+# Ensure all users have bash as shell (except system accounts with nologin)
+while IFS=: read -r username _ uid _ _ _ shell; do
+    if [ "$uid" -ge 1000 ] && [ "$shell" != "/usr/sbin/nologin" ] && [ "$shell" != "/bin/false" ]; then
+        if [ "$shell" != "/bin/bash" ]; then
+            echo "Changing shell for $username from $shell to /bin/bash"
+            usermod -s /bin/bash "$username" 2>/dev/null || true
+        fi
+    fi
+done < /etc/passwd
+
 # Create log file with proper permissions
 touch /var/log/opensnitchd.log
 chmod 640 /var/log/opensnitchd.log
@@ -977,8 +1356,7 @@ chmod 600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-rm /usr/bin/run0
-rm /usr/bin/su
+
 mkdir -p /etc/polkit-1/rules.d
 cat > /etc/polkit-1/rules.d/00-deny-all.rules << 'EOF'
 // Deny all polkit requests - hardened system
