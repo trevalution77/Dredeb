@@ -319,7 +319,6 @@ EOF
 
 cat >/etc/pam.d/chfn <<'EOF'
 #%PAM-1.0
-auth      sufficient  pam_u2f.so authfile=/etc/security/u2f_keys
 auth      include     common-auth
 account   include     common-account
 session   include     common-session
@@ -332,8 +331,6 @@ EOF
 
 cat >/etc/pam.d/chsh <<'EOF'
 #%PAM-1.0
-auth      required    pam_shells.so
-auth      sufficient  pam_u2f.so authfile=/etc/security/u2f_keys
 auth      include     common-auth
 account   include     common-account
 session   include     common-session
@@ -410,7 +407,7 @@ EOF
 cat >/etc/pam.d/su-l <<'EOF'
 #%PAM-1.0
 auth       required     pam_wheel.so use_uid group=wheel deny
-auth       sufficient   pam_u2f.so authfile=/etc/security/u2f_keys
+auth       required     pam_u2f.so authfile=/etc/security/u2f_keys
 auth       include      common-auth
 account    include      common-account
 session    include      common-session
@@ -440,7 +437,6 @@ auth       include     common-auth
 account    required    pam_access.so
 account    include     common-account
 session    required    pam_limits.so
-session    required    pam_loginuid.so
 session    include     common-session
 EOF
 
@@ -484,9 +480,6 @@ Defaults    log_input
 Defaults    log_output
 Defaults    iolog_dir=/var/log/sudo-io
 Defaults    iolog_file=%{user}/%{command}-%Y%m%d-%H%M%S
-Defaults    mail_badpass
-Defaults    mail_no_user
-Defaults    mail_no_perms
 Defaults    !env_editor
 Defaults    editor=/bin/false
 
