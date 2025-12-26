@@ -22,8 +22,6 @@ cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
 APT::Get::AllowUnauthenticated "false";
 Acquire::AllowInsecureRepositories "false";
 Acquire::AllowDowngradeToInsecureRepositories "false";
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
 APT::AutoRemove::RecommendsImportant "false";
 APT::AutoRemove::SuggestsImportant "false";
 APT::Periodic::Update-Package-Lists "1";
@@ -71,7 +69,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE REMOVAL/RESTRICTING
-apt purge -y zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute
+apt purge -y anacron* cron* pp* perl python3 zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute
 
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
@@ -152,10 +150,6 @@ Pin: release *
 Pin-Priority: -1
 
 Package: rpc*
-Pin: release *
-Pin-Priority: -1
-
-Package: gvfs*
 Pin: release *
 Pin-Priority: -1
 
@@ -305,58 +299,8 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin xfce4-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme gdebi-core opensnitch python3-opensnitch*
+apt install -r rsyslog chrony libpam-tmpdir pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch* gdm3 gnome-session gnome-control-center gnome-panel gnome-shell-extensions nautilus
 
-systemctl enable acct
-systemctl start acct
-
-systemctl enable apparmor
-systemctl start apparmor
-aa-enforce /etc/apparmor.d/*
-
-# AUDITD
-apt install -y auditd audispd-plugins
-systemctl enable auditd
-
-install -d /etc/audit/rules.d
-cat >/etc/audit/rules.d/privilege-escalation.rules <<'EOF'
-# Delete all existing rules
--D
-
-# Buffer size
--b 8192
-
-# Failure mode (2 = panic)
--f 2
-
-# Identity file changes
--w /etc/passwd -p wa -k identity
--w /etc/shadow -p wa -k identity
--w /etc/group -p wa -k identity
--w /etc/gshadow -p wa -k identity
--w /etc/sudoers -p wa -k privilege_escalation
--w /etc/sudoers.d -p wa -k privilege_escalation
--w /etc/pam.d -p wa -k pam_config
--w /etc/security -p wa -k security_config
--w /usr/bin/sudo -p x -k privilege_escalation
--w /usr/bin/su -p x -k privilege_escalation
--w /usr/bin/passwd -p x -k privilege_escalation
--w /usr/bin/chsh -p x -k privilege_escalation
--w /usr/bin/chfn -p x -k privilege_escalation
--w /usr/bin/newgrp -p x -k privilege_escalation
--w /sbin/insmod -p x -k module_load
--w /sbin/rmmod -p x -k module_load
--w /sbin/modprobe -p x -k module_load
--w /etc/hosts -p wa -k network_config
--w /etc/iptables -p wa -k firewall_config
-
--a always,exit -F arch=b64 -S execve -F euid=0 -F auid>=1000 -F auid!=4294967295 -k root_commands
--a always,exit -F arch=b32 -S execve -F euid=0 -F auid>=1000 -F auid!=4294967295 -k root_commands
--e 2
-EOF
-
-chmod 640 /etc/audit/rules.d/privilege-escalation.rules
-chown root:root /etc/audit/rules.d/privilege-escalation.rules
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -418,21 +362,21 @@ EOF
 
 cat >/etc/pam.d/common-session <<'EOF'
 #%PAM-1.0
-session   required    pam_namespace.so
 session   required    pam_limits.so
 session   required    pam_umask.so umask=0077
 session   required    pam_env.so readenv=1 user_readenv=0
 session   required    pam_unix.so
+session   optional    pam_tmpdir.so
 session   optional    pam_systemd.so
 EOF
 
 cat >/etc/pam.d/common-session-noninteractive <<'EOF'
 #%PAM-1.0
-session   required    pam_namespace.so
 session   required    pam_limits.so
 session   required    pam_umask.so umask=0077
 session   required    pam_env.so readenv=1 user_readenv=0
 session   required    pam_unix.so
+session   optional    pam_tmpdir.so
 session   optional    pam_systemd.so
 EOF
 
@@ -457,7 +401,7 @@ EOF
 cat >/etc/pam.d/su <<'EOF'
 #%PAM-1.0
 auth       required     pam_wheel.so use_uid group=wheel deny
-auth       sufficient   pam_u2f.so authfile=/etc/security/u2f_keys
+auth       required     pam_u2f.so authfile=/etc/security/u2f_keys
 auth       include      common-auth
 account    include      common-account
 session    include      common-session
@@ -540,10 +484,6 @@ Defaults    log_input
 Defaults    log_output
 Defaults    iolog_dir=/var/log/sudo-io
 Defaults    iolog_file=%{user}/%{command}-%Y%m%d-%H%M%S
-Defaults    !visiblepw
-Defaults    !rootpw
-Defaults    !runaspw
-Defaults    !targetpw
 Defaults    mail_badpass
 Defaults    mail_no_user
 Defaults    mail_no_perms
@@ -562,16 +502,13 @@ EOF
 
 cat >/etc/host.conf <<'EOF'
 multi on
-order hosts,bind
+order hosts
 EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
 *           hard    nproc         2048
-*           hard    maxlogins     1
 *           hard    maxsyslogins  1
-dev         hard    maxlogins     1
 dev         hard    maxsyslogins  1
-root        hard    maxlogins     1
 root        hard    maxsyslogins  1
 root        hard    nproc         65536
 *           hard    core          0
@@ -595,11 +532,12 @@ chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
-# Single user access
-+ : dev : LOCAL
-+ : root : LOCAL
-# Deny everyone else
-- : ALL : ALL
++:dev:0 tty1 tty2
+-:ALL EXCEPT dev:LOCAL
+-:dev:ALL EXCEPT LOCAL
+-:ALL EXCEPT dev:tty1 tty2
+-:root:ALL
+-:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
@@ -858,8 +796,6 @@ blacklist udf
 install udf /bin/false
 blacklist usb_storage
 install usb_storage /bin/false
-blacklist uvcvideo
-install uvcvideo /bin/false
 blacklist vboxdrv
 install vboxdrv /bin/false
 blacklist vboxnetadp
@@ -923,7 +859,7 @@ cat > /etc/fstab << 'EOF'
 /dev/mapper/lvg-var_log    /var/log       ext4    noatime,nodev,nosuid,noexec        0 2
 /dev/mapper/lvg-home       /home          ext4    noatime,nodev,nosuid,noexec        0 2
 proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /tmp       tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /dev/shm   tmpfs     size=512M,noatime,nodev,nosuid,noexec,mode=1777   0 0
 tmpfs    /run       tmpfs     size=512M,noatime,nodev,nosuid,mode=0755          0 0
@@ -1016,31 +952,6 @@ chown root:adm -R /var/log
 chmod -R 0640 /var/log
 chmod 0750 /var/log
 
-# OPENSNITCH 
-cat > /etc/systemd/system/opensnitchd.service << 'EOF'
-[Unit]
-Description=OpenSnitch Firewall Daemon
-After=network.target
-After=netfilter-persistent.service
-Wants=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -log-file /var/log/opensnitchd.log
-Restart=on-failure
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# Create rules directory if it doesn't exist
-mkdir -p /etc/opensnitchd/rules
-chmod 750 /etc/opensnitchd
-chmod 750 /etc/opensnitchd/rules
-
 # Create log file with proper permissions
 touch /var/log/opensnitchd.log
 chmod 640 /var/log/opensnitchd.log
@@ -1082,256 +993,6 @@ polkit.addRule(function(action, subject) {
 EOF
 
 chmod 0644 /etc/polkit-1/rules.d/00-deny-all.rules
-
-
-# PRIVILEGE ESCALATION MONITORING 
-cat > /usr/local/bin/escalation-monitor <<'EOF'
-#!/bin/bash
-
-LOG="/var/log/escalation-monitor.log"
-BASELINE_FILE="/var/lib/escalation-monitor-baseline"
-MODULES_BASELINE="/var/lib/modules-baseline"
-
-HALT_ON_VIOLATION=1
-
-EXCLUDE_DIRS=(
-    "/timeshift"
-)
-
-log_alert() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ALERT: $1" >> "$LOG"
-    logger -t ESCALATION_MONITOR -p security.crit "$1"
-}
-
-log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] INFO: $1" >> "$LOG"
-}
-
-# Build the find exclusion string
-build_exclusions() {
-    local excludes=""
-    for dir in "${EXCLUDE_DIRS[@]}"; do
-        if [ -d "$dir" ]; then
-            excludes="$excludes -path '$dir' -prune -o"
-        fi
-    done
-    echo "$excludes"
-}
-
-# SUID/SGID CHECK
-PRUNE_PATTERN=""
-for dir in "${EXCLUDE_DIRS[@]}"; do
-    if [ -d "$dir" ]; then
-        PRUNE_PATTERN="$PRUNE_PATTERN -path $dir -prune -o"
-    fi
-done
-
-# Get current SUID files
-CURRENT_SUID=$(eval "find / -xdev $PRUNE_PATTERN \( -perm -4000 -o -perm -2000 \) -type f -print 2>/dev/null" | sort)
-CURRENT_SUID_COUNT=$(echo "$CURRENT_SUID" | grep -c . || echo "0"
-if [ ! -f "$BASELINE_FILE" ]; then
-    log_info "First run - establishing SUID baseline with $CURRENT_SUID_COUNT files"
-    echo "$CURRENT_SUID" > "$BASELINE_FILE"
-    chmod 600 "$BASELINE_FILE"
-    chattr +i "$BASELINE_FILE" 2>/dev/null || true
-    log_info "Baseline files:"
-    echo "$CURRENT_SUID" >> "$LOG"
-else
-    # Compare against baseline
-    chattr -i "$BASELINE_FILE" 2>/dev/null || true
-    BASELINE_SUID=$(cat "$BASELINE_FILE")
-    chattr +i "$BASELINE_FILE" 2>/dev/null || true
-    
-# Check for new SUID files
-    NEW_SUID=$(comm -23 <(echo "$CURRENT_SUID") <(echo "$BASELINE_SUID") 2>/dev/null)
-    
-# Check for removed SUID files
-    REMOVED_SUID=$(comm -13 <(echo "$CURRENT_SUID") <(echo "$BASELINE_SUID") 2>/dev/null)
-    
-    if [ -n "$NEW_SUID" ] && [ "$NEW_SUID" != "" ]; then
-        log_alert "NEW SUID/SGID files detected:"
-        echo "$NEW_SUID" >> "$LOG"
-        
-        if [ $HALT_ON_VIOLATION -eq 1 ]; then
-            log_alert "Halting system due to unauthorized SUID files"
-            sync
-            systemctl halt
-        fi
-    fi
-    
-    if [ -n "$REMOVED_SUID" ] && [ "$REMOVED_SUID" != "" ]; then
-        log_info "SUID/SGID files removed (may be normal):"
-        echo "$REMOVED_SUID" >> "$LOG"
-        # Don't halt on removal - that's usually fine
-    fi
-fi
-
-# KERNEL MODULE CHECK 
-if [ -f "$MODULES_BASELINE" ]; then
-    # Create temp file for current state
-    CURRENT_MODULES=$(mktemp)
-    find /lib/modules -name "*.ko" -type f -exec md5sum {} \; 2>/dev/null | sort > "$CURRENT_MODULES"
-    
-    chattr -i "$MODULES_BASELINE" 2>/dev/null || true
-    BASELINE_SORTED=$(mktemp)
-    sort "$MODULES_BASELINE" > "$BASELINE_SORTED"
-    chattr +i "$MODULES_BASELINE" 2>/dev/null || true
-    
-    if ! diff -q "$CURRENT_MODULES" "$BASELINE_SORTED" >/dev/null 2>&1; then
-        # Get specific changes
-        CHANGES=$(diff "$BASELINE_SORTED" "$CURRENT_MODULES" 2>/dev/null | head -20)
-        log_alert "Kernel modules have been modified:"
-        echo "$CHANGES" >> "$LOG"
-        
-        if [ $HALT_ON_VIOLATION -eq 1 ]; then
-            log_alert "Halting system due to kernel module tampering"
-            rm -f "$CURRENT_MODULES" "$BASELINE_SORTED"
-            sync
-            systemctl halt
-        fi
-    fi
-    
-    rm -f "$CURRENT_MODULES" "$BASELINE_SORTED"
-else
-    log_info "No module baseline found - creating one"
-    find /lib/modules -name "*.ko" -type f -exec md5sum {} \; 2>/dev/null | sort > "$MODULES_BASELINE"
-    chmod 600 "$MODULES_BASELINE"
-    chattr +i "$MODULES_BASELINE" 2>/dev/null || true
-fi
-
-# U2F AUTHENTICATION FAILURES 
-if [ -f /var/log/auth.log ]; then
-    # Check for recent failures (last 10 minutes)
-    RECENT_FAILS=$(grep "pam_u2f.*fail" /var/log/auth.log 2>/dev/null | tail -20 | wc -l || echo "0")
-    
-    if [ "$RECENT_FAILS" -ge 3 ]; then
-        log_alert "Multiple U2F authentication failures detected: $RECENT_FAILS"
-    fi
-fi
-
-# ROOTKIT CHECK
-if command -v rkhunter >/dev/null 2>&1; then
-    # Only run full check once per day to avoid performance hit
-    LAST_CHECK="/var/lib/rkhunter-last-check"
-    CURRENT_DAY=$(date +%Y%m%d)
-    
-    if [ ! -f "$LAST_CHECK" ] || [ "$(cat $LAST_CHECK 2>/dev/null)" != "$CURRENT_DAY" ]; then
-        log_info "Running daily rkhunter check"
-        RKHUNTER_OUTPUT=$(rkhunter --check --skip-keypress --report-warnings-only 2>&1 || true)
-        
-        if [ -n "$RKHUNTER_OUTPUT" ]; then
-            log_alert "rkhunter warnings:"
-            echo "$RKHUNTER_OUTPUT" >> "$LOG"
-        fi
-        
-        echo "$CURRENT_DAY" > "$LAST_CHECK"
-    fi
-fi
-
-# CRITICAL FILE INTEGRITY 
-# Check if critical files have been modified (quick hash check)
-CRITICAL_FILES=(
-    "/etc/passwd"
-    "/etc/shadow"
-    "/etc/group"
-    "/etc/gshadow"
-    "/etc/iptables/rules.v4"
-    "/etc/default/grub"
-    "/etc/sudoers"
-    "/etc/security/access.conf"
-    "/usr/lib/sysctl.d/sysctl.conf"  
-    "/etc/pam.d/common-auth"
-    "/etc/pam.d/sudo" 
-    "/etc/security/limits.d/limits.conf"
-    "/etc/shells"
-    "/etc/securetty”
-    "/etc/fstab”
-    "/etc/modeprobe.d/harden.conf"
-)
-
-CRITICAL_BASELINE="/var/lib/critical-files-baseline"
-
-if [ ! -f "$CRITICAL_BASELINE" ]; then
-    log_info "Creating critical files baseline"
-    for f in "${CRITICAL_FILES[@]}"; do
-        if [ -f "$f" ]; then
-            md5sum "$f" >> "$CRITICAL_BASELINE"
-        fi
-    done
-    chmod 600 "$CRITICAL_BASELINE"
-    chattr +i "$CRITICAL_BASELINE" 2>/dev/null || true
-else
-    chattr -i "$CRITICAL_BASELINE" 2>/dev/null || true
-    CHANGED_FILES=""
-    for f in "${CRITICAL_FILES[@]}"; do
-        if [ -f "$f" ]; then
-            CURRENT_HASH=$(md5sum "$f" | awk '{print $1}')
-            BASELINE_HASH=$(grep "$f" "$CRITICAL_BASELINE" 2>/dev/null | awk '{print $1}')
-            if [ -n "$BASELINE_HASH" ] && [ "$CURRENT_HASH" != "$BASELINE_HASH" ]; then
-                CHANGED_FILES="$CHANGED_FILES $f"
-            fi
-        fi
-    done
-    chattr +i "$CRITICAL_BASELINE" 2>/dev/null || true
-    
-    if [ -n "$CHANGED_FILES" ]; then
-        log_alert "Critical security files modified:$CHANGED_FILES"
-        # Don't auto-halt on this - could be legitimate changes
-        # But definitely want to know about it
-    fi
-fi
-
-log_info "Escalation monitor check completed successfully"
-EOF
-
-chmod 700 /usr/local/bin/escalation-monitor
-chattr +i /usr/local/bin/escalation-monitor
-
-# Use systemd timer instead of cron (since cron is purged)
-cat >/etc/systemd/system/escalation-monitor.service <<'EOF'
-[Unit]
-Description=Escalation Monitor Security Check
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/escalation-monitor
-EOF
-
-cat >/etc/systemd/system/escalation-monitor.timer <<'EOF'
-[Unit]
-Description=Run escalation monitor every 30 minutes
-
-[Timer]
-OnBootSec=5min
-OnUnitActiveSec=30min
-
-[Install]
-WantedBy=timers.target
-EOF
-
-systemctl daemon-reload
-systemctl enable escalation-monitor.timer
-systemctl start escalation-monitor.timer
-
-# MAC RANDOMIZE
-cat >/etc/systemd/system/macchanger@.service <<'EOF'
-[Unit]
-Description=MAC Address Randomization for %i
-Wants=network-pre.target
-Before=network-pre.target
-BindsTo=sys-subsystem-net-devices-%i.device
-After=sys-subsystem-net-devices-%i.device
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/macchanger -e %i
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable macchanger@enp0s31f6.service
 
 # LOCKDOWN
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
