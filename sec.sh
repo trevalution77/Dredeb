@@ -121,9 +121,9 @@ Package: avahi*
 Pin: release *
 Pin-Priority: -1
 
-Package: samba*
-Pin: release *
-Pin-Priority: -1
+#Package: samba*
+#Pin: release *
+#Pin-Priority: -1
 
 Package: pmount*
 Pin: release *
@@ -299,7 +299,9 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -r rsyslog chrony libpam-tmpdir pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch* gdm3 gnome-session gnome-control-center gnome-panel gnome-shell-extensions nautilus
+apt install -y rsyslog chrony libpam-tmpdir pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch* nautilus gnome-control-center gnome-panel --no-install-recommends
+
+apt install -y gdm3 gnome-session gnome-shell-extensions
 
 
 # PAM/U2F
@@ -951,8 +953,8 @@ chmod 640 /var/log/opensnitchd.log
 
 # Enable and start the daemon
 systemctl daemon-reload
-systemctl enable opensnitchd.service
-systemctl start opensnitchd.service
+systemctl enable opensnitch
+systemctl start opensnitch
 
 # Install Blocklists
 apt install git 
@@ -960,7 +962,7 @@ git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
 cd Respect-My-Internet
 chmod +x install.sh
 ./install.sh
-systemctl restart opensnitchd
+systemctl restart opensnitch
 cd
 
 # PRIVILEGE ESCALATION HARDENING
