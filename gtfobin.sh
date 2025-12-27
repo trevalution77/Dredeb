@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 # Binary/File Protection Script
@@ -20,7 +19,57 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+#
+# LOGGING FUNCTIONS
+#
+
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+    echo "[INFO] $(date): $1" >> "$LOG_FILE"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo "[SUCCESS] $(date): $1" >> "$LOG_FILE"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo "[WARNING] $(date): $1" >> "$LOG_FILE"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+    echo "[ERROR] $(date): $1" >> "$LOG_FILE"
+}
+
+#
+# PREFLIGHT CHECKS
+#
+
+preflight_checks() {
+    log_info "Running preflight checks..."
+    
+    # Check if running as root
+    if [[ $EUID -ne 0 ]]; then
+        log_error "This script must be run as root"
+        exit 1
+    fi
+    
+    # Check for backup directory
+    mkdir -p "$BACKUP_DIR"
+    log_success "Backup directory created: $BACKUP_DIR"
+    
+    # Check log file
+    touch "$LOG_FILE"
+    chmod 600 "$LOG_FILE"
+    
+    log_success "Preflight checks completed"
+}
+
+#
 # BINARY CLASSIFICATIONS
+#
 
 TIER1_REMOVE_PACKAGES=(
     "nmap"
@@ -75,19 +124,6 @@ TIER1_REMOVE_PACKAGES=(
     "flatpak"
 )
 
-for pkg in "${TIER1_REMOVE_PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &>/dev/null; then
-            log_warn "Removing dangerous package: $pkg"
-            if apt-get purge -y "$pkg"; then
-                ((removed_count++))
-                log_success "Removed: $pkg"
-            else
-                ((failed_count++))
-                log_error "Failed to remove: $pkg"
-            fi
-        fi
-    done
-
 TIER2_REMOVE_PACKAGES=(
     "ruby"
     "ruby-full"
@@ -134,21 +170,6 @@ TIER2_REMOVE_PACKAGES=(
     "dotnet-sdk-8.0"
     "mono-complete"
 )
-
- for pkg in "${TIER2_REMOVE_PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &>/dev/null; then
-            log_warn "Removing high-risk package: $pkg"
-            if apt-get purge -y "$pkg"; then
-                ((removed_count++))
-                log_success "Removed: $pkg"
-            else
-                ((failed_count++))
-                log_error "Failed to remove: $pkg"
-            fi
-        fi
-    done
-    apt-get autoremove -y
-    apt-get autoclean
 
 TIER3_STRIP_SUID=(
     "/usr/bin/find"
@@ -344,36 +365,6 @@ TIER3_STRIP_SUID=(
     "/usr/sbin/capsh"
 )
 
-for binary in "${TIER3_STRIP_SUID[@]}"; do
-        if [[ -f "$binary" ]]; then
-            local perms
-            perms=$(stat -c '%a' "$binary")
-            
-            # Check if SUID (4xxx) or SGID (2xxx) is set
-            if [[ "$perms" =~ ^[4267] ]]; then
-                log_warn "Stripping SUID/SGID from: $binary (was: $perms)"
-                chmod u-s,g-s "$binary"
-                ((stripped_count++))
-                log_success "Stripped: $binary"
-            fi
-        fi
-    done
-
-        while IFS= read -r -d '' binary; do
-        local basename
-        basename=$(basename "$binary")
-        
-        # Check if it's in our known list or if it matches GTFOBins
-        for gtfo in "${ALL_GTFOBINS[@]}"; do
-            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
-                log_warn "Found additional SUID/SGID GTFOBin: $binary"
-                chmod u-s,g-s "$binary"
-                ((stripped_count++))
-                break
-            fi
-        done
-    done < <(find /usr /bin /sbin -type f \( -perm -4000 -o -perm -2000 \) -print0)
-
 INTERPRETERS=(
     "/usr/bin/python3"
     "/usr/bin/python"
@@ -393,281 +384,6 @@ INTERPRETERS=(
     "/usr/bin/mawk"
     "/usr/bin/nawk"
 )
-
- for interp in "${INTERPRETERS[@]}"; do
-        if [[ -f "$interp" ]]; then
-            local caps
-            caps=$(getcap "$interp")
-            
-            if [[ -n "$caps" ]]; then
-                log_warn "Stripping capabilities from: $interp"
-                log_info "  Was: $caps"
-                if setcap -r "$interp"; then
-                    ((stripped_count++))
-                    log_success "Stripped capabilities: $interp"
-                else
-                    log_error "Failed to strip capabilities from: $interp"
-                fi
-            fi
-        fi
-    done
-
-     cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | grep -v "^$") || true
-    
-    if [[ -n "$cap_output" ]]; then
-        while IFS= read -r line; do
-            local binary
-            binary=$(echo "$line" | awk '{print $1}')
-            local basename
-            basename=$(basename "$binary")
-        
-        for gtfo in "${ALL_GTFOBINS[@]}"; do
-            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
-                log_warn "Found GTFOBin with capabilities: $line"
-                setcap -r "$binary" || log_error "Failed to strip: $binary"
-                ((stripped_count++))
-                break
-            fi
-        done
-        done <<< "$cap_output"
-    fi
-
-RISKY_PACKAGES=(
-    "aircrack-ng*"
-    "arping"
-    "arpspoof"
-    "arpwatch"
-    "as86" 
-    "autoconf" 
-    "automake" 
-    "autopsy"
-    "beef-xss"
-    "bettercap"
-    "bin86"
-    "binutils"
-    "binwalk"
-    "bison" 
-    "bvi"
-    "byacc"
-    "cabal-install"
-    "cargo"
-    "chrpath"
-    "clang-*" 
-    "clang"
-    "cmake" 
-    "containerd.io"
-    "cpp-*"
-    "cpp" 
-    "crackmapexec"
-    "default-jdk" 
-    "default-jre" 
-    "dirb"
-    "docker-ce-cli"
-    "docker-ce"
-    "docker.io"
-    "dotnet-sdk-6.0"
-    "dotnet-sdk-7.0"
-    "dotnet-sdk-8.0"
-    "dsniff"
-    "dwarfdump"
-    "elfutils"
-    "elixir"
-    "elixir*"
-    "enum4linux"
-    "erlang"
-    "erlang*"
-    "ettercap-common"
-    "ettercap-graphical"
-    "ettercap*"
-    "execstack"
-    "exiftool"
-    "expect"
-    "flatpak"
-    "flex" 
-    "foremost"
-    "fpc"
-    "fping"
-    "ftp"
-    "g++" 
-    "g++*" 
-    "gap*"
-    "gawk" 
-    "gcc-*" 
-    "gcc" 
-    "gdb-*"
-    "gdb"
-    "gdb" 
-    "gfortran-*"
-    "gfortran" 
-    "ghc-*"
-    "ghc"
-    "ghc" 
-    "ghidra"
-    "ghostscript"
-    "gimp"
-    "gobuster"
-    "golang-*"
-    "golang-go"
-    "golang"
-    "golang" 
-    "guile-*"
-    "hashcat"
-    "hexedit" 
-    "hopper*"
-    "hping3"
-    "hydra-gtk"
-    "hydra"
-    "ida-*"
-    "imagemagick"
-    "impacket-scripts"
-    "java-*"
-    "john"
-    "julia"
-    "lftp"
-    "libmono-*"
-    "libtool"
-    "lldb-*"
-    "lldb" 
-    "llvm-*"
-    "llvm" 
-    "ltrace"
-    "lua*" 
-    "lua5.1"
-    "lua5.3"
-    "lua5.4"
-    "luajit"
-    "lxc"
-    "lxd-client"
-    "lxd"
-    "m4"
-    "macchanger"
-    "make" 
-    "maltego"
-    "masscan"
-    "mawk"
-    "maxima*"
-    "medusa"
-    "meson"
-    "metagoofil"
-    "metasploit-framework"
-    "metasploit*"
-    "mitmproxy"
-    "mono-*" 
-    "mono-complete"
-    "msfvenom" 
-    "nasm" 
-    "nbtscan"
-    "nc" 
-    "ncat"
-    "ncat" 
-    "ncftp"
-    "ndisasm"
-    "netcat-*" 
-    "netcat-openbsd"
-    "netcat-traditional"
-    "netcat"
-    "netcat" 
-    "nikto"
-    "ninja-build" 
-    "nmap"
-    "nmap" 
-    "node" 
-    "nodejs"
-    "nodejs" 
-    "npm"
-    "objdump"
-    "octave"
-    "octave*"
-    "openjdk-*" 
-    "openstego"
-    "outguess"
-    "patchelf"
-    "perl-base" 
-    "perl-modules"
-    "perl"
-    "php-*"
-    "php-cli"
-    "php-common"
-    "php"
-    "php*" 
-    "pike*"
-    "podman"
-    "prelink"
-    "proftpd-basic"
-    "proxychains"
-    "proxychains4"
-    "pure-ftpd"
-    "python-is-python*"
-    "python2*" 
-    "python3-impacket"
-    "r-base"
-    "r-bash"
-    "r-cran-*"
-    "r2*"
-    "racket*"
-    "radare2"
-    "radare2" 
-    "readelf"
-    "recon-ng"
-    "responder"
-    "rsh-client"
-    "rsh-redone-client"
-    "ruby-*"
-    "ruby-full"
-    "ruby"
-    "ruby" 
-    "rustc"
-    "rustc" 
-    "scapy"
-    "set"
-    "sleuthkit"
-    "smbclient"
-    "smbmap"
-    "snapd"
-    "socat"
-    "social-engineer-toolkit"
-    "spiderfoot"
-    "sqlmap"
-    "sslstrip"
-    "steghide"
-    "stegosuite"
-    "strace"
-    "strace" 
-    "swig"
-    "tcl-*"
-    "tcl"
-    "tcl" 
-    "tcpdump"
-    "telnet"
-    "telnetd"
-    "tftp-hpa"
-    "tftp"
-    "theharvester"
-    "tk"
-    "tor"
-    "torsocks"
-    "tshark"
-    "unicornscan"
-    "upx-ucl"
-    "upx" 
-    "valgrind"
-    "volatility"
-    "vsftpd"
-    "wfuzz"
-    "wireshark-gtk"
-    "wireshark-qt"
-    "wireshark"
-    "wireshark*" 
-    "xxd" 
-    "yasm"
-    "yersinia"
-    "zenmap"
-    "zmap"
-)
-
-for pkg in "${RISKY_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
 
 ALL_GTFOBINS=(
     "7z"
@@ -1062,57 +778,33 @@ ALL_GTFOBINS=(
     "zypper"
 )
 
- local sudoers_file="/etc/sudoers.d/gtfobins-deny"
-    if [[ -f "$sudoers_file" ]]; then
-        cp "$sudoers_file" "${BACKUP_DIR}/gtfobins-deny.bak"
-    fi
-    
-    # Build the command alias - only include binaries that exist
-    local cmd_list=""
-    local count=0
-    
-    for gtfo in "${ALL_GTFOBINS[@]}"; do
-        local path
-        path=$(command -v "$gtfo") || continue
-        
-        if [[ -n "$path" ]] && [[ -x "$path" ]]; then
-            if [[ $count -gt 0 ]]; then
-                cmd_list="${cmd_list}, "
-            fi
-            cmd_list="${cmd_list}${path}"
-            ((count++))
-        fi
-    done
-
-BLOCK_PACKAGES=(
-    "aircrack-ng*"
+RISKY_PACKAGES=(
+    "aircrack-ng"
     "arping"
     "arpspoof"
     "arpwatch"
-    "as86" 
-    "autoconf" 
-    "automake" 
+    "as86"
+    "autoconf"
+    "automake"
     "autopsy"
     "beef-xss"
     "bettercap"
     "bin86"
     "binutils"
     "binwalk"
-    "bison" 
+    "bison"
     "bvi"
     "byacc"
     "cabal-install"
     "cargo"
     "chrpath"
-    "clang-*" 
     "clang"
-    "cmake" 
+    "cmake"
     "containerd.io"
-    "cpp-*"
-    "cpp" 
+    "cpp"
     "crackmapexec"
-    "default-jdk" 
-    "default-jre" 
+    "default-jdk"
+    "default-jre"
     "dirb"
     "docker-ce-cli"
     "docker-ce"
@@ -1124,66 +816,45 @@ BLOCK_PACKAGES=(
     "dwarfdump"
     "elfutils"
     "elixir"
-    "elixir*"
     "enum4linux"
     "erlang"
-    "erlang*"
     "ettercap-common"
     "ettercap-graphical"
-    "ettercap*"
     "execstack"
     "exiftool"
     "expect"
     "flatpak"
-    "flex" 
+    "flex"
     "foremost"
     "fpc"
     "fping"
     "ftp"
-    "g++" 
-    "g++*" 
-    "gap*"
-    "gawk" 
-    "gcc-*" 
-    "gcc" 
-    "gdb-*"
+    "g++"
+    "gawk"
+    "gcc"
     "gdb"
-    "gdb" 
-    "gfortran-*"
-    "gfortran" 
-    "ghc-*"
+    "gfortran"
     "ghc"
-    "ghc" 
     "ghidra"
     "ghostscript"
     "gimp"
     "gobuster"
-    "golang-*"
     "golang-go"
     "golang"
-    "golang" 
-    "guile-*"
     "hashcat"
-    "hexedit" 
-    "hopper*"
+    "hexedit"
     "hping3"
     "hydra-gtk"
     "hydra"
-    "ida-*"
     "imagemagick"
     "impacket-scripts"
-    "java-*"
     "john"
     "julia"
     "lftp"
-    "libmono-*"
     "libtool"
-    "lldb-*"
-    "lldb" 
-    "llvm-*"
-    "llvm" 
+    "lldb"
+    "llvm"
     "ltrace"
-    "lua*" 
     "lua5.1"
     "lua5.3"
     "lua5.4"
@@ -1193,85 +864,57 @@ BLOCK_PACKAGES=(
     "lxd"
     "m4"
     "macchanger"
-    "make" 
+    "make"
     "maltego"
     "masscan"
     "mawk"
-    "maxima*"
     "medusa"
     "meson"
     "metagoofil"
     "metasploit-framework"
-    "metasploit*"
     "mitmproxy"
-    "mono-*" 
     "mono-complete"
-    "msfvenom" 
-    "nasm" 
+    "nasm"
     "nbtscan"
-    "nc" 
+    "nc"
     "ncat"
-    "ncat" 
     "ncftp"
     "ndisasm"
-    "netcat-*" 
     "netcat-openbsd"
     "netcat-traditional"
     "netcat"
-    "netcat" 
     "nikto"
-    "ninja-build" 
+    "ninja-build"
     "nmap"
-    "nmap" 
-    "node" 
     "nodejs"
-    "nodejs" 
     "npm"
     "objdump"
     "octave"
-    "octave*"
-    "openjdk-*" 
     "openstego"
     "outguess"
     "patchelf"
-    "perl-base" 
-    "perl-modules"
     "perl"
-    "php-*"
     "php-cli"
     "php-common"
     "php"
-    "php*" 
-    "pike*"
     "podman"
     "prelink"
     "proftpd-basic"
     "proxychains"
     "proxychains4"
     "pure-ftpd"
-    "python-is-python*"
-    "python2*" 
-    "python3-impacket"
+    "python-is-python3"
     "r-base"
-    "r-bash"
-    "r-cran-*"
-    "r2*"
-    "racket*"
     "radare2"
-    "radare2" 
     "readelf"
     "recon-ng"
     "responder"
     "rsh-client"
     "rsh-redone-client"
-    "ruby-*"
     "ruby-full"
     "ruby"
-    "ruby" 
     "rustc"
-    "rustc" 
     "scapy"
-    "set"
     "sleuthkit"
     "smbclient"
     "smbmap"
@@ -1284,11 +927,8 @@ BLOCK_PACKAGES=(
     "steghide"
     "stegosuite"
     "strace"
-    "strace" 
     "swig"
-    "tcl-*"
     "tcl"
-    "tcl" 
     "tcpdump"
     "telnet"
     "telnetd"
@@ -1300,47 +940,464 @@ BLOCK_PACKAGES=(
     "torsocks"
     "tshark"
     "unicornscan"
-    "upx-ucl"
-    "upx" 
+    "upx"
     "valgrind"
     "volatility"
     "vsftpd"
     "wfuzz"
     "wireshark-gtk"
     "wireshark-qt"
-    "wireshark*" 
-    "xxd" 
+    "wireshark"
+    "xxd"
     "yasm"
     "yersinia"
     "zenmap"
     "zmap"
 )
 
-local apt_prefs="/etc/apt/preferences.d/gtfobins-block"
+BLOCK_PACKAGES=(
+    "aircrack-ng"
+    "arping"
+    "arpspoof"
+    "arpwatch"
+    "as86"
+    "autoconf"
+    "automake"
+    "autopsy"
+    "beef-xss"
+    "bettercap"
+    "bin86"
+    "binutils"
+    "binwalk"
+    "bison"
+    "bvi"
+    "byacc"
+    "cabal-install"
+    "cargo"
+    "chrpath"
+    "clang"
+    "cmake"
+    "containerd.io"
+    "cpp"
+    "crackmapexec"
+    "default-jdk"
+    "default-jre"
+    "dirb"
+    "docker-ce-cli"
+    "docker-ce"
+    "docker.io"
+    "dotnet-sdk-6.0"
+    "dotnet-sdk-7.0"
+    "dotnet-sdk-8.0"
+    "dsniff"
+    "dwarfdump"
+    "elfutils"
+    "elixir"
+    "enum4linux"
+    "erlang"
+    "ettercap-common"
+    "ettercap-graphical"
+    "execstack"
+    "exiftool"
+    "expect"
+    "flatpak"
+    "flex"
+    "foremost"
+    "fpc"
+    "fping"
+    "ftp"
+    "g++"
+    "gawk"
+    "gcc"
+    "gdb"
+    "gfortran"
+    "ghc"
+    "ghidra"
+    "ghostscript"
+    "gimp"
+    "gobuster"
+    "golang-go"
+    "golang"
+    "hashcat"
+    "hexedit"
+    "hping3"
+    "hydra-gtk"
+    "hydra"
+    "imagemagick"
+    "impacket-scripts"
+    "john"
+    "julia"
+    "lftp"
+    "libtool"
+    "lldb"
+    "llvm"
+    "ltrace"
+    "lua5.1"
+    "lua5.3"
+    "lua5.4"
+    "luajit"
+    "lxc"
+    "lxd-client"
+    "lxd"
+    "m4"
+    "macchanger"
+    "make"
+    "maltego"
+    "masscan"
+    "mawk"
+    "medusa"
+    "meson"
+    "metagoofil"
+    "metasploit-framework"
+    "mitmproxy"
+    "mono-complete"
+    "nasm"
+    "nbtscan"
+    "nc"
+    "ncat"
+    "ncftp"
+    "ndisasm"
+    "netcat-openbsd"
+    "netcat-traditional"
+    "netcat"
+    "nikto"
+    "ninja-build"
+    "nmap"
+    "nodejs"
+    "npm"
+    "objdump"
+    "octave"
+    "openstego"
+    "outguess"
+    "patchelf"
+    "perl"
+    "php-cli"
+    "php-common"
+    "php"
+    "podman"
+    "prelink"
+    "proftpd-basic"
+    "proxychains"
+    "proxychains4"
+    "pure-ftpd"
+    "python-is-python3"
+    "r-base"
+    "radare2"
+    "readelf"
+    "recon-ng"
+    "responder"
+    "rsh-client"
+    "rsh-redone-client"
+    "ruby-full"
+    "ruby"
+    "rustc"
+    "scapy"
+    "sleuthkit"
+    "smbclient"
+    "smbmap"
+    "snapd"
+    "socat"
+    "social-engineer-toolkit"
+    "spiderfoot"
+    "sqlmap"
+    "sslstrip"
+    "steghide"
+    "stegosuite"
+    "strace"
+    "swig"
+    "tcl"
+    "tcpdump"
+    "telnet"
+    "telnetd"
+    "tftp-hpa"
+    "tftp"
+    "theharvester"
+    "tk"
+    "tor"
+    "torsocks"
+    "tshark"
+    "unicornscan"
+    "upx"
+    "valgrind"
+    "volatility"
+    "vsftpd"
+    "wfuzz"
+    "wireshark-gtk"
+    "wireshark-qt"
+    "wireshark"
+    "xxd"
+    "yasm"
+    "yersinia"
+    "zenmap"
+    "zmap"
+)
 
-for pkg in "${BLOCK_PACKAGES[@]}"; do
-        cat >> "$apt_prefs" << EOF
-# Block: $pkg
+#
+# REMOVE DANGEROUS PACKAGES
+#
+
+remove_dangerous_packages() {
+    log_info "Removing dangerous packages..."
+    
+    local removed_count=0
+    local failed_count=0
+    
+    # Tier 1 packages
+    log_info "Removing Tier 1 (highly dangerous) packages..."
+    for pkg in "${TIER1_REMOVE_PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &>/dev/null; then
+            log_warn "Removing dangerous package: $pkg"
+            if apt-get purge -y "$pkg"; then
+                ((removed_count++))
+                log_success "Removed: $pkg"
+            else
+                ((failed_count++))
+                log_error "Failed to remove: $pkg"
+            fi
+        fi
+    done
+    
+    # Tier 2 packages
+    log_info "Removing Tier 2 (high-risk) packages..."
+    for pkg in "${TIER2_REMOVE_PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &>/dev/null; then
+            log_warn "Removing high-risk package: $pkg"
+            if apt-get purge -y "$pkg"; then
+                ((removed_count++))
+                log_success "Removed: $pkg"
+            else
+                ((failed_count++))
+                log_error "Failed to remove: $pkg"
+            fi
+        fi
+    done
+    
+    # Risky packages (cleanup)
+    log_info "Cleaning up risky packages..."
+    for pkg in "${RISKY_PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &>/dev/null 2>/dev/null; then
+            log_warn "Removing risky package: $pkg"
+            apt purge -y "$pkg" 2>/dev/null || true
+        fi
+    done
+    
+    # Cleanup
+    apt-get autoremove -y
+    apt-get autoclean -y
+    
+    log_success "Package removal completed: $removed_count removed, $failed_count failed"
+}
+
+#
+# BLOCK PACKAGE INSTALLATION
+#
+
+block_package_installation() {
+    log_info "Blocking package installation..."
+    
+    local apt_prefs="/etc/apt/preferences.d/gtfobins-block"
+    
+    # Create backup
+    if [[ -f "$apt_prefs" ]]; then
+        cp "$apt_prefs" "${BACKUP_DIR}/gtfobins-block.bak"
+    fi
+    
+    # Create new preferences file
+    cat > "$apt_prefs" << EOF
+# Block GTFOBins-related packages
+# Generated by GTFOBins hardening script on $(date)
+EOF
+    
+    for pkg in "${BLOCK_PACKAGES[@]}"; do
+        # Check if package exists in repos
+        if apt-cache show "$pkg" &>/dev/null; then
+            cat >> "$apt_prefs" << EOF
+
 Package: $pkg
 Pin: release *
 Pin-Priority: -1
-
 EOF
+        fi
     done
     
     chmod 644 "$apt_prefs"
+    log_success "Package blocking configuration created"
+}
 
+#
+# STRIP SUID/SGID BITS
+#
 
+strip_suid_sgid() {
+    log_info "Stripping SUID/SGID bits..."
+    
+    local stripped_count=0
+    
+    # Strip from known binaries
+    for binary in "${TIER3_STRIP_SUID[@]}"; do
+        if [[ -f "$binary" ]]; then
+            local perms
+            perms=$(stat -c '%a' "$binary" 2>/dev/null || true)
+            
+            if [[ -n "$perms" ]] && [[ "$perms" =~ ^[4267] ]]; then
+                log_warn "Stripping SUID/SGID from: $binary (was: $perms)"
+                chmod u-s,g-s "$binary"
+                ((stripped_count++))
+                log_success "Stripped: $binary"
+            fi
+        fi
+    done
+    
+    # Find and strip additional SUID/SGID binaries
+    log_info "Searching for additional SUID/SGID binaries..."
+    while IFS= read -r -d '' binary; do
+        local basename
+        basename=$(basename "$binary")
+        
+        # Check if it's in our known list
+        for gtfo in "${ALL_GTFOBINS[@]}"; do
+            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
+                log_warn "Found additional SUID/SGID GTFOBin: $binary"
+                chmod u-s,g-s "$binary"
+                ((stripped_count++))
+                log_success "Stripped: $binary"
+                break
+            fi
+        done
+    done < <(find /usr /bin /sbin -type f \( -perm -4000 -o -perm -2000 \) -print0 2>/dev/null)
+    
+    log_success "SUID/SGID stripping completed: $stripped_count binaries processed"
+}
+
+#
+# STRIP CAPABILITIES
+#
+
+strip_capabilities() {
+    log_info "Stripping capabilities..."
+    
+    local stripped_count=0
+    
+    # Strip capabilities from interpreters
+    for interp in "${INTERPRETERS[@]}"; do
+        if [[ -f "$interp" ]]; then
+            local caps
+            caps=$(getcap "$interp" 2>/dev/null || true)
+            
+            if [[ -n "$caps" ]]; then
+                log_warn "Stripping capabilities from: $interp"
+                log_info "  Was: $caps"
+                if setcap -r "$interp" 2>/dev/null; then
+                    ((stripped_count++))
+                    log_success "Stripped capabilities: $interp"
+                else
+                    log_error "Failed to strip capabilities from: $interp"
+                fi
+            fi
+        fi
+    done
+    
+    # Find and strip additional capabilities
+    log_info "Searching for binaries with capabilities..."
+    local cap_output
+    cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | grep -v "^$" || true)
+    
+    if [[ -n "$cap_output" ]]; then
+        while IFS= read -r line; do
+            local binary
+            binary=$(echo "$line" | awk '{print $1}')
+            local basename
+            basename=$(basename "$binary")
+            
+            for gtfo in "${ALL_GTFOBINS[@]}"; do
+                if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
+                    log_warn "Found GTFOBin with capabilities: $line"
+                    if setcap -r "$binary" 2>/dev/null; then
+                        ((stripped_count++))
+                        log_success "Stripped capabilities: $binary"
+                    else
+                        log_error "Failed to strip capabilities from: $binary"
+                    fi
+                    break
+                fi
+            done
+        done <<< "$cap_output"
+    fi
+    
+    log_success "Capability stripping completed: $stripped_count binaries processed"
+}
+
+#
+# CONFIGURE SUDO RESTRICTIONS
+#
+
+configure_sudo_restrictions() {
+    log_info "Configuring sudo restrictions..."
+    
+    local sudoers_file="/etc/sudoers.d/gtfobins-deny"
+    
+    # Create backup
+    if [[ -f "$sudoers_file" ]]; then
+        cp "$sudoers_file" "${BACKUP_DIR}/gtfobins-deny.bak"
+    fi
+    
+    # Build the command list - only include binaries that exist
+    local cmd_list=""
+    local count=0
+    
+    for gtfo in "${ALL_GTFOBINS[@]}"; do
+        local path
+        path=$(command -v "$gtfo" 2>/dev/null || true)
+        
+        if [[ -n "$path" ]] && [[ -x "$path" ]]; then
+            if [[ $count -gt 0 ]]; then
+                cmd_list="${cmd_list}, "
+            fi
+            cmd_list="${cmd_list}${path}"
+            ((count++))
+        fi
+    done
+    
+    if [[ -n "$cmd_list" ]]; then
+        cat > "$sudoers_file" << EOF
+# Deny GTFOBins commands for all users (except root)
+# Generated by GTFOBins hardening script on $(date)
+
+Cmnd_Alias GTFOBINS = $cmd_list
+
+ALL ALL = (ALL) ALL, !GTFOBINS
+EOF
+        
+        chmod 440 "$sudoers_file"
+        log_success "Sudo restrictions configured: $count commands restricted"
+    else
+        log_warn "No GTFOBins commands found to restrict"
+    fi
+}
+
+#
+# CREATE PLACEHOLDER BLOCKERS
+#
+
+create_placeholder_blockers() {
+    log_info "Creating placeholder blockers..."
     
     local dangerous_paths=(
         "/usr/bin/perl"
-        "/usr/bin/perl5*"
-        "/usr/bin/python*"
-        "/usr/bin/ruby*"
-        "/usr/bin/lua*"
+        "/usr/bin/perl5"
+        "/usr/bin/python"
+        "/usr/bin/python2"
+        "/usr/bin/python3"
+        "/usr/bin/ruby"
+        "/usr/bin/lua"
+        "/usr/bin/lua5.1"
+        "/usr/bin/lua5.3"
+        "/usr/bin/lua5.4"
         "/usr/bin/node"
-        "/usr/bin/nodejs"    
-        "/usr/bin/php*"
+        "/usr/bin/nodejs"
+        "/usr/bin/php"
+        "/usr/bin/php7"
+        "/usr/bin/php8"
         "/usr/bin/awk"
         "/usr/bin/gawk"
         "/usr/bin/mawk"
@@ -1348,15 +1405,16 @@ EOF
         "/usr/bin/sed"
         "/usr/bin/ed"
         "/usr/bin/vi"
-        "/usr/bin/vim*"
-        "/usr/bin/emacs*"
+        "/usr/bin/vim"
+        "/usr/bin/emacs"
         "/usr/bin/tar"
         "/usr/bin/zip"
         "/usr/bin/unzip"
         "/usr/bin/gzip"
         "/usr/bin/bzip2"
         "/usr/bin/xz"
-        "/usr/bin/7z*"
+        "/usr/bin/7z"
+        "/usr/bin/7za"
         "/usr/bin/curl"
         "/usr/bin/wget"
         "/usr/bin/nc"
@@ -1377,14 +1435,13 @@ EOF
         "/usr/bin/objdump"
         "/usr/bin/readelf"
         "/usr/bin/nm"
-        "/usr/bin/as"    
+        "/usr/bin/as"
         "/usr/bin/ld"
         "/usr/bin/ar"
         "/usr/sbin/tcpdump"
-        "/usr/sbin/nmap"
+        "/usr/bin/nmap"
         "/usr/bin/tshark"
         "/usr/bin/wireshark"
-        "/usr/bin/nmap"
         "/usr/bin/msfconsole"
         "/usr/bin/msfvenom"
         "/usr/bin/hydra"
@@ -1405,19 +1462,24 @@ EOF
         if [[ ! -e "$binary_path" ]]; then
             log_info "Creating blocker for: $binary_path"
             
+            # Create parent directory if it doesn't exist
+            mkdir -p "$(dirname "$binary_path")"
+            
             # Create an empty file
             touch "$binary_path"
             
             # Remove all permissions
             chmod 000 "$binary_path"
             
-            # Make it immutable
-            if chattr +i "$binary_path"; then
+            # Make it immutable if possible
+            if chattr +i "$binary_path" 2>/dev/null; then
+                ((blocked_count++))
+                log_success "Blocked (immutable): $binary_path"
+            else
+                # Fallback to regular file
+                chmod 000 "$binary_path"
                 ((blocked_count++))
                 log_success "Blocked: $binary_path"
-            else
-                log_warn "Could not set immutable flag on: $binary_path (filesystem may not support it)"
-                ((blocked_count++))
             fi
         fi
     done
@@ -1449,9 +1511,10 @@ main() {
     strip_capabilities
     configure_sudo_restrictions
     create_placeholder_blockers
+    
+    echo "Hardening completed!"
+  
 }
 
 # Run main
 main "$@"
-
-}
