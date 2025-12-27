@@ -249,105 +249,96 @@ Defaults editor=/bin/false
 Defaults !env_editor
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-#----USER/GROUP DEFINITIONS
+# -----------------------------------------------------------------------------
+# ALIASES
+# -----------------------------------------------------------------------------
 
-User_Alias ADMIN = dev
+Host_Alias      LOCAL = debian, 192.168.88.190
 
-#----DENY LIST
-# Shells
-Cmnd_Alias SHELLS = /bin/sh, /bin/bash, /usr/bin/bash, /bin/dash, /usr/bin/zsh, \
-                    /usr/bin/fish, /usr/bin/csh, /usr/bin/tcsh, /usr/bin/ksh
+User_Alias      ADMIN = dev
 
-# Interpreters
-Cmnd_Alias INTERPRETERS = /usr/bin/python*, /usr/bin/perl*, /usr/bin/ruby*, \
-                          /usr/bin/php*, /usr/bin/node, /usr/bin/lua*, \
-                          /usr/bin/tclsh*, /usr/bin/wish*
 
-# Editors & Pagers (shell escape vectors)
-Cmnd_Alias EDITORS = /usr/bin/vi*, /usr/bin/vim*, /usr/bin/nano, /usr/bin/emacs*, \
-                     /usr/bin/less, /usr/bin/more, /usr/bin/man, /usr/bin/view, \
-                     /usr/bin/ed, /usr/bin/pico, /usr/bin/joe
+# Shells - extremely dangerous, can escape any restriction
+Cmnd_Alias      SHELLS = /bin/sh, /bin/bash, /bin/dash, /bin/zsh, \
+                         /usr/bin/sh, /usr/bin/bash, /usr/bin/dash, /usr/bin/zsh, \
+                         /bin/csh, /bin/tcsh, /usr/bin/csh, /usr/bin/tcsh, \
+                         /usr/bin/fish
 
-# Command execution & process control
-Cmnd_Alias GTFO_EXEC = /usr/bin/find, /usr/bin/xargs, /usr/bin/env, /usr/bin/nice, \
-                       /usr/bin/timeout, /usr/bin/watch, /usr/bin/time, \
-                       /usr/bin/nohup, /usr/bin/parallel, /usr/bin/expect, \
-                       /usr/bin/script, /usr/bin/screen, /usr/bin/tmux
+# Commands that spawn shells or allow escapes
+Cmnd_Alias      SHELL_ESCAPES = /usr/bin/vim, /usr/bin/vi, /usr/bin/nvim, \
+                                /usr/bin/nano, /usr/bin/emacs, /usr/bin/less, \
+                                /usr/bin/more, /usr/bin/man, /usr/bin/ftp, \
+                                /usr/bin/gdb, /usr/bin/python*, /usr/bin/perl, \
+                                /usr/bin/ruby, /usr/bin/lua*, /usr/bin/irb, \
+                                /usr/bin/awk, /usr/bin/nawk, /usr/bin/mawk, \
+                                /usr/bin/gawk, /usr/bin/find, /usr/bin/xargs
 
-# Text processing with exec capabilities  
-Cmnd_Alias GTFO_TEXT = /usr/bin/awk, /usr/bin/gawk, /usr/bin/mawk, /usr/bin/nawk, \
-                       /usr/bin/sed, /bin/busybox
+# SU command (use sudo directly, not su through sudo)
+Cmnd_Alias      SU = /bin/su, /usr/bin/su
 
-# Network tools
-Cmnd_Alias GTFO_NET = /usr/bin/socat, /usr/bin/nc, /usr/bin/ncat, /usr/bin/netcat, \
-                      /usr/bin/nmap, /usr/bin/wget, /usr/bin/curl, /usr/bin/ssh, \
-                      /usr/bin/scp, /usr/bin/sftp, /usr/bin/ftp, /usr/bin/telnet
+# Password/user modification
+Cmnd_Alias      PASSWD = /usr/bin/passwd, /usr/sbin/useradd, /usr/sbin/userdel, \
+                         /usr/sbin/usermod, /usr/sbin/groupadd, /usr/sbin/groupdel, \
+                         /usr/sbin/groupmod, /usr/sbin/vipw, /usr/sbin/vigr
 
-# File operations with escape potential
-Cmnd_Alias GTFO_FILE = /usr/bin/tee, /usr/bin/rsync, /bin/tar, /usr/bin/zip, \
-                       /usr/bin/unzip, /bin/gzip, /usr/bin/bzip2, /usr/bin/cpio, \
-                       /bin/dd, /usr/bin/split, /usr/bin/csplit
+# Sudoers modification
+Cmnd_Alias      SUDOERS = /usr/sbin/visudo, /usr/bin/sudoedit /etc/sudoers*, \
+                          /bin/cat /etc/sudoers*, /bin/nano /etc/sudoers*, \
+                          /usr/bin/vim /etc/sudoers*
 
-# Debugging & tracing
-Cmnd_Alias GTFO_DEBUG = /usr/bin/gdb, /usr/bin/strace, /usr/bin/ltrace, \
-                        /usr/bin/perf, /usr/bin/valgrind
+# Network tools that could exfiltrate or attack
+Cmnd_Alias      NETWORK_DANGER = /usr/bin/nc, /usr/bin/ncat, /usr/bin/netcat, \
+                                  /usr/bin/socat, /usr/bin/curl, /usr/bin/wget, \
+                                  /usr/bin/ssh, /usr/bin/scp, /usr/bin/sftp, \
+                                  /usr/bin/rsync, /usr/bin/telnet, /usr/bin/ftp
 
-# Package managers (can execute arbitrary code)
-Cmnd_Alias GTFO_PKG = /usr/bin/pip*, /usr/bin/gem, /usr/bin/npm, /usr/bin/yarn, \
-                      /usr/bin/cargo, /usr/bin/go, /usr/bin/cpan
+# Disk/filesystem tools that could destroy data
+Cmnd_Alias      DISK_DANGER = /sbin/fdisk, /sbin/parted, /sbin/mkfs*, \
+                               /sbin/mke2fs, /sbin/mkswap, /sbin/wipefs, \
+                               /bin/dd, /sbin/hdparm, /sbin/badblocks
 
-# Version control (can execute hooks)
-Cmnd_Alias GTFO_VCS = /usr/bin/git, /usr/bin/svn, /usr/bin/hg
+# Kernel/module tools
+Cmnd_Alias      KERNEL = /sbin/insmod, /sbin/rmmod, /sbin/modprobe, \
+                         /sbin/sysctl, /usr/bin/dmesg
 
-# Containers & virtualization
-Cmnd_Alias GTFO_CONTAINER = /usr/bin/docker, /usr/bin/podman, /usr/bin/lxc*, \
-                            /usr/bin/systemd-nspawn
+# System control
+Cmnd_Alias      SYSTEM = /sbin/shutdown, /sbin/reboot, /sbin/halt, \
+                         /sbin/poweroff, /sbin/init, /bin/systemctl
 
-# Misc dangerous binaries
-Cmnd_Alias GTFO_MISC = /usr/bin/make, /usr/bin/cmake, /usr/sbin/service, \
-                       /usr/bin/dpkg, /usr/bin/rpm, /usr/bin/snap, \
-                       /usr/bin/flatpak, /usr/bin/rlwrap, /usr/bin/flock
+# Package management
+Cmnd_Alias      PACKAGES = /usr/bin/apt, /usr/bin/apt-get, /usr/bin/aptitude, \
+                            /usr/bin/dpkg, /usr/bin/snap, /usr/bin/flatpak
 
-#----ADMIN ALLOWED COMMANDS (explicit whitelist)
+# Security tools that could leak info or modify security
+Cmnd_Alias      SECURITY = /usr/sbin/iptables*, /usr/sbin/ip6tables*, \
+                            /usr/sbin/nft, /usr/bin/aa-*, /usr/sbin/aa-*, \
+                            /usr/sbin/auditctl, /usr/sbin/aureport, /usr/sbin/ausearch
 
-# Systemd - status and specific service restarts only
-Cmnd_Alias SYSTEMD_SAFE = /bin/systemctl status [a-z]*, \
-                          /bin/systemctl restart mullvad-daemon, \
-                          /bin/systemctl restart networking, \
-                          /bin/systemctl restart NetworkManager
+# Allowed system administration commands
+Cmnd_Alias      ADMIN_CMDS = /bin/systemctl status *, \
+                              /bin/systemctl start *, \
+                              /bin/systemctl stop *, \
+                              /bin/systemctl restart *, \
+                              /bin/journalctl, \
+                              /usr/bin/apt update, \
+                              /usr/bin/apt upgrade, \
+                              /usr/bin/apt install *, \
+                              /usr/bin/apt remove *, \
+                              /sbin/ip addr, \
+                              /sbin/ip route, \
+                              /usr/sbin/iptables -L *, \
+                              /usr/sbin/iptables-save, \
+                              /usr/local/bin/audit-*, \
+                              /usr/local/bin/aa-*
 
-# APT - explicit safe operations (no wildcards for install)
-Cmnd_Alias APT_SAFE = /usr/bin/apt update, \
-                      /usr/bin/apt upgrade -y, \
-                      /usr/bin/apt full-upgrade -y, \
-                      /usr/bin/apt autoremove -y, \
-                      /usr/bin/apt clean
+# Only allow specific admin commands, deny dangerous ones explicitly
+dev   ALL=(ALL:ALL) ADMIN_CMDS, !SHELLS, !SU, !SUDOERS, !DISK_DANGER
 
-# Logs - read-only access to specific logs
-Cmnd_Alias LOGS_SAFE = /bin/journalctl -u [a-zA-Z]*, \
-                       /bin/journalctl --priority=[0-7], \
-                       /bin/journalctl -b, \
-                       /bin/journalctl --disk-usage
+EOF
 
-# Network - read-only network inspection
-Cmnd_Alias NET_SAFE = /usr/bin/nmcli general status, \
-                      /usr/bin/nmcli device status, \
-                      /usr/bin/nmcli connection show, \
-                      /usr/bin/nmcli connection show [a-zA-Z0-9-]*, \
-                      /bin/ip link show, \
-                      /bin/ip addr show, \
-                      /bin/ip route show, \
-                      /usr/bin/iptables --list-rules
-
-# ADMIN gets explicit whitelist with NOPASSWD (YubiKey PAM handles auth)
-ADMIN ALL = (root) NOPASSWD: SYSTEMD_SAFE, APT_SAFE, LOGS_SAFE, NET_SAFE, MOUNT_SAFE
-
-# ADMIN explicitly denied dangerous commands (belt and suspenders)
-ADMIN ALL = (ALL) !SHELLS, !INTERPRETERS, !EDITORS, !GTFO_EXEC, !GTFO_TEXT, \
-                  !GTFO_NET, !GTFO_FILE, !GTFO_DEBUG, !GTFO_PKG, !GTFO_VCS, \
-                  !GTFO_CONTAINER, !GTFO_MISC
-
-# No other users get any sudo access (implicit deny)
+# Set proper permissions
+chmod 440 /etc/sudoers
+chown root:root /etc/sudoers
 EOF
 
 # Clear and lock sudoers.d to prevent drop-in bypasses
@@ -385,10 +376,12 @@ root             -       memlock         unlimited
 *                hard    nproc           512
 *                soft    memlock         65536
 *                hard    memlock         131072
-*                soft    maxlogins       2
-*                hard    maxlogins       2
-*                soft    maxsyslogins    2
-*                hard    maxsyslogins    2
+*                 -      maxlogins       1
+*                 -      maxsyslogins    1
+dev               -      maxlogins       1
+dev               -      maxsyslogins    1
+root              -      maxlogins       1
+root              -      maxsyslogins    1
 *                soft    priority        0
 *                hard    priority        0
 *                -       rtprio          0
