@@ -1,9 +1,5 @@
 #!/bin/bash
 
-###############-WARNING-#################
-###-THIS THE SHIT THAT KILLED BELUSHI-###
-#########-RUN HER LOW AND SLOW-##########
-
 set -euo pipefail
 
 # PRE-CONFIG 
@@ -87,16 +83,8 @@ apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra
 pamu2fcfg -u dev > /etc/security/u2f_keys
 chmod 0400 /etc/security/u2f_keys
 chown root:root /etc/security/u2f_keys
-mkdir -p /var/log/faillock
-chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
-
-cat > /etc/security/faillock.conf <<'EOF'
-deny = 3
-unlock_time = 900
-silent
-EOF
 
 cat >/etc/pam.d/chfn <<'EOF'
 #%PAM-1.0
@@ -301,9 +289,12 @@ EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
 *           hard    nproc         2048
-*           hard    maxsyslogins  1
-dev         hard    maxsyslogins  1
-root        hard    maxsyslogins  1
+*           -       maxlogins     1
+*           -       maxsyslogins  1
+dev         -       maxlogins     1
+dev         -       maxsyslogins  1
+root        -       maxlogins     1
+root        -       maxsyslogins  1
 root        hard    nproc         65536
 *           hard    core          0
 EOF
@@ -693,7 +684,7 @@ fi
 
 WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
     ! -path "/tmp/*" \
-    ! -path "/var/tmp/*" \
+    ! -path "/usr/*" \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
@@ -972,7 +963,6 @@ DANGEROUS_BINARIES=(
     /usr/bin/perl5*
     /usr/bin/python
     /usr/bin/python2*
-    /usr/bin/python3*
     /usr/bin/ruby
     /usr/bin/irb
     /usr/bin/erb
