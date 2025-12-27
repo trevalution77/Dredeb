@@ -75,6 +75,19 @@ TIER1_REMOVE_PACKAGES=(
     "flatpak"
 )
 
+for pkg in "${TIER1_REMOVE_PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &>/dev/null; then
+            log_warn "Removing dangerous package: $pkg"
+            if apt-get purge -y "$pkg"; then
+                ((removed_count++))
+                log_success "Removed: $pkg"
+            else
+                ((failed_count++))
+                log_error "Failed to remove: $pkg"
+            fi
+        fi
+    done
+
 TIER2_REMOVE_PACKAGES=(
     "ruby"
     "ruby-full"
@@ -121,6 +134,21 @@ TIER2_REMOVE_PACKAGES=(
     "dotnet-sdk-8.0"
     "mono-complete"
 )
+
+ for pkg in "${TIER2_REMOVE_PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &>/dev/null; then
+            log_warn "Removing high-risk package: $pkg"
+            if apt-get purge -y "$pkg"; then
+                ((removed_count++))
+                log_success "Removed: $pkg"
+            else
+                ((failed_count++))
+                log_error "Failed to remove: $pkg"
+            fi
+        fi
+    done
+    apt-get autoremove -y
+    apt-get autoclean
 
 TIER3_STRIP_SUID=(
     "/usr/bin/find"
@@ -316,6 +344,36 @@ TIER3_STRIP_SUID=(
     "/usr/sbin/capsh"
 )
 
+for binary in "${TIER3_STRIP_SUID[@]}"; do
+        if [[ -f "$binary" ]]; then
+            local perms
+            perms=$(stat -c '%a' "$binary")
+            
+            # Check if SUID (4xxx) or SGID (2xxx) is set
+            if [[ "$perms" =~ ^[4267] ]]; then
+                log_warn "Stripping SUID/SGID from: $binary (was: $perms)"
+                chmod u-s,g-s "$binary"
+                ((stripped_count++))
+                log_success "Stripped: $binary"
+            fi
+        fi
+    done
+
+        while IFS= read -r -d '' binary; do
+        local basename
+        basename=$(basename "$binary")
+        
+        # Check if it's in our known list or if it matches GTFOBins
+        for gtfo in "${ALL_GTFOBINS[@]}"; do
+            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
+                log_warn "Found additional SUID/SGID GTFOBin: $binary"
+                chmod u-s,g-s "$binary"
+                ((stripped_count++))
+                break
+            fi
+        done
+    done < <(find /usr /bin /sbin -type f \( -perm -4000 -o -perm -2000 \) -print0)
+
 INTERPRETERS=(
     "/usr/bin/python3"
     "/usr/bin/python"
@@ -335,6 +393,281 @@ INTERPRETERS=(
     "/usr/bin/mawk"
     "/usr/bin/nawk"
 )
+
+ for interp in "${INTERPRETERS[@]}"; do
+        if [[ -f "$interp" ]]; then
+            local caps
+            caps=$(getcap "$interp")
+            
+            if [[ -n "$caps" ]]; then
+                log_warn "Stripping capabilities from: $interp"
+                log_info "  Was: $caps"
+                if setcap -r "$interp"; then
+                    ((stripped_count++))
+                    log_success "Stripped capabilities: $interp"
+                else
+                    log_error "Failed to strip capabilities from: $interp"
+                fi
+            fi
+        fi
+    done
+
+     cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | grep -v "^$") || true
+    
+    if [[ -n "$cap_output" ]]; then
+        while IFS= read -r line; do
+            local binary
+            binary=$(echo "$line" | awk '{print $1}')
+            local basename
+            basename=$(basename "$binary")
+        
+        for gtfo in "${ALL_GTFOBINS[@]}"; do
+            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
+                log_warn "Found GTFOBin with capabilities: $line"
+                setcap -r "$binary" || log_error "Failed to strip: $binary"
+                ((stripped_count++))
+                break
+            fi
+        done
+        done <<< "$cap_output"
+    fi
+
+RISKY_PACKAGES=(
+    "aircrack-ng*"
+    "arping"
+    "arpspoof"
+    "arpwatch"
+    "as86" 
+    "autoconf" 
+    "automake" 
+    "autopsy"
+    "beef-xss"
+    "bettercap"
+    "bin86"
+    "binutils"
+    "binwalk"
+    "bison" 
+    "bvi"
+    "byacc"
+    "cabal-install"
+    "cargo"
+    "chrpath"
+    "clang-*" 
+    "clang"
+    "cmake" 
+    "containerd.io"
+    "cpp-*"
+    "cpp" 
+    "crackmapexec"
+    "default-jdk" 
+    "default-jre" 
+    "dirb"
+    "docker-ce-cli"
+    "docker-ce"
+    "docker.io"
+    "dotnet-sdk-6.0"
+    "dotnet-sdk-7.0"
+    "dotnet-sdk-8.0"
+    "dsniff"
+    "dwarfdump"
+    "elfutils"
+    "elixir"
+    "elixir*"
+    "enum4linux"
+    "erlang"
+    "erlang*"
+    "ettercap-common"
+    "ettercap-graphical"
+    "ettercap*"
+    "execstack"
+    "exiftool"
+    "expect"
+    "flatpak"
+    "flex" 
+    "foremost"
+    "fpc"
+    "fping"
+    "ftp"
+    "g++" 
+    "g++*" 
+    "gap*"
+    "gawk" 
+    "gcc-*" 
+    "gcc" 
+    "gdb-*"
+    "gdb"
+    "gdb" 
+    "gfortran-*"
+    "gfortran" 
+    "ghc-*"
+    "ghc"
+    "ghc" 
+    "ghidra"
+    "ghostscript"
+    "gimp"
+    "gobuster"
+    "golang-*"
+    "golang-go"
+    "golang"
+    "golang" 
+    "guile-*"
+    "hashcat"
+    "hexedit" 
+    "hopper*"
+    "hping3"
+    "hydra-gtk"
+    "hydra"
+    "ida-*"
+    "imagemagick"
+    "impacket-scripts"
+    "java-*"
+    "john"
+    "julia"
+    "lftp"
+    "libmono-*"
+    "libtool"
+    "lldb-*"
+    "lldb" 
+    "llvm-*"
+    "llvm" 
+    "ltrace"
+    "lua*" 
+    "lua5.1"
+    "lua5.3"
+    "lua5.4"
+    "luajit"
+    "lxc"
+    "lxd-client"
+    "lxd"
+    "m4"
+    "macchanger"
+    "make" 
+    "maltego"
+    "masscan"
+    "mawk"
+    "maxima*"
+    "medusa"
+    "meson"
+    "metagoofil"
+    "metasploit-framework"
+    "metasploit*"
+    "mitmproxy"
+    "mono-*" 
+    "mono-complete"
+    "msfvenom" 
+    "nasm" 
+    "nbtscan"
+    "nc" 
+    "ncat"
+    "ncat" 
+    "ncftp"
+    "ndisasm"
+    "netcat-*" 
+    "netcat-openbsd"
+    "netcat-traditional"
+    "netcat"
+    "netcat" 
+    "nikto"
+    "ninja-build" 
+    "nmap"
+    "nmap" 
+    "node" 
+    "nodejs"
+    "nodejs" 
+    "npm"
+    "objdump"
+    "octave"
+    "octave*"
+    "openjdk-*" 
+    "openstego"
+    "outguess"
+    "patchelf"
+    "perl-base" 
+    "perl-modules"
+    "perl"
+    "php-*"
+    "php-cli"
+    "php-common"
+    "php"
+    "php*" 
+    "pike*"
+    "podman"
+    "prelink"
+    "proftpd-basic"
+    "proxychains"
+    "proxychains4"
+    "pure-ftpd"
+    "python-is-python*"
+    "python2*" 
+    "python3-impacket"
+    "r-base"
+    "r-bash"
+    "r-cran-*"
+    "r2*"
+    "racket*"
+    "radare2"
+    "radare2" 
+    "readelf"
+    "recon-ng"
+    "responder"
+    "rsh-client"
+    "rsh-redone-client"
+    "ruby-*"
+    "ruby-full"
+    "ruby"
+    "ruby" 
+    "rustc"
+    "rustc" 
+    "scapy"
+    "set"
+    "sleuthkit"
+    "smbclient"
+    "smbmap"
+    "snapd"
+    "socat"
+    "social-engineer-toolkit"
+    "spiderfoot"
+    "sqlmap"
+    "sslstrip"
+    "steghide"
+    "stegosuite"
+    "strace"
+    "strace" 
+    "swig"
+    "tcl-*"
+    "tcl"
+    "tcl" 
+    "tcpdump"
+    "telnet"
+    "telnetd"
+    "tftp-hpa"
+    "tftp"
+    "theharvester"
+    "tk"
+    "tor"
+    "torsocks"
+    "tshark"
+    "unicornscan"
+    "upx-ucl"
+    "upx" 
+    "valgrind"
+    "volatility"
+    "vsftpd"
+    "wfuzz"
+    "wireshark-gtk"
+    "wireshark-qt"
+    "wireshark"
+    "wireshark*" 
+    "xxd" 
+    "yasm"
+    "yersinia"
+    "zenmap"
+    "zmap"
+)
+
+for pkg in "${RISKY_PACKAGES[@]}"; do
+    apt purge -y $pkg 2>/dev/null || true
+done
 
 ALL_GTFOBINS=(
     "7z"
@@ -729,410 +1062,10 @@ ALL_GTFOBINS=(
     "zypper"
 )
 
-BLOCK_PACKAGES=(
-    "nmap"
-    "netcat"
-    "netcat-openbsd"
-    "netcat-traditional"
-    "ncat"
-    "socat"
-    "telnet"
-    "telnetd"
-    "rsh-client"
-    "rsh-redone-client"
-    "tftp"
-    "tftp-hpa"
-    "ftp"
-    "lftp"
-    "ncftp"
-    "vsftpd"
-    "proftpd-basic"
-    "pure-ftpd"
-    "smbclient"
-    "tcpdump"
-    "wireshark"
-    "wireshark-qt"
-    "wireshark-gtk"
-    "tshark"
-    "ettercap-common"
-    "ettercap-graphical"
-    "dsniff"
-    "hydra"
-    "hydra-gtk"
-    "medusa"
-    "john"
-    "hashcat"
-    "aircrack-ng"
-    "metasploit-framework"
-    "sqlmap"
-    "nikto"
-    "dirb"
-    "gobuster"
-    "wfuzz"
-    "proxychains"
-    "proxychains4"
-    "tor"
-    "torsocks"
-    "docker.io"
-    "docker-ce"
-    "docker-ce-cli"
-    "containerd.io"
-    "podman"
-    "lxc"
-    "lxd"
-    "lxd-client"
-    "snapd"
-    "flatpak"
-    "gdb"
-    "strace"
-    "ltrace"
-    "valgrind"
-    "radare2"
-    "binwalk"
-    "foremost"
-    "volatility"
-    "autopsy"
-    "sleuthkit"
-    "yersinia"
-    "macchanger"
-    "arpwatch"
-    "arping"
-    "hping3"
-    "fping"
-    "masscan"
-    "zmap"
-    "unicornscan"
-    "nbtscan"
-    "enum4linux"
-    "smbmap"
-    "crackmapexec"
-    "impacket-scripts"
-    "python3-impacket"
-    "responder"
-    "bettercap"
-    "mitmproxy"
-    "sslstrip"
-    "beef-xss"
-    "set"
-    "social-engineer-toolkit"
-    "maltego"
-    "recon-ng"
-    "theharvester"
-    "spiderfoot"
-    "metagoofil"
-    "exiftool"
-    "steghide"
-    "outguess"
-    "stegosuite"
-    "openstego"
-    "ruby"
-    "ruby-full"
-    "php"
-    "php-cli"
-    "php-common"
-    "lua5.1"
-    "lua5.3"
-    "lua5.4"
-    "luajit"
-    "nodejs"
-    "npm"
-    "expect"
-    "tcl"
-    "tk"
-    "gimp"
-    "imagemagick"
-    "ghostscript"
-    "octave"
-    "r-base"
-    "julia"
-    "erlang"
-    "elixir"
-    "ghc"
-    "cabal-install"
-    "rustc"
-    "cargo"
-    "golang"
-    "golang-go"
-    "mono-complete"
-    "dotnet-sdk-6.0"
-    "dotnet-sdk-7.0"
-    "dotnet-sdk-8.0"
-)
-
-# PREFLIGHT CHECKS
-
-#
-# LOGGING FUNCTIONS
-#
-
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
-
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1" | tee -a "$LOG_FILE"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1" | tee -a "$LOG_FILE"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1" | tee -a "$LOG_FILE"
-}
-
-log_success() {
-    echo -e "${GREEN}[OK]${NC} $1" | tee -a "$LOG_FILE"
-}
-
-#
-# PREFLIGHT CHECKS
-#
-
-preflight_checks() {
-    log_info "Running preflight checks..."
-    
-    if [[ $EUID -ne 0 ]]; then
-        log_error "This script must be run as root"
-        exit 1
-    fi
-    
-    if ! id "$PRIMARY_USER" &>/dev/null; then
-        log_error "Primary user '$PRIMARY_USER' does not exist"
-        exit 1
-    fi
-    
-    # Create backup directory
-    mkdir -p "$BACKUP_DIR"
-    chmod 700 "$BACKUP_DIR"
-    
-    # Create log file
-    touch "$LOG_FILE"
-    chmod 600 "$LOG_FILE"
-    
-    log_success "Preflight checks passed"
-}
-
-#
-# SECTION 1: REMOVE DANGEROUS PACKAGES
-#
-
-remove_dangerous_packages() {
-    log ""
-    log "============================================================================"
-    log "SECTION 1: REMOVING DANGEROUS PACKAGES"
-    log "============================================================================"
-    
-    local removed_count=0
-    local failed_count=0
-    
-    # Tier 1: Critical removals
-    log_info "Processing Tier 1 (Critical) packages..."
-    for pkg in "${TIER1_REMOVE_PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &>/dev/null; then
-            log_warn "Removing dangerous package: $pkg"
-            if apt-get purge -y "$pkg"; then
-                ((removed_count++))
-                log_success "Removed: $pkg"
-            else
-                ((failed_count++))
-                log_error "Failed to remove: $pkg"
-            fi
-        fi
-    done
-    
-    # Tier 2: High risk removals (optional - comment out if you need these)
-    log_info "Processing Tier 2 (High Risk) packages..."
-    for pkg in "${TIER2_REMOVE_PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &>/dev/null; then
-            log_warn "Removing high-risk package: $pkg"
-            if apt-get purge -y "$pkg"; then
-                ((removed_count++))
-                log_success "Removed: $pkg"
-            else
-                ((failed_count++))
-                log_error "Failed to remove: $pkg"
-            fi
-        fi
-    done
-    
-    # Clean up orphaned packages
-    log_info "Cleaning orphaned packages..."
-    apt-get autoremove -y
-    apt-get autoclean
-    
-    log_success "Package removal complete: $removed_count removed, $failed_count failed"
-}
-
-#
-# SECTION 2: APT PACKAGE BLOCKING
-#
-
-block_package_installation() {
-    log ""
-    log "============================================================================"
-    log "SECTION 2: BLOCKING DANGEROUS PACKAGE INSTALLATION"
-    log "============================================================================"
-    
-    local apt_prefs="/etc/apt/preferences.d/gtfobins-block"
-    
-    # Backup existing if present
-    if [[ -f "$apt_prefs" ]]; then
-        cp "$apt_prefs" "${BACKUP_DIR}/gtfobins-block.bak"
-    fi
-    
-    log_info "Creating APT preferences to block dangerous packages..."
-    
-    cat > "$apt_prefs" << 'APTEOF'
-#
-# GTFOBins Package Blocking
-#
-# This file prevents installation of packages commonly used for exploitation.
-# Generated by GTFOBins Protection Module
-# To allow a specific package: Create a higher-priority pin in another file
-#
-
-APTEOF
-    
-    for pkg in "${BLOCK_PACKAGES[@]}"; do
-        cat >> "$apt_prefs" << EOF
-# Block: $pkg
-Package: $pkg
-Pin: release *
-Pin-Priority: -1
-
-EOF
-    done
-    
-    chmod 644 "$apt_prefs"
-    
-    log_success "APT package blocking configured: ${#BLOCK_PACKAGES[@]} packages blocked"
-    log_info "Blocked packages list saved to: $apt_prefs"
-}
-
-#
-# SECTION 3: STRIP SUID/SGID BITS
-#
-
-strip_suid_sgid() {
-    log ""
-    log "============================================================================"
-    log "SECTION 3: STRIPPING SUID/SGID BITS FROM DANGEROUS BINARIES"
-    log "============================================================================"
-    
-    local stripped_count=0
-    
-    for binary in "${TIER3_STRIP_SUID[@]}"; do
-        if [[ -f "$binary" ]]; then
-            local perms
-            perms=$(stat -c '%a' "$binary")
-            
-            # Check if SUID (4xxx) or SGID (2xxx) is set
-            if [[ "$perms" =~ ^[4267] ]]; then
-                log_warn "Stripping SUID/SGID from: $binary (was: $perms)"
-                chmod u-s,g-s "$binary"
-                ((stripped_count++))
-                log_success "Stripped: $binary"
-            fi
-        fi
-    done
-    
-    # Also scan system-wide for any SUID/SGID binaries we might have missed
-    log_info "Scanning for additional SUID/SGID binaries..."
-    
-    while IFS= read -r -d '' binary; do
-        local basename
-        basename=$(basename "$binary")
-        
-        # Check if it's in our known list or if it matches GTFOBins
-        for gtfo in "${ALL_GTFOBINS[@]}"; do
-            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
-                log_warn "Found additional SUID/SGID GTFOBin: $binary"
-                chmod u-s,g-s "$binary"
-                ((stripped_count++))
-                break
-            fi
-        done
-    done < <(find /usr /bin /sbin -type f \( -perm -4000 -o -perm -2000 \) -print0)
-    
-    log_success "SUID/SGID stripping complete: $stripped_count binaries modified"
-}
-
-#
-# SECTION 4: STRIP CAPABILITIES FROM INTERPRETERS
-#
-
-strip_capabilities() {
-    log ""
-    log "============================================================================"
-    log "SECTION 4: STRIPPING CAPABILITIES FROM INTERPRETERS"
-    log "============================================================================"
-    
-    local stripped_count=0
-    
-    for interp in "${INTERPRETERS[@]}"; do
-        if [[ -f "$interp" ]]; then
-            local caps
-            caps=$(getcap "$interp")
-            
-            if [[ -n "$caps" ]]; then
-                log_warn "Stripping capabilities from: $interp"
-                log_info "  Was: $caps"
-                if setcap -r "$interp"; then
-                    ((stripped_count++))
-                    log_success "Stripped capabilities: $interp"
-                else
-                    log_error "Failed to strip capabilities from: $interp"
-                fi
-            fi
-        fi
-    done
-    
-    # Scan for any binaries with dangerous capabilities
-    log_info "Scanning for binaries with capabilities..."
-    
-    local cap_output
-    cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | grep -v "^$") || true
-    
-    if [[ -n "$cap_output" ]]; then
-        while IFS= read -r line; do
-            local binary
-            binary=$(echo "$line" | awk '{print $1}')
-            local basename
-            basename=$(basename "$binary")
-        
-        for gtfo in "${ALL_GTFOBINS[@]}"; do
-            if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
-                log_warn "Found GTFOBin with capabilities: $line"
-                setcap -r "$binary" || log_error "Failed to strip: $binary"
-                ((stripped_count++))
-                break
-            fi
-        done
-        done <<< "$cap_output"
-    fi
-    
-    log_success "Capability stripping complete: $stripped_count binaries modified"
-}
-
-#
-# SECTION 5: SUDO RESTRICTIONS
-#
-
-configure_sudo_restrictions() {
-    log ""
-    log "============================================================================"
-    log "SECTION 5: CONFIGURING SUDO RESTRICTIONS"
-    log "============================================================================"
-    
-    local sudoers_file="/etc/sudoers.d/gtfobins-deny"
-    
-    # Backup existing if present
+ local sudoers_file="/etc/sudoers.d/gtfobins-deny"
     if [[ -f "$sudoers_file" ]]; then
         cp "$sudoers_file" "${BACKUP_DIR}/gtfobins-deny.bak"
     fi
-    
-    log_info "Creating sudo restrictions for dangerous commands..."
     
     # Build the command alias - only include binaries that exist
     local cmd_list=""
@@ -1150,270 +1083,308 @@ configure_sudo_restrictions() {
             ((count++))
         fi
     done
-    
-    if [[ $count -gt 0 ]]; then
-        cat > "$sudoers_file" << EOF
-#
-# GTFOBins Sudo Restrictions
-#
-# Prevents regular users from running potentially dangerous commands via sudo.
-# Root can still use these commands directly.
-# Generated by GTFOBins Protection Module
-#
 
-# Command alias for dangerous binaries
-Cmnd_Alias GTFOBINS_DANGEROUS = ${cmd_list}
+BLOCK_PACKAGES=(
+    "aircrack-ng*"
+    "arping"
+    "arpspoof"
+    "arpwatch"
+    "as86" 
+    "autoconf" 
+    "automake" 
+    "autopsy"
+    "beef-xss"
+    "bettercap"
+    "bin86"
+    "binutils"
+    "binwalk"
+    "bison" 
+    "bvi"
+    "byacc"
+    "cabal-install"
+    "cargo"
+    "chrpath"
+    "clang-*" 
+    "clang"
+    "cmake" 
+    "containerd.io"
+    "cpp-*"
+    "cpp" 
+    "crackmapexec"
+    "default-jdk" 
+    "default-jre" 
+    "dirb"
+    "docker-ce-cli"
+    "docker-ce"
+    "docker.io"
+    "dotnet-sdk-6.0"
+    "dotnet-sdk-7.0"
+    "dotnet-sdk-8.0"
+    "dsniff"
+    "dwarfdump"
+    "elfutils"
+    "elixir"
+    "elixir*"
+    "enum4linux"
+    "erlang"
+    "erlang*"
+    "ettercap-common"
+    "ettercap-graphical"
+    "ettercap*"
+    "execstack"
+    "exiftool"
+    "expect"
+    "flatpak"
+    "flex" 
+    "foremost"
+    "fpc"
+    "fping"
+    "ftp"
+    "g++" 
+    "g++*" 
+    "gap*"
+    "gawk" 
+    "gcc-*" 
+    "gcc" 
+    "gdb-*"
+    "gdb"
+    "gdb" 
+    "gfortran-*"
+    "gfortran" 
+    "ghc-*"
+    "ghc"
+    "ghc" 
+    "ghidra"
+    "ghostscript"
+    "gimp"
+    "gobuster"
+    "golang-*"
+    "golang-go"
+    "golang"
+    "golang" 
+    "guile-*"
+    "hashcat"
+    "hexedit" 
+    "hopper*"
+    "hping3"
+    "hydra-gtk"
+    "hydra"
+    "ida-*"
+    "imagemagick"
+    "impacket-scripts"
+    "java-*"
+    "john"
+    "julia"
+    "lftp"
+    "libmono-*"
+    "libtool"
+    "lldb-*"
+    "lldb" 
+    "llvm-*"
+    "llvm" 
+    "ltrace"
+    "lua*" 
+    "lua5.1"
+    "lua5.3"
+    "lua5.4"
+    "luajit"
+    "lxc"
+    "lxd-client"
+    "lxd"
+    "m4"
+    "macchanger"
+    "make" 
+    "maltego"
+    "masscan"
+    "mawk"
+    "maxima*"
+    "medusa"
+    "meson"
+    "metagoofil"
+    "metasploit-framework"
+    "metasploit*"
+    "mitmproxy"
+    "mono-*" 
+    "mono-complete"
+    "msfvenom" 
+    "nasm" 
+    "nbtscan"
+    "nc" 
+    "ncat"
+    "ncat" 
+    "ncftp"
+    "ndisasm"
+    "netcat-*" 
+    "netcat-openbsd"
+    "netcat-traditional"
+    "netcat"
+    "netcat" 
+    "nikto"
+    "ninja-build" 
+    "nmap"
+    "nmap" 
+    "node" 
+    "nodejs"
+    "nodejs" 
+    "npm"
+    "objdump"
+    "octave"
+    "octave*"
+    "openjdk-*" 
+    "openstego"
+    "outguess"
+    "patchelf"
+    "perl-base" 
+    "perl-modules"
+    "perl"
+    "php-*"
+    "php-cli"
+    "php-common"
+    "php"
+    "php*" 
+    "pike*"
+    "podman"
+    "prelink"
+    "proftpd-basic"
+    "proxychains"
+    "proxychains4"
+    "pure-ftpd"
+    "python-is-python*"
+    "python2*" 
+    "python3-impacket"
+    "r-base"
+    "r-bash"
+    "r-cran-*"
+    "r2*"
+    "racket*"
+    "radare2"
+    "radare2" 
+    "readelf"
+    "recon-ng"
+    "responder"
+    "rsh-client"
+    "rsh-redone-client"
+    "ruby-*"
+    "ruby-full"
+    "ruby"
+    "ruby" 
+    "rustc"
+    "rustc" 
+    "scapy"
+    "set"
+    "sleuthkit"
+    "smbclient"
+    "smbmap"
+    "snapd"
+    "socat"
+    "social-engineer-toolkit"
+    "spiderfoot"
+    "sqlmap"
+    "sslstrip"
+    "steghide"
+    "stegosuite"
+    "strace"
+    "strace" 
+    "swig"
+    "tcl-*"
+    "tcl"
+    "tcl" 
+    "tcpdump"
+    "telnet"
+    "telnetd"
+    "tftp-hpa"
+    "tftp"
+    "theharvester"
+    "tk"
+    "tor"
+    "torsocks"
+    "tshark"
+    "unicornscan"
+    "upx-ucl"
+    "upx" 
+    "valgrind"
+    "volatility"
+    "vsftpd"
+    "wfuzz"
+    "wireshark-gtk"
+    "wireshark-qt"
+    "wireshark*" 
+    "xxd" 
+    "yasm"
+    "yersinia"
+    "zenmap"
+    "zmap"
+)
 
-# Deny these commands for all users except root
-# Comment out the line below if you need specific users to access these
-%users ALL = !GTFOBINS_DANGEROUS
+local apt_prefs="/etc/apt/preferences.d/gtfobins-block"
+
+for pkg in "${BLOCK_PACKAGES[@]}"; do
+        cat >> "$apt_prefs" << EOF
+# Block: $pkg
+Package: $pkg
+Pin: release *
+Pin-Priority: -1
+
 EOF
-        
-        chmod 440 "$sudoers_file"
-        
-        # Validate sudoers syntax
-        if visudo -c -f "$sudoers_file"; then
-            log_success "Sudo restrictions configured: $count commands restricted"
-        else
-            log_error "Sudoers syntax error! Removing invalid file."
-            rm -f "$sudoers_file"
-        fi
-    else
-        log_warn "No GTFOBins found on system to restrict"
-    fi
-}
-
-#
-# SECTION 6: AUDITD RULES
-#
-
-configure_audit_rules() {
-    log ""
-    log "============================================================================"
-    log "SECTION 6: CONFIGURING AUDITD MONITORING RULES"
-    log "============================================================================"
+    done
     
-    # Check if auditd is available
-    if ! command -v auditctl &>/dev/null; then
-        log_warn "auditd not installed, skipping audit rules"
-        log_info "Install with: apt-get install auditd"
-        return
-    fi
+    chmod 644 "$apt_prefs"
+
+
     
-    local audit_rules="/etc/audit/rules.d/gtfobins.rules"
-    
-    # Backup existing if present
-    if [[ -f "$audit_rules" ]]; then
-        cp "$audit_rules" "${BACKUP_DIR}/gtfobins-audit.rules.bak"
-    fi
-    
-    log_info "Creating auditd rules for GTFOBins monitoring..."
-    
-    cat > "$audit_rules" << 'AUDITEOF'
-# l
-# GTFOBins Audit Rules
-#
-# Monitor execution of binaries commonly used in exploitation
-# Key: gtfobins - use ausearch -k gtfobins to find events
-# Generated by GTFOBins Protection Module
-#
-
-# Network reconnaissance tools
--w /usr/bin/nmap -p x -k gtfobins_recon
--w /usr/bin/nc -p x -k gtfobins_netcat
--w /usr/bin/ncat -p x -k gtfobins_netcat
--w /usr/bin/netcat -p x -k gtfobins_netcat
--w /usr/bin/socat -p x -k gtfobins_netcat
--w /usr/bin/telnet -p x -k gtfobins_remote
--w /usr/bin/ftp -p x -k gtfobins_remote
--w /usr/bin/tftp -p x -k gtfobins_remote
--w /usr/bin/curl -p x -k gtfobins_transfer
--w /usr/bin/wget -p x -k gtfobins_transfer
--w /usr/bin/scp -p x -k gtfobins_transfer
--w /usr/bin/sftp -p x -k gtfobins_transfer
--w /usr/bin/rsync -p x -k gtfobins_transfer
-
-# Interpreters (potential shell escape)
--w /usr/bin/python -p x -k gtfobins_interpreter
--w /usr/bin/python3 -p x -k gtfobins_interpreter
--w /usr/bin/perl -p x -k gtfobins_interpreter
--w /usr/bin/ruby -p x -k gtfobins_interpreter
--w /usr/bin/php -p x -k gtfobins_interpreter
--w /usr/bin/lua -p x -k gtfobins_interpreter
--w /usr/bin/node -p x -k gtfobins_interpreter
--w /usr/bin/nodejs -p x -k gtfobins_interpreter
--w /usr/bin/tclsh -p x -k gtfobins_interpreter
-
-# Editors with shell escape
--w /usr/bin/vim -p x -k gtfobins_editor
--w /usr/bin/vi -p x -k gtfobins_editor
--w /usr/bin/nano -p x -k gtfobins_editor
--w /usr/bin/emacs -p x -k gtfobins_editor
--w /usr/bin/ed -p x -k gtfobins_editor
--w /usr/bin/less -p x -k gtfobins_pager
--w /usr/bin/more -p x -k gtfobins_pager
--w /usr/bin/man -p x -k gtfobins_pager
-
-# Compilers and debuggers
--w /usr/bin/gcc -p x -k gtfobins_compiler
--w /usr/bin/g++ -p x -k gtfobins_compiler
--w /usr/bin/make -p x -k gtfobins_compiler
--w /usr/bin/gdb -p x -k gtfobins_debugger
--w /usr/bin/strace -p x -k gtfobins_debugger
--w /usr/bin/ltrace -p x -k gtfobins_debugger
-
-# Container/virtualization escape vectors
--w /usr/bin/docker -p x -k gtfobins_container
--w /usr/bin/podman -p x -k gtfobins_container
--w /usr/bin/lxc -p x -k gtfobins_container
--w /usr/bin/nsenter -p x -k gtfobins_container
--w /usr/bin/unshare -p x -k gtfobins_container
--w /usr/bin/chroot -p x -k gtfobins_container
-
-# Privilege escalation vectors
--w /usr/bin/pkexec -p x -k gtfobins_privesc
--w /usr/bin/at -p x -k gtfobins_privesc
--w /usr/bin/crontab -p x -k gtfobins_privesc
--w /usr/bin/screen -p x -k gtfobins_privesc
--w /usr/bin/tmux -p x -k gtfobins_privesc
-
-# System manipulation
--w /usr/bin/mount -p x -k gtfobins_system
--w /usr/bin/umount -p x -k gtfobins_system
--w /usr/sbin/debugfs -p x -k gtfobins_system
--w /usr/sbin/dmsetup -p x -k gtfobins_system
-
-# Archive tools (file exfiltration)
--w /usr/bin/tar -p x -k gtfobins_archive
--w /usr/bin/zip -p x -k gtfobins_archive
--w /usr/bin/gzip -p x -k gtfobins_archive
--w /usr/bin/bzip2 -p x -k gtfobins_archive
--w /usr/bin/xz -p x -k gtfobins_archive
-
-# Git (can be used for shell escape)
--w /usr/bin/git -p x -k gtfobins_git
-
-# Watch for capability changes
--w /usr/sbin/setcap -p x -k gtfobins_caps
--w /usr/sbin/getcap -p x -k gtfobins_caps
-
-AUDITEOF
-    
-    chmod 640 "$audit_rules"
-    
-    # Reload audit rules
-    if systemctl is-active --quiet auditd; then
-        log_info "Reloading auditd rules..."
-        if command -v augenrules &>/dev/null; then
-            augenrules --load
-        else
-            auditctl -R "$audit_rules"
-        fi
-        log_success "Audit rules loaded"
-    else
-        log_warn "auditd is not running. Start with: systemctl start auditd"
-    fi
-    
-    log_success "Audit rules configured at: $audit_rules"
-}
-
-#
-# SECTION 7: APPARMOR PROFILES (Optional - Restrictive)
-#
-
-configure_apparmor_profiles() {
-    log ""
-    log "============================================================================"
-    log "SECTION 7: CONFIGURING APPARMOR DENY PROFILES"
-    log "============================================================================"
-    
-    # Check if AppArmor is available
-    if ! command -v aa-status &>/dev/null; then
-        log_warn "AppArmor not installed, skipping profiles"
-        return
-    fi
-    
-    if ! aa-status --enabled; then
-        log_warn "AppArmor not enabled, skipping profiles"
-        return
-    fi
-    
-    local apparmor_dir="/etc/apparmor.d"
-    local profiles_created=0
-    
-    # Create deny profiles for the most dangerous network tools
-    # These completely block the binaries from running
-    
-    local deny_binaries=(
-        "/usr/bin/nmap"
+    local dangerous_paths=(
+        "/usr/bin/perl"
+        "/usr/bin/perl5*"
+        "/usr/bin/python*"
+        "/usr/bin/ruby*"
+        "/usr/bin/lua*"
+        "/usr/bin/node"
+        "/usr/bin/nodejs"    
+        "/usr/bin/php*"
+        "/usr/bin/awk"
+        "/usr/bin/gawk"
+        "/usr/bin/mawk"
+        "/usr/bin/nawk"
+        "/usr/bin/sed"
+        "/usr/bin/ed"
+        "/usr/bin/vi"
+        "/usr/bin/vim*"
+        "/usr/bin/emacs*"
+        "/usr/bin/tar"
+        "/usr/bin/zip"
+        "/usr/bin/unzip"
+        "/usr/bin/gzip"
+        "/usr/bin/bzip2"
+        "/usr/bin/xz"
+        "/usr/bin/7z*"
+        "/usr/bin/curl"
+        "/usr/bin/wget"
         "/usr/bin/nc"
         "/usr/bin/ncat"
         "/usr/bin/netcat"
         "/usr/bin/socat"
         "/usr/bin/telnet"
-        "/usr/bin/tftp"
+        "/usr/bin/ftp"
+        "/usr/bin/ssh"
+        "/usr/bin/scp"
+        "/usr/bin/sftp"
+        "/usr/bin/rsync"
+        "/usr/bin/dd"
+        "/usr/bin/xxd"
+        "/usr/bin/od"
+        "/usr/bin/hexdump"
+        "/usr/bin/strings"
+        "/usr/bin/objdump"
+        "/usr/bin/readelf"
+        "/usr/bin/nm"
+        "/usr/bin/as"    
+        "/usr/bin/ld"
+        "/usr/bin/ar"
         "/usr/sbin/tcpdump"
-        "/usr/bin/wireshark"
+        "/usr/sbin/nmap"
         "/usr/bin/tshark"
-    )
-    
-    for binary in "${deny_binaries[@]}"; do
-        if [[ -f "$binary" ]]; then
-            local profile_name
-            profile_name=$(echo "$binary" | tr '/' '.')
-            profile_name="${profile_name:1}"  # Remove leading dot
-            
-            local profile_path="${apparmor_dir}/${profile_name}"
-            
-            log_info "Creating AppArmor deny profile for: $binary"
-            
-            cat > "$profile_path" << EOF
-# AppArmor deny profile for $binary
-# Generated by GTFOBins Protection Module
-# This profile completely blocks execution of the binary
-
-$binary {
-    # Deny all access
-    deny /** rwklx,
-    deny @{PROC}/** rwklx,
-    deny @{sys}/** rwklx,
-}
-EOF
-            
-            chmod 644 "$profile_path"
-            ((profiles_created++))
-            
-            # Load the profile
-            if apparmor_parser -r "$profile_path"; then
-                log_success "Loaded AppArmor profile: $profile_name"
-            else
-                log_error "Failed to load profile: $profile_name"
-            fi
-        fi
-    done
-    
-    log_success "AppArmor profiles created: $profiles_created"
-}
-
-#
-# SECTION 8: CREATE PLACEHOLDER BLOCKERS
-#
-
-create_placeholder_blockers() {
-    log ""
-    log "============================================================================"
-    log "SECTION 8: CREATING PLACEHOLDER BLOCKERS FOR UNINSTALLED BINARIES"
-    log "============================================================================"
-    
-    # These are the most dangerous tools - if not installed, create immutable
-    # empty files to prevent installation from placing executables there
-    
-    local dangerous_paths=(
+        "/usr/bin/wireshark"
         "/usr/bin/nmap"
-        "/usr/bin/nc"
-        "/usr/bin/ncat"
-        "/usr/bin/netcat"
-        "/usr/bin/socat"
         "/usr/bin/msfconsole"
         "/usr/bin/msfvenom"
         "/usr/bin/hydra"
@@ -1455,171 +1426,6 @@ create_placeholder_blockers() {
 }
 
 #
-# SECTION 9: RESTRICT /tmp AND /dev/shm EXECUTION
-#
-
-restrict_temp_execution() {
-    log ""
-    log "============================================================================"
-    log "SECTION 9: RESTRICTING EXECUTION IN TEMP DIRECTORIES"
-    log "============================================================================"
-    
-    # This should already be in fstab from filesystem hardening module,
-    # but we'll verify and add if missing
-    
-    local fstab="/etc/fstab"
-    local modified=false
-    
-    # Backup fstab
-    cp "$fstab" "${BACKUP_DIR}/fstab.bak"
-    
-    # Check /tmp mount options
-    if grep -qE "^\s*/tmp\s+" "$fstab"; then
-        if ! grep -qE "^\s*/tmp\s+.*noexec" "$fstab"; then
-            log_warn "/tmp missing noexec option"
-            sed -i '/^\s*\/tmp\s/s/defaults/defaults,noexec,nosuid,nodev/' "$fstab"
-            modified=true
-        fi
-    else
-        log_info "Adding /tmp entry with noexec"
-        echo "tmpfs /tmp tmpfs defaults,noexec,nosuid,nodev,size=1G 0 0" >> "$fstab"
-        modified=true
-    fi
-    
-    # Check /dev/shm mount options
-    if grep -qE "^\s*/dev/shm\s+" "$fstab"; then
-        if ! grep -qE "^\s*/dev/shm\s+.*noexec" "$fstab"; then
-            log_warn "/dev/shm missing noexec option"
-            sed -i '/^\s*\/dev\/shm\s/s/defaults/defaults,noexec,nosuid,nodev/' "$fstab"
-            modified=true
-        fi
-    else
-        log_info "Adding /dev/shm entry with noexec"
-        echo "tmpfs /dev/shm tmpfs defaults,noexec,nosuid,nodev 0 0" >> "$fstab"
-        modified=true
-    fi
-    
-    if $modified; then
-        log_success "Temp directory restrictions configured"
-        log_warn "Reboot or remount required for changes to take effect"
-        log_info "  To remount now: mount -o remount /tmp && mount -o remount /dev/shm"
-    else
-        log_success "Temp directories already properly restricted"
-    fi
-}
-
-#
-# SECTION 10: GENERATE REPORT
-#
-
-generate_report() {
-    log ""
-    log "============================================================================"
-    log "SECTION 10: GENERATING SECURITY REPORT"
-    log "============================================================================"
-    
-    local report_file="${BACKUP_DIR}/gtfobins-report.txt"
-    
-    cat > "$report_file" << EOF
-
-GTFOBins Protection Report
-Generated: $(date)
-Host: $(hostname)
-
-SUMMARY
--------
-This report summarizes the GTFOBins protection measures applied to your system.
-
-REMAINING SUID/SGID BINARIES
-----------------------------
-$(find /usr /bin /sbin -type f \( -perm -4000 -o -perm -2000 \) | sort)
-
-BINARIES WITH CAPABILITIES
---------------------------
-$(getcap -r /usr /bin /sbin || echo "None found or getcap not available")
-
-INSTALLED GTFOBINS (Still Present)
-----------------------------------
-EOF
-    
-    for gtfo in "${ALL_GTFOBINS[@]}"; do
-        local path
-        path=$(command -v "$gtfo") || continue
-        if [[ -n "$path" ]]; then
-            echo "$gtfo -> $path" >> "$report_file"
-        fi
-    done
-    
-    cat >> "$report_file" << EOF
-
-BLOCKED PACKAGES (APT)
-----------------------
-$(cat /etc/apt/preferences.d/gtfobins-block | grep "^Package:" | sed 's/Package: //' | sort -u || echo "None configured")
-
-AUDIT RULES ACTIVE
-------------------
-$(auditctl -l | grep gtfobins || echo "No GTFOBins audit rules or auditd not running")
-
-APPARMOR PROFILES
------------------
-$(aa-status | grep -E "gtfobins|nmap|netcat|socat" || echo "No GTFOBins AppArmor profiles or AppArmor not running")
-
-RECOMMENDATIONS
----------------
-1. Review the "REMAINING SUID/SGID BINARIES" list above
-2. Consider removing any SUID bits from binaries you don't need
-3. Monitor audit logs: ausearch -k gtfobins
-4. Regularly update: apt update && apt upgrade
-5. Review blocked packages list if you need to install something
-
-FILES CREATED/MODIFIED
-----------------------
-- /etc/apt/preferences.d/gtfobins-block
-- /etc/sudoers.d/gtfobins-deny
-- /etc/audit/rules.d/gtfobins.rules
-- /etc/apparmor.d/* (various deny profiles)
-- Log file: $LOG_FILE
-- Backup directory: $BACKUP_DIR
-
-================================================================================
-End of Report
-================================================================================
-EOF
-    
-    chmod 600 "$report_file"
-    
-    log_success "Report generated: $report_file"
-    
-    # Display summary
-    echo ""
-    echo "============================================================================"
-    echo "GTFOBins PROTECTION MODULE COMPLETE"
-    echo "============================================================================"
-    echo ""
-    echo "Actions taken:"
-    echo "  - Removed dangerous packages (Tier 1 & 2)"
-    echo "  - Blocked package installation via APT preferences"
-    echo "  - Stripped SUID/SGID bits from dangerous binaries"
-    echo "  - Stripped capabilities from interpreters"
-    echo "  - Configured sudo restrictions"
-    echo "  - Created auditd monitoring rules"
-    echo "  - Created AppArmor deny profiles"
-    echo "  - Created placeholder blockers"
-    echo "  - Restricted temp directory execution"
-    echo ""
-    echo "Important files:"
-    echo "  - Log: $LOG_FILE"
-    echo "  - Report: $report_file"
-    echo "  - Backups: $BACKUP_DIR"
-    echo ""
-    echo "Next steps:"
-    echo "  1. Review the report: cat $report_file"
-    echo "  2. Reboot to apply all changes"
-    echo "  3. Monitor logs: ausearch -k gtfobins"
-    echo ""
-}
-
-#
 # MAIN EXECUTION
 #
 
@@ -1642,11 +1448,7 @@ main() {
     strip_suid_sgid
     strip_capabilities
     configure_sudo_restrictions
-    configure_audit_rules
-    configure_apparmor_profiles
     create_placeholder_blockers
-    restrict_temp_execution
-    generate_report
 }
 
 # Run main
