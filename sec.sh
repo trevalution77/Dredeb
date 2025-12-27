@@ -300,15 +300,10 @@ Pin-Priority: -1
 Package: pp*
 Pin: release *
 Pin-Priority: -1
-
-
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog chrony libpam-tmpdir pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch* nautilus gnome-control-center gnome-panel --no-install-recommends
-
-apt install -y gdm3 gnome-session gnome-shell-extensions
-
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums unzip patch alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -327,142 +322,142 @@ EOF
 
 cat >/etc/pam.d/chfn <<'EOF'
 #%PAM-1.0
-auth      include     common-auth
-account   include     common-account
-session   include     common-session
+auth      include    common-auth
+account   include    common-account
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/chpasswd <<'EOF'
 #%PAM-1.0
-password  include     common-password
+password  include    common-password
 EOF
 
 cat >/etc/pam.d/chsh <<'EOF'
 #%PAM-1.0
-auth      include     common-auth
-account   include     common-account
-session   include     common-session
+auth      include    common-auth
+account   include    common-account
+session   include    common-session
 EOF
 
 cat > /etc/pam.d/common-auth <<'EOF'
 #%PAM-1.0
-auth      required    pam_faildelay.so delay=3000000
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth     [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
-auth      requisite   pam_deny.so
-auth      required    pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      required   pam_faildelay.so delay=3000000
+auth      required   pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
+auth      requisite  pam_deny.so
+auth      required   pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
 EOF
 
 cat >/etc/pam.d/common-account <<'EOF'
 #%PAM-1.0
-account   required    pam_access.so accessfile=/etc/security/access.conf
-account   required    pam_faillock.so
-account   required    pam_nologin.so
+account   required   pam_access.so accessfile=/etc/security/access.conf
+account   required   pam_faillock.so
+account   required   pam_nologin.so
 EOF
 
 cat >/etc/pam.d/common-password <<'EOF'
 #%PAM-1.0
-password  requisite   pam_deny.so
+password  requisite  pam_deny.so
 EOF
 
 cat >/etc/pam.d/common-session <<'EOF'
 #%PAM-1.0
-session   required    pam_limits.so
-session   required    pam_umask.so umask=0077
-session   required    pam_env.so readenv=1 user_readenv=0
-session   required    pam_unix.so
-session   optional    pam_tmpdir.so
-session   optional    pam_systemd.so
+session   required   pam_limits.so
+session   required   pam_umask.so umask=0077
+session   required   pam_env.so readenv=1 user_readenv=0
+session   required   pam_unix.so
+session   optional   pam_tmpdir.so
+session   optional   pam_systemd.so
 EOF
 
 cat >/etc/pam.d/common-session-noninteractive <<'EOF'
 #%PAM-1.0
-session   required    pam_limits.so
-session   required    pam_umask.so umask=0077
-session   required    pam_env.so readenv=1 user_readenv=0
-session   required    pam_unix.so
-session   optional    pam_tmpdir.so
-session   optional    pam_systemd.so
+session   required   pam_limits.so
+session   required   pam_umask.so umask=0077
+session   required   pam_env.so readenv=1 user_readenv=0
+session   required   pam_unix.so
+session   optional   pam_tmpdir.so
+session   optional   pam_systemd.so
 EOF
 
 cat >/etc/pam.d/sudo <<'EOF'
 #%PAM-1.0
-auth       required   pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
+auth      required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth      required   pam_faillock.so preauth silent deny=3 unlock_time=900
+account   include    common-account
+session   required   pam_limits.so
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/sudo-i <<'EOF'
 #%PAM-1.0
-auth       required   pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
+auth      required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth      required   pam_faillock.so preauth silent deny=3 unlock_time=900
+account   include    common-account
+session   required   pam_limits.so
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/su <<'EOF'
 #%PAM-1.0
-auth       required     pam_wheel.so use_uid group=wheel deny
-auth       required     pam_u2f.so authfile=/etc/security/u2f_keys
-auth       include      common-auth
-account    include      common-account
-session    include      common-session
+auth      required   pam_wheel.so use_uid group=wheel deny
+auth      required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth      include    common-auth
+account   include    common-account
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/su-l <<'EOF'
 #%PAM-1.0
-auth       required     pam_wheel.so use_uid group=wheel deny
-auth       required     pam_u2f.so authfile=/etc/security/u2f_keys
-auth       include      common-auth
-account    include      common-account
-session    include      common-session
+auth      required   pam_wheel.so use_uid group=wheel deny
+auth      required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth      include    common-auth
+account   include    common-account
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/sshd <<'EOF'
 #%PAM-1.0
-auth       required    pam_deny.so
-account    required    pam_deny.so
-password   required    pam_deny.so
-session    required    pam_deny.so
+auth      required   pam_deny.so
+account   required   pam_deny.so
+password  required   pam_deny.so
+session   required   pam_deny.so
 EOF
 
 cat >/etc/pam.d/other <<'EOF'
 #%PAM-1.0
-auth       required    pam_deny.so
-account    required    pam_deny.so
-password   required    pam_deny.so
-session    required    pam_deny.so
+auth      required   pam_deny.so
+account   required   pam_deny.so
+password  required   pam_deny.so
+session   required   pam_deny.so
 EOF
 
 cat >/etc/pam.d/login <<'EOF'
 #%PAM-1.0
-auth       required    pam_securetty.so
-auth       required    pam_nologin.so
-auth       include     common-auth
-account    required    pam_access.so
-account    include     common-account
-session    required    pam_limits.so
-session    include     common-session
+auth      required   pam_securetty.so
+auth      required   pam_nologin.so
+auth      include    common-auth
+account   required   pam_access.so
+account   include    common-account
+session   required   pam_limits.so
+session   include    common-session
 EOF
 
 cat >/etc/pam.d/newusers <<'EOF'
 #%PAM-1.0
-password  include     common-password
+password  include    common-password
 EOF
 
 cat >/etc/pam.d/passwd <<'EOF'
 #%PAM-1.0
-password  include     common-password
+password  include    common-password
 EOF
 
 cat >/etc/pam.d/runuser <<'EOF'
 #%PAM-1.0
-auth      sufficient  pam_u2f.so authfile=/etc/security/u2f_keys
-session   required    pam_limits.so
-session   required    pam_unix.so
+auth      sufficient pam_u2f.so authfile=/etc/security/u2f_keys
+session   required   pam_limits.so
+session   required   pam_unix.so
 EOF
 
 cat >/etc/pam.d/runuser-l <<'EOF'
@@ -552,66 +547,85 @@ chmod 640 /etc/default/grub
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
-# Restrict kernel pointer exposure
-dev.tty.ldisc_autoload = 0
-fs.protected_fifos = 2
-fs.protected_hardlinks = 1
-fs.protected_symlinks = 1
-fs.suid_dumpable = 0
-kernel.core_uses_pid = 1
-kernel.dmesg_restrict = 1
-kernel.kptr_restrict = 2
-kernel.panic = 60
-kernel.panic_on_oops = 60
-kernel.perf_event_paranoid = 3
-kernel.randomize_va_space = 2
-kernel.sysrq = 0
-kernel.unprivileged_bpf_disabled = 1
-kernel.yama.ptrace_scope = 2
-net.core.bpf_jit_harden = 2
-net.ipv4.conf.all.accept_redirects = 0
-net.ipv4.conf.all.accept_source_route = 0
-net.ipv4.conf.all.log_martians = 1
-net.ipv4.conf.all.rp_filter = 1
-net.ipv4.conf.all.secure_redirects = 0
-net.ipv4.conf.all.send_redirects = 0
-net.ipv4.conf.all.shared_media = 0
-net.ipv4.conf.default.accept_redirects = 0
-net.ipv4.conf.default.accept_source_route = 0
-net.ipv4.conf.default.log_martians = 1
-net.ipv4.conf.default.rp_filter = 1
-net.ipv4.conf.default.secure_redirects = 0
-net.ipv4.conf.default.send_redirects = 0
-net.ipv4.conf.default.shared_media = 0
-net.ipv4.icmp_echo_ignore_broadcasts = 1
-net.ipv4.icmp_ignore_bogus_error_responses = 1
-net.ipv4.ip_forward = 0
-net.ipv4.tcp_challenge_ack_limit = 2147483647
-net.ipv4.tcp_invalid_ratelimit = 500
-net.ipv4.tcp_max_syn_backlog = 20480
-net.ipv4.tcp_rfc1337 = 1
-net.ipv4.tcp_syn_retries = 5
-net.ipv4.tcp_synack_retries = 2
-net.ipv4.tcp_syncookies = 1
-net.ipv6.conf.all.accept_ra = 0
-net.ipv6.conf.all.accept_redirects = 0
-net.ipv6.conf.all.accept_source_route = 0
-net.ipv6.conf.all.forwarding = 0
-net.ipv6.conf.all.use_tempaddr = 2
-net.ipv6.conf.default.accept_ra = 0
-net.ipv6.conf.default.accept_ra_defrtr = 0
-net.ipv6.conf.default.accept_ra_pinfo = 0
-net.ipv6.conf.default.accept_ra_rtr_pref = 0
-net.ipv6.conf.default.accept_redirects = 0
-net.ipv6.conf.default.accept_source_route = 0
-net.ipv6.conf.default.autoconf = 0
-net.ipv6.conf.default.dad_transmits = 0
-net.ipv6.conf.default.max_addresses = 1
-net.ipv6.conf.default.router_solicitations = 0
-net.ipv6.conf.default.use_tempaddr = 2
-net.ipv6.conf.eth0.accept_ra_rtr_pref = 0
-net.netfilter.nf_conntrack_max = 2000000
-net.netfilter.nf_conntrack_tcp_loose = 0
+dev.tty.ldisc_autoload=0
+dev.tty.legacy_tiocsti=0
+fs.protected_fifos=2
+fs.protected_hardlinks=1
+fs.protected_regular=2
+fs.protected_symlinks=1
+fs.suid_dumpable=0
+kernel.acct=1
+kernel.cap_last_cap=38
+kernel.core_pattern=|/bin/false
+kernel.core_uses_pid=1
+kernel.ctrl-alt-del=0
+kernel.dmesg_restrict=1
+kernel.io_uring_disabled=2
+kernel.kexec_load_disabled=1
+kernel.keys.root_maxbytes=25000000
+kernel.keys.root_maxkeys=1000000
+kernel.kptr_restrict=2
+kernel.panic_on_oops=1
+kernel.perf_cpu_time_max_percent=1
+kernel.perf_event_max_sample_rate=1
+kernel.perf_event_paranoid=3
+kernel.pid_max=65536
+kernel.printk=3 3 3 3
+kernel.randomize_va_space=2
+kernel.sysrq=0
+kernel.unprivileged_bpf_disabled=1
+kernel.unprivileged_userns_clone=0
+kernel.watchdog=0
+kernel.yama.ptrace_scope=3
+net.core.bpf_jit_enable=1
+net.core.bpf_jit_harden=2
+net.core.default_qdisc=fq
+net.core.netdev_max_backlog=65535
+net.core.optmem_max=65535
+net.core.rmem_max=6291456
+net.core.somaxconn=65535
+net.core.wmem_max=6291456
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.all.accept_source_route=0
+net.ipv4.conf.all.log_martians=0
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.all.secure_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.all.shared_media=0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.default.accept_source_route=0
+net.ipv4.conf.default.log_martians=0
+net.ipv4.conf.default.rp_filter=1
+net.ipv4.conf.default.secure_redirects=0
+net.ipv4.conf.default.send_redirects=0
+net.ipv4.conf.default.shared_media=0
+net.ipv4.icmp_echo_ignore_all=1
+net.ipv4.icmp_echo_ignore_broadcasts=1
+net.ipv4.icmp_ignore_bogus_error_responses=1
+net.ipv4.ip_forward=0
+net.ipv4.tcp_abort_on_overflow=1
+net.ipv4.tcp_challenge_ack_limit=2147483647
+net.ipv4.tcp_fin_timeout=15
+net.ipv4.tcp_invalid_ratelimit=500
+net.ipv4.tcp_max_syn_backlog=4096
+net.ipv4.tcp_orphan_retries=2
+net.ipv4.tcp_rfc1337=1
+net.ipv4.tcp_syn_retries=2
+net.ipv4.tcp_synack_retries=2
+net.ipv4.tcp_syncookies=1
+net.ipv4.tcp_tw_reuse=1
+net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1
+net.netfilter.nf_conntrack_max=2000000
+net.netfilter.nf_conntrack_tcp_loose=0
+vm.max_map_count=1048576
+vm.mmap_min_addr=65536
+vm.oom_kill_allocating_task=1
+vm.overcommit_memory=1
+vm.panic_on_oom=1
+vm.swappiness=1
+vm.unprivileged_userfaultfd=0
 EOF
 sysctl --system
 
@@ -1428,5 +1442,5 @@ chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
 chattr -R +i /lib/modules 2>/dev/null || true
 chattr -R +i /usr 2>/dev/null || true
 chattr -R +i /boot 2>/dev/null || true 
-
+chattr -R +i /boot/efi 2>/dev/null || true
 echo “HARDENING COMPLETE”
