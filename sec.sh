@@ -77,7 +77,7 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums unzip patch alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums unzip patch alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme gnome-shell gdm3 gnome-session
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -227,7 +227,7 @@ EOF
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
 Defaults ignore_dot
-Defaults !setenv 
+Defaults !setenv
 Defaults always_set_home
 Defaults use_pty
 Defaults requiretty
@@ -236,10 +236,9 @@ Defaults passwd_tries=1
 Defaults authenticate
 Defaults passwd_timeout=0
 Defaults timestamp_timeout=0
-Defaults targetpw 
-Defaults!ALL authfail_message="YubiKey authentication required"
+Defaults authfail_message="YubiKey authentication required"
 Defaults pam_session
-Defaults pam_authenticate
+Defaults pam_setcred
 Defaults pam_service=sudo
 Defaults logfile="/var/log/sudo.log"
 Defaults log_input, log_output
@@ -248,34 +247,117 @@ Defaults iolog_file="%{user}/%{command}-%Y%m%d-%H%M%S"
 Defaults !sudoedit
 Defaults editor=/bin/false
 Defaults !env_editor
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-Cmnd_Alias SHELLS = /bin/sh, /bin/bash, /usr/bin/bash, /bin/dash, /usr/bin/zsh, /usr/bin/fish
-
-Cmnd_Alias INTERPRETERS = /usr/bin/python*, /usr/bin/perl*, /usr/bin/ruby, /usr/bin/php*, /usr/bin/node, /usr/bin/lua*
-
-Cmnd_Alias EDITORS = /usr/bin/vi*, /usr/bin/vim*, /usr/bin/nano, /usr/bin/emacs, /usr/bin/less, /usr/bin/more,  /usr/bin/man
-
-Cmnd_Alias GTFO_MISC = /usr/bin/find, /usr/bin/awk, /usr/bin/xargs, /usr/bin/socat, /usr/bin/tee, /usr/bin/rsync, /bin/tar, /usr/bin/env, /usr/bin/gdb, /usr/bin/strace
-
-ALL ALL = (!SHELLS, !INTERPRETERS, !EDITORS, !GTFO_MISC)
+#----USER/GROUP DEFINITIONS
 
 User_Alias ADMIN = dev
 
-Cmnd_Alias SYSTEMD_SAFE = /bin/systemctl status *, /bin/systemctl restart mullvad.daemon, /bin/systemctl restart networking
+#----DENY LIST
+# Shells
+Cmnd_Alias SHELLS = /bin/sh, /bin/bash, /usr/bin/bash, /bin/dash, /usr/bin/zsh, \
+                    /usr/bin/fish, /usr/bin/csh, /usr/bin/tcsh, /usr/bin/ksh
 
-Cmnd_Alias APT_SAFE = /usr/bin/apt update, /usr/bin/apt upgrade, /usr/bin/apt install --no-install-recommends *, /usr/bin/apt remove *,  /usr/bin/apt purge *
+# Interpreters
+Cmnd_Alias INTERPRETERS = /usr/bin/python*, /usr/bin/perl*, /usr/bin/ruby*, \
+                          /usr/bin/php*, /usr/bin/node, /usr/bin/lua*, \
+                          /usr/bin/tclsh*, /usr/bin/wish*
 
-Cmnd_Alias LOGS_SAFE = /bin/journalctl -u NetworkManager.service, /bin/journalctl --priority=3
+# Editors & Pagers (shell escape vectors)
+Cmnd_Alias EDITORS = /usr/bin/vi*, /usr/bin/vim*, /usr/bin/nano, /usr/bin/emacs*, \
+                     /usr/bin/less, /usr/bin/more, /usr/bin/man, /usr/bin/view, \
+                     /usr/bin/ed, /usr/bin/pico, /usr/bin/joe
 
-Cmnd_Alias NET_SAFE = /usr/bin/nmcli *, /bin/ip link show *, /bin/ip addr show *
+# Command execution & process control
+Cmnd_Alias GTFO_EXEC = /usr/bin/find, /usr/bin/xargs, /usr/bin/env, /usr/bin/nice, \
+                       /usr/bin/timeout, /usr/bin/watch, /usr/bin/time, \
+                       /usr/bin/nohup, /usr/bin/parallel, /usr/bin/expect, \
+                       /usr/bin/script, /usr/bin/screen, /usr/bin/tmux
 
-Cmnd_Alias MOUNT_SAFE = /bin/mount /media/*, /bin/umount /media/*
+# Text processing with exec capabilities  
+Cmnd_Alias GTFO_TEXT = /usr/bin/awk, /usr/bin/gawk, /usr/bin/mawk, /usr/bin/nawk, \
+                       /usr/bin/sed, /bin/busybox
 
+# Network tools
+Cmnd_Alias GTFO_NET = /usr/bin/socat, /usr/bin/nc, /usr/bin/ncat, /usr/bin/netcat, \
+                      /usr/bin/nmap, /usr/bin/wget, /usr/bin/curl, /usr/bin/ssh, \
+                      /usr/bin/scp, /usr/bin/sftp, /usr/bin/ftp, /usr/bin/telnet
+
+# File operations with escape potential
+Cmnd_Alias GTFO_FILE = /usr/bin/tee, /usr/bin/rsync, /bin/tar, /usr/bin/zip, \
+                       /usr/bin/unzip, /bin/gzip, /usr/bin/bzip2, /usr/bin/cpio, \
+                       /bin/dd, /usr/bin/split, /usr/bin/csplit
+
+# Debugging & tracing
+Cmnd_Alias GTFO_DEBUG = /usr/bin/gdb, /usr/bin/strace, /usr/bin/ltrace, \
+                        /usr/bin/perf, /usr/bin/valgrind
+
+# Package managers (can execute arbitrary code)
+Cmnd_Alias GTFO_PKG = /usr/bin/pip*, /usr/bin/gem, /usr/bin/npm, /usr/bin/yarn, \
+                      /usr/bin/cargo, /usr/bin/go, /usr/bin/cpan
+
+# Version control (can execute hooks)
+Cmnd_Alias GTFO_VCS = /usr/bin/git, /usr/bin/svn, /usr/bin/hg
+
+# Containers & virtualization
+Cmnd_Alias GTFO_CONTAINER = /usr/bin/docker, /usr/bin/podman, /usr/bin/lxc*, \
+                            /usr/bin/systemd-nspawn
+
+# Misc dangerous binaries
+Cmnd_Alias GTFO_MISC = /usr/bin/make, /usr/bin/cmake, /usr/sbin/service, \
+                       /usr/bin/dpkg, /usr/bin/rpm, /usr/bin/snap, \
+                       /usr/bin/flatpak, /usr/bin/rlwrap, /usr/bin/flock
+
+#----ADMIN ALLOWED COMMANDS (explicit whitelist)
+
+# Systemd - status and specific service restarts only
+Cmnd_Alias SYSTEMD_SAFE = /bin/systemctl status [a-z]*, \
+                          /bin/systemctl restart mullvad-daemon, \
+                          /bin/systemctl restart networking, \
+                          /bin/systemctl restart NetworkManager
+
+# APT - explicit safe operations (no wildcards for install)
+Cmnd_Alias APT_SAFE = /usr/bin/apt update, \
+                      /usr/bin/apt upgrade -y, \
+                      /usr/bin/apt full-upgrade -y, \
+                      /usr/bin/apt autoremove -y, \
+                      /usr/bin/apt clean
+
+# Logs - read-only access to specific logs
+Cmnd_Alias LOGS_SAFE = /bin/journalctl -u [a-zA-Z]*, \
+                       /bin/journalctl --priority=[0-7], \
+                       /bin/journalctl -b, \
+                       /bin/journalctl --disk-usage
+
+# Network - read-only network inspection
+Cmnd_Alias NET_SAFE = /usr/bin/nmcli general status, \
+                      /usr/bin/nmcli device status, \
+                      /usr/bin/nmcli connection show, \
+                      /usr/bin/nmcli connection show [a-zA-Z0-9-]*, \
+                      /bin/ip link show, \
+                      /bin/ip addr show, \
+                      /bin/ip route show, \
+                      /usr/bin/iptables --list-rules
+
+# ADMIN gets explicit whitelist with NOPASSWD (YubiKey PAM handles auth)
 ADMIN ALL = (root) NOPASSWD: SYSTEMD_SAFE, APT_SAFE, LOGS_SAFE, NET_SAFE, MOUNT_SAFE
+
+# ADMIN explicitly denied dangerous commands (belt and suspenders)
+ADMIN ALL = (ALL) !SHELLS, !INTERPRETERS, !EDITORS, !GTFO_EXEC, !GTFO_TEXT, \
+                  !GTFO_NET, !GTFO_FILE, !GTFO_DEBUG, !GTFO_PKG, !GTFO_VCS, \
+                  !GTFO_CONTAINER, !GTFO_MISC
+
+# No other users get any sudo access (implicit deny)
 EOF
-chmod 0440 /etc/sudoers
-chmod -R 0440 /etc/sudoers.d
+
+# Clear and lock sudoers.d to prevent drop-in bypasses
+rm -rf /etc/sudoers.d/*
+cat >/etc/sudoers.d/.placeholder <<'EOF'
+# This directory is intentionally empty
+# All sudo rules must be in /etc/sudoers
+EOF
+chmod 0000 /etc/sudoers.d/.placeholder
+chmod 0000 /etc/sudoers.d
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
@@ -288,15 +370,35 @@ order hosts
 EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
-*           hard    nproc         2048
-*           -       maxlogins     1
-*           -       maxsyslogins  1
-dev         -       maxlogins     1
-dev         -       maxsyslogins  1
-root        -       maxlogins     1
-root        -       maxsyslogins  1
-root        hard    nproc         65536
-*           hard    core          0
+gdm              -       nofile          65536
+gdm              -       nproc           4096
+gdm              -       memlock         unlimited
+gdm              -       rtprio          99
+root             -       nofile          65536
+root             -       nproc           unlimited
+root             -       memlock         unlimited
+*                soft    core            0
+*                hard    core            0
+*                soft    nofile          1024
+*                hard    nofile          4096
+*                soft    nproc           256
+*                hard    nproc           512
+*                soft    memlock         65536
+*                hard    memlock         131072
+*                soft    maxlogins       2
+*                hard    maxlogins       2
+*                soft    maxsyslogins    2
+*                hard    maxsyslogins    2
+*                soft    priority        0
+*                hard    priority        0
+*                -       rtprio          0
+dev              soft    nofile          4096
+dev              hard    nofile          8192
+dev              soft    nproc           512
+dev              hard    nproc           1024
+dev              soft    memlock         131072
+dev              hard    memlock         262144
+*                -       nice            0
 EOF
 
 echo "ProcessSizeMax=0
@@ -317,15 +419,12 @@ chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
--:ALL:ALL
-+:dev:ALL
--:root:ALL
--:daemon bin sys sync games man lp mail news uucp proxy www-data backup \
- list irc gnats nobody _apt messagebus systemd-* tss rtkit saned colord \
- geoclue gdm lightdm cups-pk-helper avahi-* :ALL
--:ALL:REMOTE
++:gdm:LOCAL
 +:dev:LOCAL
--:ALL:LOCAL
+-:root:ALL
+-:daemon bin sys sync games man lp mail news uucp proxy www-data backup list irc nobody _apt messagebus systemd-* tss rtkit saned colord  avahi-* :ALL
+-:ALL:REMOTE
+-:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
@@ -790,158 +889,240 @@ for bin in /usr/bin/traceroute /usr/bin/mtr /usr/sbin/arping; do
 done
 
 # Compilers and build tools
-COMPILER_PACKAGES=(
-    gcc 
-    gcc-* 
-    g++ 
-    g++-* 
-    cpp 
-    cpp-*
-    clang 
-    clang-* 
-    llvm 
-    llvm-*
-    gfortran 
-    gfortran-*
-    rustc 
-    cargo
-    golang 
-    golang-*
-    ghc 
-    ghc-*
-    fpc
-    nasm 
-    yasm
-    as86 
-    bin86
-    make 
-    cmake 
-    ninja-build 
-    meson
-    autoconf 
-    automake 
-    libtool
-    bison 
-    flex 
-    byacc
-    swig
-    m4
+RISKY_PACKAGES=(
+    "aircrack-ng*"
+    "arping"
+    "arpspoof"
+    "arpwatch"
+    "as86" 
+    "autoconf" 
+    "automake" 
+    "autopsy"
+    "beef-xss"
+    "bettercap"
+    "bin86"
+    "binutils"
+    "binwalk"
+    "bison" 
+    "bvi"
+    "byacc"
+    "cabal-install"
+    "cargo"
+    "chrpath"
+    "clang-*" 
+    "clang"
+    "cmake" 
+    "containerd.io"
+    "cpp-*"
+    "cpp" 
+    "crackmapexec"
+    "default-jdk" 
+    "default-jre" 
+    "dirb"
+    "docker-ce-cli"
+    "docker-ce"
+    "docker.io"
+    "dotnet-sdk-6.0"
+    "dotnet-sdk-7.0"
+    "dotnet-sdk-8.0"
+    "dsniff"
+    "dwarfdump"
+    "elfutils"
+    "elixir"
+    "elixir*"
+    "enum4linux"
+    "erlang"
+    "erlang*"
+    "ettercap-common"
+    "ettercap-graphical"
+    "ettercap*"
+    "execstack"
+    "exiftool"
+    "expect"
+    "flatpak"
+    "flex" 
+    "foremost"
+    "fpc"
+    "fping"
+    "ftp"
+    "g++" 
+    "g++*" 
+    "gap*"
+    "gawk" 
+    "gcc-*" 
+    "gcc" 
+    "gdb-*"
+    "gdb"
+    "gdb" 
+    "gfortran-*"
+    "gfortran" 
+    "ghc-*"
+    "ghc"
+    "ghc" 
+    "ghidra"
+    "ghostscript"
+    "gimp"
+    "gobuster"
+    "golang-*"
+    "golang-go"
+    "golang"
+    "golang" 
+    "guile-*"
+    "hashcat"
+    "hexedit" 
+    "hopper*"
+    "hping3"
+    "hydra-gtk"
+    "hydra"
+    "ida-*"
+    "imagemagick"
+    "impacket-scripts"
+    "java-*"
+    "john"
+    "julia"
+    "lftp"
+    "libmono-*"
+    "libtool"
+    "lldb-*"
+    "lldb" 
+    "llvm-*"
+    "llvm" 
+    "ltrace"
+    "lua*" 
+    "lua5.1"
+    "lua5.3"
+    "lua5.4"
+    "luajit"
+    "lxc"
+    "lxd-client"
+    "lxd"
+    "m4"
+    "macchanger"
+    "make" 
+    "maltego"
+    "masscan"
+    "mawk"
+    "maxima*"
+    "medusa"
+    "meson"
+    "metagoofil"
+    "metasploit-framework"
+    "metasploit*"
+    "mitmproxy"
+    "mono-*" 
+    "mono-complete"
+    "msfvenom" 
+    "nasm" 
+    "nbtscan"
+    "nc" 
+    "ncat"
+    "ncat" 
+    "ncftp"
+    "ndisasm"
+    "netcat-*" 
+    "netcat-openbsd"
+    "netcat-traditional"
+    "netcat"
+    "netcat" 
+    "nikto"
+    "ninja-build" 
+    "nmap"
+    "nmap" 
+    "node" 
+    "nodejs"
+    "nodejs" 
+    "npm"
+    "objdump"
+    "octave"
+    "octave*"
+    "openjdk-*" 
+    "openstego"
+    "outguess"
+    "patchelf"
+    "perl-base" 
+    "perl-modules"
+    "perl"
+    "php-*"
+    "php-cli"
+    "php-common"
+    "php"
+    "php*" 
+    "pike*"
+    "podman"
+    "prelink"
+    "proftpd-basic"
+    "proxychains"
+    "proxychains4"
+    "pure-ftpd"
+    "python-is-python*"
+    "python2*" 
+    "python3-impacket"
+    "r-base"
+    "r-bash"
+    "r-cran-*"
+    "r2*"
+    "racket*"
+    "radare2"
+    "radare2" 
+    "readelf"
+    "recon-ng"
+    "responder"
+    "rsh-client"
+    "rsh-redone-client"
+    "ruby-*"
+    "ruby-full"
+    "ruby"
+    "ruby" 
+    "rustc"
+    "rustc" 
+    "scapy"
+    "set"
+    "sleuthkit"
+    "smbclient"
+    "smbmap"
+    "snapd"
+    "socat"
+    "social-engineer-toolkit"
+    "spiderfoot"
+    "sqlmap"
+    "sslstrip"
+    "steghide"
+    "stegosuite"
+    "strace"
+    "strace" 
+    "swig"
+    "tcl-*"
+    "tcl"
+    "tcl" 
+    "tcpdump"
+    "telnet"
+    "telnetd"
+    "tftp-hpa"
+    "tftp"
+    "theharvester"
+    "tk"
+    "tor"
+    "torsocks"
+    "tshark"
+    "unicornscan"
+    "upx-ucl"
+    "upx" 
+    "valgrind"
+    "volatility"
+    "vsftpd"
+    "wfuzz"
+    "wireshark-gtk"
+    "wireshark-qt"
+    "wireshark"
+    "wireshark*" 
+    "xxd" 
+    "yasm"
+    "yersinia"
+    "zenmap"
+    "zmap"
 )
 
-# Interpreters that can execute arbitrary code
-INTERPRETER_PACKAGES=(
-    perl 
-    perl-base 
-    perl-modules
-    python2* 
-    python3* 
-    python-is-python*
-    ruby 
-    ruby-*
-    lua* 
-    tcl tcl-*
-    php* 
-    php-*
-    nodejs 
-    node 
-    npm
-    openjdk-* 
-    default-jdk 
-    default-jre 
-    java-*
-    mono-* 
-    libmono-*
-    gawk 
-    mawk
-    guile-*
-    pike*
-    racket*
-    erlang*
-    elixir*
-    julia
-    octave*
-    r-base 
-    r-cran-*
-    maxima*
-    gap*
-)
-
-# Debuggers and injection tools
-DEBUG_INJECT_PACKAGES=(
-    gdb 
-    gdb-*
-    lldb 
-    lldb-*
-    strace 
-    ltrace
-    valgrind
-    binutils
-    elfutils
-    patchelf
-    execstack
-    prelink
-    chrpath
-    dwarfdump
-    objdump
-    readelf
-    radare2 
-    r2*
-    ghidra
-    ida-*
-    hopper*
-    nasm 
-    ndisasm
-    xxd 
-    hexedit 
-    bvi
-    binwalk
-    upx 
-    upx-ucl
-    msfvenom 
-    metasploit*
-)
-
-# Network injection/sniffing tools
-NETWORK_INJECT_PACKAGES=(
-    nmap zenmap
-    masscan
-    netcat 
-    netcat-* 
-    nc 
-    ncat 
-    socat
-    hping3
-    scapy
-    ettercap*
-    bettercap
-    mitmproxy
-    sslstrip
-    tcpdump
-    wireshark* 
-    tshark
-    dsniff
-    arpspoof
-    macchanger
-    aircrack-ng*
-)
-
-echo "Purging compilers..."
-for pkg in "${COMPILER_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
-
-echo "Purging interpreters..."
-for pkg in "${INTERPRETER_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
-
-echo "Purging debuggers and injection tools..."
-for pkg in "${DEBUG_INJECT_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
-
-echo "Purging network injection tools..."
-for pkg in "${NETWORK_INJECT_PACKAGES[@]}"; do
+for pkg in "${RISKY_PACKAGES[@]}"; do
     apt purge -y $pkg 2>/dev/null || true
 done
 
