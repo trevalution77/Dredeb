@@ -95,7 +95,6 @@ deny = 3
 unlock_time = 900
 silent
 EOF
-chattr +i /etc/security/faillock.conf
 
 cat >/etc/pam.d/chfn <<'EOF'
 #%PAM-1.0
@@ -1081,8 +1080,7 @@ if [ -L /bin/sh ]; then
 fi
 ln -sf /bin/bash /bin/sh
 
-chmod 644 /etc/shells
-chattr +i /etc/shells
+chmod 644 /etc/shells#
 
 # Ensure all users have bash as shell (except system accounts with nologin)
 while IFS=: read -r username _ uid _ _ _ shell; do
