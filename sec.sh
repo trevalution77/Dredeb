@@ -75,7 +75,7 @@ EOF
 # PACKAGE INSTALLATION
 apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch* libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme labwc swaybg
 
-# apt install plasma-nano sddm 
+# apt install plasma-desktop sddm gdm3 gnome-shell gnome-session 
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -86,13 +86,111 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
-cat > /etc/security/faillock.conf <<'EOF'
-deny = 3
-unlock_time = 900
-silent
+cat > /etc/pam.d/common-auth << 'EOF'
+#%PAM-1.0
+auth      required    pam_faildelay.so delay=3000000
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
 EOF
 
-cat >/etc/pam.d/chfn <<'EOF'
+cat > /etc/pam.d/common-account << 'EOF'
+#%PAM-1.0
+account   required    pam_faillock.so
+account   required    pam_unix.so
+EOF
+
+cat > /etc/pam.d/common-password << 'EOF'
+#%PAM-1.0
+# Password changes disabled - U2F only system
+password  requisite   pam_deny.so
+EOF
+
+cat > /etc/pam.d/common-session << 'EOF'
+#%PAM-1.0
+session   required    pam_limits.so
+session   required    pam_unix.so
+session   required    pam_env.so
+session   optional    pam_systemd.so
+session   optional    pam_umask.so umask=077
+session   optional    pam_tmpdir.so
+EOF
+
+cat > /etc/pam.d/common-session-noninteractive << 'EOF'
+#%PAM-1.0
+session   required    pam_limits.so
+session   required    pam_unix.so
+session   required    pam_env.so
+session   optional    pam_umask.so umask=077
+session   optional    pam_tmpdir.so
+EOF
+
+cat > /etc/pam.d/sudo << 'EOF'
+#%PAM-1.0
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
+account   required    pam_faillock.so
+account   include     common-account
+session   required    pam_limits.so
+session   include     common-session
+EOF
+
+cat > /etc/pam.d/sudo-i << 'EOF'
+#%PAM-1.0
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
+account   required    pam_faillock.so
+account   include     common-account
+session   required    pam_limits.so
+session   include     common-session
+EOF
+
+cat > /etc/pam.d/su << 'EOF'
+#%PAM-1.0
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
+account   required    pam_faillock.so
+account   include     common-account
+session   required    pam_limits.so
+session   include     common-session
+EOF
+
+cat > /etc/pam.d/su-l << 'EOF'
+#%PAM-1.0
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
+account   required    pam_faillock.so
+account   include     common-account
+session   required    pam_limits.so
+session   include     common-session
+EOF
+
+cat > /etc/pam.d/login << 'EOF'
+#%PAM-1.0
+auth      requisite   pam_nologin.so
+auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
+account   required    pam_faillock.so
+account   required    pam_access.so
+account   include     common-account
+session   required    pam_limits.so
+session   required    pam_loginuid.so
+session   optional    pam_lastlog.so showfailed
+session   include     common-session
+EOF
+
+cat > /etc/pam.d/chfn << 'EOF'
 #%PAM-1.0
 auth      sufficient  pam_rootok.so
 auth      include     common-auth
@@ -100,12 +198,7 @@ account   include     common-account
 session   include     common-session
 EOF
 
-cat >/etc/pam.d/chpasswd <<'EOF'
-#%PAM-1.0
-password  include     common-password
-EOF
-
-cat >/etc/pam.d/chsh <<'EOF'
+cat > /etc/pam.d/chsh << 'EOF'
 #%PAM-1.0
 auth      required    pam_shells.so
 auth      sufficient  pam_rootok.so
@@ -114,130 +207,72 @@ account   include     common-account
 session   include     common-session
 EOF
 
-cat > /etc/pam.d/common-auth <<'EOF'
+cat > /etc/pam.d/chpasswd << 'EOF'
 #%PAM-1.0
-auth      required    pam_faildelay.so delay=3000000
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth     [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
-auth      requisite   pam_deny.so
-auth      required    pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-EOF
-
-cat >/etc/pam.d/common-account <<'EOF'
-#%PAM-1.0
-account   required    pam_unix.so
-EOF
-
-cat >/etc/pam.d/common-password <<'EOF'
-#%PAM-1.0
+# Password changes disabled - U2F only
 password  requisite   pam_deny.so
 EOF
 
-cat >/etc/pam.d/common-session <<'EOF'
+cat > /etc/pam.d/newusers << 'EOF'
 #%PAM-1.0
-session   required    pam_limits.so
-session   required    pam_env.so
-session   optional    pam_systemd.so
-session   optional    pam_umask.so umask=077
-session   optional    pam_tmpdir.so
-session   required    pam_unix.so
+# Password changes disabled - U2F only
+password  requisite   pam_deny.so
 EOF
 
-cat >/etc/pam.d/common-session-noninteractive <<'EOF'
+cat > /etc/pam.d/passwd << 'EOF'
 #%PAM-1.0
-session   required    pam_limits.so
-session   required    pam_env.so
-session   optional    pam_systemd.so
-session   optional    pam_umask.so umask=077
-session   optional    pam_tmpdir.so
-session   required    pam_unix.so
+# Password changes disabled - U2F only
+password  requisite   pam_deny.so
 EOF
 
-cat >/etc/pam.d/sudo <<'EOF'
-#%PAM-1.0
-auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
-EOF
-
-cat >/etc/pam.d/sudo-i <<'EOF'
-#%PAM-1.0
-auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
-EOF
-
-cat >/etc/pam.d/su <<'EOF'
-#%PAM-1.0
-auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
-EOF
-
-cat >/etc/pam.d/su-l <<'EOF'
-#%PAM-1.0
-auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include    common-account
-session    required   pam_limits.so
-session    include    common-session
-EOF
-
-cat >/etc/pam.d/sshd <<'EOF'
-#%PAM-1.0
-auth       required    pam_deny.so
-account    required    pam_deny.so
-password   required    pam_deny.so
-session    required    pam_deny.so
-EOF
-
-cat >/etc/pam.d/other <<'EOF'
-#%PAM-1.0
-auth       required    pam_deny.so
-account    required    pam_deny.so
-password   required    pam_deny.so
-session    required    pam_deny.so
-EOF
-
-cat >/etc/pam.d/login <<'EOF'
-#%PAM-1.0
-auth       required    pam_securetty.so
-auth       required    pam_nologin.so
-auth       include     common-auth
-account    include     common-account
-session    required    pam_limits.so
-session    required    pam_loginuid.so
-session    include     common-session
-EOF
-
-cat >/etc/pam.d/newusers <<'EOF'
-#%PAM-1.0
-password  include     common-password
-EOF
-
-cat >/etc/pam.d/passwd <<'EOF'
-#%PAM-1.0
-password  include     common-password
-EOF
-
-cat >/etc/pam.d/runuser <<'EOF'
+cat > /etc/pam.d/runuser << 'EOF'
 #%PAM-1.0
 auth      sufficient  pam_rootok.so
 session   required    pam_limits.so
 session   required    pam_unix.so
 EOF
 
-cat >/etc/pam.d/runuser-l <<'EOF'
+cat > /etc/pam.d/runuser-l << 'EOF'
 #%PAM-1.0
 auth      include     runuser
 session   include     runuser
 EOF
+
+cat > /etc/pam.d/sshd << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
+EOF
+
+cat > /etc/pam.d/other << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
+EOF
+
+cat > /etc/pam.d/systemd-user << 'EOF'
+#%PAM-1.0
+account  include     common-account
+session  required    pam_limits.so
+session  required    pam_unix.so
+session  required    pam_env.so user_readenv=0
+session  optional    pam_systemd.so
+EOF
+
+cat > /etc/pam.d/polkit-1 << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
+EOF
+
+chmod 644 /etc/pam.d/*
+chown root:root /etc/pam.d/*
 
 # SUDO
 cat >/etc/sudoers <<'EOF'
@@ -245,15 +280,13 @@ Defaults env_reset
 Defaults always_set_home
 Defaults timestamp_timeout=0
 Defaults passwd_timeout=0
-Defaults passwd_tries=2
+Defaults passwd_tries=1
 Defaults use_pty
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
-Defaults requiretty
 Defaults logfile="/var/log/sudo.log"
 Defaults log_input,log_output
 Defaults editor=/bin/false
 Defaults !env_editor
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:usr/sbin"
 
 dev  ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
