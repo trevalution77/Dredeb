@@ -77,7 +77,7 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch* libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra pamu2fcfg libpam-u2f rsyslog chrony libpam-tmpdir rkhunter chkrootkit debsums alsa-utils pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide fonts-liberation opensnitch python3-opensnitch* libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfconf xfdesktop4 xfwm4 xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin timeshift gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme labwc swaybg
 
 # apt install plasma-nano sddm 
 
@@ -116,7 +116,6 @@ EOF
 cat >/etc/pam.d/common-account <<'EOF'
 #%PAM-1.0
 account required pam_access.so accessfile=/etc/security/access.conf
-account required pam_unix.so
 EOF
 
 cat >/etc/pam.d/common-password <<'EOF'
@@ -235,13 +234,8 @@ Defaults use_pty
 Defaults requiretty
 Defaults umask=0077
 Defaults passwd_tries=1
-Defaults authenticate
 Defaults passwd_timeout=0
 Defaults timestamp_timeout=0
-Defaults authfail_message="YubiKey authentication required"
-Defaults pam_session
-Defaults pam_setcred
-Defaults pam_service=sudo
 Defaults logfile="/var/log/sudo.log"
 Defaults log_input, log_output
 Defaults iolog_dir="/var/log/sudo-io"
@@ -250,91 +244,7 @@ Defaults editor=/bin/false
 Defaults !env_editor
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-# -----------------------------------------------------------------------------
-# ALIASES
-# -----------------------------------------------------------------------------
-
-Host_Alias      LOCAL = debian, 192.168.88.190
-
-User_Alias      ADMIN = dev
-
-
-# Shells - extremely dangerous, can escape any restriction
-Cmnd_Alias      SHELLS = /bin/sh, /bin/bash, /bin/dash, /bin/zsh, \
-                         /usr/bin/sh, /usr/bin/bash, /usr/bin/dash, /usr/bin/zsh, \
-                         /bin/csh, /bin/tcsh, /usr/bin/csh, /usr/bin/tcsh, \
-                         /usr/bin/fish
-
-# Commands that spawn shells or allow escapes
-Cmnd_Alias      SHELL_ESCAPES = /usr/bin/vim, /usr/bin/vi, /usr/bin/nvim, \
-                                /usr/bin/nano, /usr/bin/emacs, /usr/bin/less, \
-                                /usr/bin/more, /usr/bin/man, /usr/bin/ftp, \
-                                /usr/bin/gdb, /usr/bin/python*, /usr/bin/perl, \
-                                /usr/bin/ruby, /usr/bin/lua*, /usr/bin/irb, \
-                                /usr/bin/awk, /usr/bin/nawk, /usr/bin/mawk, \
-                                /usr/bin/gawk, /usr/bin/find, /usr/bin/xargs
-
-# SU command (use sudo directly, not su through sudo)
-Cmnd_Alias      SU = /bin/su, /usr/bin/su
-
-# Password/user modification
-Cmnd_Alias      PASSWD = /usr/bin/passwd, /usr/sbin/useradd, /usr/sbin/userdel, \
-                         /usr/sbin/usermod, /usr/sbin/groupadd, /usr/sbin/groupdel, \
-                         /usr/sbin/groupmod, /usr/sbin/vipw, /usr/sbin/vigr
-
-# Sudoers modification
-Cmnd_Alias      SUDOERS = /usr/sbin/visudo, /usr/bin/sudoedit /etc/sudoers*, \
-                          /bin/cat /etc/sudoers*, /bin/nano /etc/sudoers*, \
-                          /usr/bin/vim /etc/sudoers*
-
-# Network tools that could exfiltrate or attack
-Cmnd_Alias      NETWORK_DANGER = /usr/bin/nc, /usr/bin/ncat, /usr/bin/netcat, \
-                                  /usr/bin/socat, /usr/bin/curl, /usr/bin/wget, \
-                                  /usr/bin/ssh, /usr/bin/scp, /usr/bin/sftp, \
-                                  /usr/bin/rsync, /usr/bin/telnet, /usr/bin/ftp
-
-# Disk/filesystem tools that could destroy data
-Cmnd_Alias      DISK_DANGER = /sbin/fdisk, /sbin/parted, /sbin/mkfs*, \
-                               /sbin/mke2fs, /sbin/mkswap, /sbin/wipefs, \
-                               /bin/dd, /sbin/hdparm, /sbin/badblocks
-
-# Kernel/module tools
-Cmnd_Alias      KERNEL = /sbin/insmod, /sbin/rmmod, /sbin/modprobe, \
-                         /sbin/sysctl, /usr/bin/dmesg
-
-# System control
-Cmnd_Alias      SYSTEM = /sbin/shutdown, /sbin/reboot, /sbin/halt, \
-                         /sbin/poweroff, /sbin/init, /bin/systemctl
-
-# Package management
-Cmnd_Alias      PACKAGES = /usr/bin/apt, /usr/bin/apt-get, /usr/bin/aptitude, \
-                            /usr/bin/dpkg, /usr/bin/snap, /usr/bin/flatpak
-
-# Security tools that could leak info or modify security
-Cmnd_Alias      SECURITY = /usr/sbin/iptables*, /usr/sbin/ip6tables*, \
-                            /usr/sbin/nft, /usr/bin/aa-*, /usr/sbin/aa-*, \
-                            /usr/sbin/auditctl, /usr/sbin/aureport, /usr/sbin/ausearch
-
-# Allowed system administration commands
-Cmnd_Alias      ADMIN_CMDS = /bin/systemctl status *, \
-                              /bin/systemctl start *, \
-                              /bin/systemctl stop *, \
-                              /bin/systemctl restart *, \
-                              /bin/journalctl, \
-                              /usr/bin/apt update, \
-                              /usr/bin/apt upgrade, \
-                              /usr/bin/apt install *, \
-                              /usr/bin/apt remove *, \
-                              /sbin/ip addr, \
-                              /sbin/ip route, \
-                              /usr/sbin/iptables -L *, \
-                              /usr/sbin/iptables-save, \
-                              /usr/local/bin/audit-*, \
-                              /usr/local/bin/aa-*
-
-# Only allow specific admin commands, deny dangerous ones explicitly
-dev   ALL=(ALL:ALL) ADMIN_CMDS, !SHELLS, !SU, !SUDOERS, !DISK_DANGER
-
+dev   debian=(ALL) /usr/bin/, /usr/sbin
 EOF
 
 # Set proper permissions
