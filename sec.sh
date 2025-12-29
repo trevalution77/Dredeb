@@ -411,210 +411,231 @@ sysctl --system
 # MODULES
 cat > /etc/modprobe.d/harden.conf << 'EOF'
 blacklist af_802154
-blacklist appletalk
-blacklist ath10k_core
-blacklist ath10k_pci
-blacklist ath10k_sdio
-blacklist ath10k_usb
-blacklist ath11k
-blacklist ath11k_pci
-blacklist ath9k
-blacklist ath9k_htc
-blacklist atm
-blacklist ax25
-blacklist bluetooth
-blacklist brcmfmac
-blacklist brcmsmac
-blacklist btbcm
-blacklist btintel
-blacklist btrtl
-blacklist btusb
-blacklist can
-blacklist cdc_acm
-blacklist cdc_ether
-blacklist cdc_mbim
-blacklist cdc_ncm
-blacklist cdc_wdm
-blacklist ceph
-blacklist cfg80211
-blacklist cifs
-blacklist cramfs
-blacklist crypto_user
-blacklist dccp
-blacklist debugfs
-blacklist decnet
-blacklist dm_mod
-blacklist dvb_core
-blacklist dvb_usb
-blacklist dvb_usb_v2
-blacklist econet
-blacklist firewire_core
-blacklist firewire_ohci
-blacklist firewire-core
-blacklist firewire-ohci
-blacklist freevxfs
-blacklist fscache
-blacklist ftrace
-blacklist fuse
-blacklist gnss
-blacklist gnss-serial
-blacklist gnss-usb
-blacklist hamradio
-blacklist hfs
-blacklist hfsplus
-blacklist hv_netvsc
-blacklist hv_utils
-blacklist hv_vmbus
-blacklist ipv6
-blacklist ipw2100
-blacklist ipw2200
-blacklist ipx
-blacklist irda
-blacklist iwldvm
-blacklist iwlmvm
-blacklist iwlwifi
-blacklist jffs2
-blacklist jfs
-blacklist kvm
-blacklist kvm_amd
-blacklist kvm_intel
-blacklist lockd
-blacklist lp
-blacklist mac80211
-blacklist mei
-blacklist mei_hdcp
-blacklist mei_me
-blacklist mei_pxp
-blacklist minix
-blacklist mt76
-blacklist mt76_usb
-blacklist mt76*
-blacklist mt7601u
-blacklist mt7615e
-blacklist mt76x0u
-blacklist mt76x2u
-blacklist mt7921e
-blacklist nbd
-blacklist netrom
-blacklist nfs
-blacklist nfsd
-blacklist nfsv3
-blacklist nfsv4
-blacklist p8022
-blacklist p8023
-blacklist parport
-blacklist parport_pc
-blacklist phonet
-blacklist ppdev
-blacklist ppp_async
-blacklist ppp_deflate
-blacklist ppp_generic
-blacklist pppoe
-blacklist pppox
-blacklist psnap
-blacklist qnx4
-blacklist qnx6
-blacklist r820t
-blacklist rds
-blacklist reiserfs
-blacklist rndis_host
-blacklist rose
-blacklist rt2800pci
-blacklist rt2800usb
-blacklist rtl2830
-blacklist rtl2832
-blacklist rtl2832_sdr
-blacklist rtl2838
-blacklist rtl8188ee
-blacklist rtl8192*
-blacklist rtl8723ae
-blacklist rtl8723be
-blacklist rtl8821ae
-blacklist rtl88x2bu
-blacklist rtl8xxxu
-blacklist rtlwifi
-blacklist sctp
-blacklist smbfs
-blacklist squashfs
-blacklist thunderbolt
-blacklist tipc
-blacklist uas
-blacklist udf
-blacklist usb_storage
-blacklist usblp
-blacklist usbmon
-blacklist usbnet
-blacklist uvcvideo
-blacklist v4l2_common
-blacklist vboxdrv
-blacklist vboxnetadp
-blacklist vboxnetflt
-blacklist vfat
-blacklist vhost
-blacklist vhost_net
-blacklist vhost_vsock
-blacklist videobuf2_common
-blacklist videobuf2_v4l2
-blacklist videodev
-blacklist vmmon
-blacklist vmw_balloon
-blacklist vmw_vmci
-blacklist vmwgfx
-blacklist x25
-blacklist xen
-blacklist xen*
 install af_802154 /bin/false
-install ath* /bin/false
+blacklist ath10k_pci
+install ath10k_pci /bin/false
+blacklist ath10k_sdio
+install ath10k_sdio /bin/false
+blacklist ath10k_usb
+install ath10k_usb /bin/false
+blacklist ath11k
+install ath11k /bin/false
+blacklist ath11k_pci
+install ath11k_pci /bin/false
+blacklist ath6kl_sdio
+install ath6kl_sdio /bin/false
+blacklist ath6kl_usb
+install ath6kl_usb /bin/false
+blacklist ath9k
+install ath9k /bin/false
+blacklist ath9k_htc
+install ath9k_htc /bin/false
+blacklist atm
+install atm /bin/false
+blacklist ax25
 install ax25 /bin/false
+blacklist bluetooth
 install bluetooth /bin/false
-install brcm* /bin/false
-install bt* /bin/false
+blacklist brcmsmac
+install brcmsmac /bin/false
+blacklist brcmfmac
+install brcmfmac /bin/false
+blacklist btbcm
+install btbcm /bin/false
+blacklist btintel
+install btintel /bin/false
+blacklist btusb
+install btusb /bin/false
+blacklist btrtl
+install btrtl /bin/false
+blacklist can
+install can /bin/false
+blacklist cramfs
+install cramfs /bin/false
+blacklist cfg80211
 install cfg80211 /bin/false
-install dvb* /bin/false
-install ipv6 /bin/false
-install iwldvm /bin/false
-install iwlmvm /bin/false
+blacklist dccp
+install dccp /bin/false
+blacklist decnet
+install decnet /bin/false
+blacklist dvb_core
+install dvb_core /bin/false
+blacklist dvb_usb
+install dvb_usb /bin/false
+blacklist dvb_usb_v2
+install dvb_usb_v2 /bin/false
+blacklist econet
+install econet /bin/false
+blacklist firewire-core
+install firewire-core /bin/false
+blacklist firewire-ohci
+install firewire-ohci /bin/false
+blacklist floppy
+install floppy /bin/false
+blacklist freevxfs
+install freevxfs /bin/false
+blacklist garmin_gps
+install garmin_gps /bin/false
+blacklist gfs2
+install gfs2 /bin/false
+blacklist gnss
+install gnss /bin/false
+blacklist gnss-serial
+install gnss-serial /bin/false
+blacklist gnss-usb
+install gnss-usb /bin/false
+blacklist hfs
+install hfs /bin/false
+blacklist hfsplus
+install hfsplus /bin/false
+blacklist hamradio
+install hamradio /bin/false
+blacklist ipx
+install ipx /bin/false
+blacklist iwlwifi
 install iwlwifi /bin/false
+blacklist jffs2
+install jffs2 /bin/false
+blacklist joydev
+install joydev /bin/false
+blacklist jfs
+install jfs /bin/false
+blacklist kvm
 install kvm /bin/false
+blacklist kvm_amd
+install kvm_amd /bin/false
+blacklist kvm_intel
+install kvm_intel /bin/false
+blacklist lp
 install lp /bin/false
+blacklist mac80211
 install mac80211 /bin/false
-install mei /bin/false
-install mt76* /bin/false
-install nfs /bin/false
+blacklist mt76
+install mt76 /bin/false
+blacklist mt76_usb
+install mt76_usb /bin/false
+blacklist mt76x0u
+install mt76x0u /bin/false
+blacklist mt76x2u
+install mt76x2u /bin/false
+blacklist mt7601u
+install mt7601u /bin/false
+blacklist mt7615e
+install mt7615e /bin/false
+blacklist mt7921e
+install mt7921e /bin/false
+blacklist netrom
+install netrom /bin/false
+blacklist p8022
+install p8022 /bin/false
+blacklist p8023
+install p8023 /bin/false
+blacklist parport
 install parport /bin/false
+blacklist ppdev
 install ppdev /bin/false
-install rtl* /bin/false
+blacklist psnap
+install psnap /bin/false
+blacklist r820t
+install r820t /bin/false
+blacklist rds
+install rds /bin/false
+blacklist reiserfs
+install reiserfs /bin/false
+blacklist rose
+install rose /bin/false
+blacklist rt2800lib
+install rt2800lib /bin/false
+blacklist rt2800pci
+install rt2800pci /bin/false
+blacklist rt2800usb
+install rt2800usb /bin/false
+blacklist rtl8188ee
+install rtl8188ee /bin/false
+blacklist rtl8192ce
+install rtl8192ce /bin/false
+blacklist rtl8192cu
+install rtl8192cu /bin/false
+blacklist rtl8192de
+install rtl8192de /bin/false
+blacklist rtl8192se
+install rtl8192se /bin/false
+blacklist rtl8723ae
+install rtl8723ae /bin/false
+blacklist rtl8723be
+install rtl8723be /bin/false
+blacklist rtl8821ae
+install rtl8821ae /bin/false
+blacklist rtl88x2bu
+install rtl88x2bu /bin/false
+blacklist rtl8xxxu
+install rtl8xxxu /bin/false
+blacklist rtl2830
+install rtl2830 /bin/false
+blacklist rtl2832
+install rtl2832 /bin/false
+blacklist rtl2832_sdr
+install rtl2832_sdr /bin/false
+blacklist rtl2838
+install rtl2838 /bin/false
+blacklist sctp
+install sctp /bin/false
+blacklist squashfs
 install squashfs /bin/false
-install thunderbolt /bin/false
+blacklist tipc
+install tipc /bin/false
+blacklist uas
 install uas /bin/false
+blacklist udf
+install udf /bin/false
+blacklist usb_storage
 install usb_storage /bin/false
+blacklist uvcvideo
 install uvcvideo /bin/false
-install vbox* /bin/false
+blacklist vboxdrv
+install vboxdrv /bin/false
+blacklist vboxnetadp
+install vboxnetadp /bin/false
+blacklist vboxnetflt
+install vboxnetflt /bin/false
+blacklist vhost
+install vhost /bin/false
+blacklist vhost_net
+install vhost_net /bin/false
+blacklist vhost_vsock
+install vhost_vsock /bin/false
+blacklist video1394
+install video1394 /bin/false
+blacklist vmmon
+install vmmon /bin/false
+blacklist vmw_vmci
+install vmw_vmci /bin/false
+blacklist xen
 install xen /bin/false
+blacklist x25
+install x25 /bin/false
+blacklist mei
+install mei /bin/false
+blacklist mei_me
+install mei_me /bin/false
+blacklist mei_hdcp
+install mei_hdcp /bin/false
+blacklist mei_pxp
+install mei_pxp /bin/false
+blacklist thunderbolt
+install thunderbolt /bin/false
+blacklist iwlmvm
+install iwlmvm /bin/false
+blacklist iwldvm
+install iwldvm /bin/false
+blacklist ipv6
+install ipv6 /bin/false
 EOF
 
 # FSTAB 
 cp /etc/fstab /etc/fstab.bak
 
-cp /etc/fstab /etc/fstab.bak
-BOOT_LINE=$(grep -E '^\s*UUID=.*\s+/boot\s+' /etc/fstab || echo "")
-BOOT_EFI_LINE=$(grep -E '^\s*UUID=.*\s+/boot/efi\s+' /etc/fstab || echo "")
-
-if [ -n "$BOOT_LINE" ]; then
-    BOOT_UUID=$(echo "$BOOT_LINE" | grep -oP 'UUID=[A-Za-z0-9-]+')
-    echo "${BOOT_UUID}    /boot    ext4    noatime,nodev,nosuid,noexec,ro 0 2" >> /etc/fstab
-fi
-if [ -n "$BOOT_EFI_LINE" ]; then
-    BOOT_EFI_UUID=$(echo "$BOOT_EFI_LINE" | grep -oP 'UUID=[A-Za-z0-9-]+')
-    echo "${BOOT_EFI_UUID}    /boot/efi    vfat    noatime,nodev,nosuid,noexec,umask=0077,ro 0 2" >> /etc/fstab
-fi
-
 cat > /etc/fstab << 'EOF'
-/dev/mapper/lvg-root       /              ext4    noatime,nodev,errors=remount-ro    0 1
-/dev/mapper/lvg-usr        /usr           ext4    noatime,nodev,ro                   0 2
-/dev/mapper/lvg-var        /var           ext4    noatime,nodev,nosuid               0 2
-/dev/mapper/lvg-var_log    /var/log       ext4    noatime,nodev,nosuid,noexec        0 2
-/dev/mapper/lvg-home       /home          ext4    noatime,nodev,nosuid,noexec        0 2
 proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
 tmpfs    /tmp       tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
