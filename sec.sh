@@ -109,7 +109,7 @@ EOF
 
 cat > /etc/pam.d/common-auth <<'EOF'
 #%PAM-1.0
-auth required pam_u2f.so authfile=/etc/security/u2f_keys cue prompt=1
+auth sufficient pam_u2f.so authfile=/etc/security/u2f_keys cue prompt=1
 auth requisite pam_deny.so
 EOF
 
@@ -143,7 +143,7 @@ EOF
 
 cat >/etc/pam.d/sudo <<'EOF'
 #%PAM-1.0
-auth    required pam_u2f.so authfile=/etc/security/u2f_keys cue prompt=1
+auth    sufficient pam_u2f.so authfile=/etc/security/u2f_keys cue prompt=1
 auth    requisite pam_deny.so
 session required pam_limits.so
 session include  common-session-noninteractive
@@ -244,7 +244,7 @@ Defaults editor=/bin/false
 Defaults !env_editor
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-dev   debian=(ALL) /usr/bin/, /usr/sbin
+dev   ALL=(ALL) /usr/bin/, /usr/sbin
 EOF
 
 # Set proper permissions
