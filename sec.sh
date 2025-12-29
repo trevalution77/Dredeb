@@ -48,13 +48,9 @@ iptables -N TCP
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-iptables -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
-iptables -A INPUT -p tcp --syn -m conntrack --ctstate NEW -j TCP
-iptables -A INPUT -p udp -j DROP
-iptables -A INPUT -p tcp -j DROP
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -j DROP
 ip6tables -F
 ip6tables -X
@@ -129,9 +125,7 @@ EOF
 
 cat >/etc/pam.d/common-account <<'EOF'
 #%PAM-1.0
-account   required    pam_access.so accessfile=/etc/security/access.conf
-account   required    pam_faillock.so
-account   required    pam_nologin.so
+account   required    pam_unix.so
 EOF
 
 cat >/etc/pam.d/common-password <<'EOF'
@@ -161,7 +155,7 @@ EOF
 
 cat >/etc/pam.d/sudo <<'EOF'
 #%PAM-1.0
-auth       required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
 auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
 account    include    common-account
 session    required   pam_limits.so
@@ -170,7 +164,7 @@ EOF
 
 cat >/etc/pam.d/sudo-i <<'EOF'
 #%PAM-1.0
-auth       required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
 auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
 account    include    common-account
 session    required   pam_limits.so
@@ -179,7 +173,7 @@ EOF
 
 cat >/etc/pam.d/su <<'EOF'
 #%PAM-1.0
-auth       required   pam_u2f.so authfile=/etc/security/u2f_keys
+auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
 auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
 account    include    common-account
 session    required   pam_limits.so
@@ -188,11 +182,11 @@ EOF
 
 cat >/etc/pam.d/su-l <<'EOF'
 #%PAM-1.0
-auth       required    pam_u2f.so authfile=/etc/security/u2f_keys
-auth       required    pam_faillock.so preauth silent deny=3 unlock_time=900
-account    include     common-account
-session    required    pam_limits.so
-session    include     common-session
+auth       sufficient pam_u2f.so authfile=/etc/security/u2f_keys
+auth       required   pam_faillock.so preauth silent deny=3 unlock_time=900
+account    include    common-account
+session    required   pam_limits.so
+session    include    common-session
 EOF
 
 cat >/etc/pam.d/sshd <<'EOF'
@@ -248,11 +242,10 @@ EOF
 # SUDO
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
-Defaults !setenv
 Defaults always_set_home
 Defaults timestamp_timeout=0
 Defaults passwd_timeout=0
-Defaults passwd_tries=1
+Defaults passwd_tries=2
 Defaults use_pty
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 Defaults requiretty
@@ -302,10 +295,10 @@ root             -       memlock         unlimited
 *                hard    memlock         131072
 *                 -      maxlogins       1
 *                 -      maxsyslogins    1
-dev               -      maxlogins       1
-dev               -      maxsyslogins    1
-root              -      maxlogins       1
-root              -      maxsyslogins    1
+dev               -      maxlogins       2
+dev               -      maxsyslogins    2
+root              -      maxlogins       3
+root              -      maxsyslogins    3
 *                soft    priority        0
 *                hard    priority        0
 *                -       rtprio          0
@@ -342,7 +335,6 @@ cat > /etc/security/access.conf << EOF
 -:dev:ALL EXCEPT LOCAL
 -:root:ALL
 -:ALL:REMOTE
--:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
@@ -719,8 +711,9 @@ if [[ -f /boot/grub/grub.cfg ]]; then
 fi
 
 WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
-    ! -path "/tmp/*" \
     ! -path "/usr/*" \
+    ! -path "/var/*" \
+    ! -path "/tmp/*" \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
@@ -733,6 +726,9 @@ if [[ -n "$WORLD_WRITABLE" ]]; then
 fi
 
 UNOWNED=$(find / -xdev \( -nouser -o -nogroup \) \
+    ! -path "/usr/*" \
+    ! -path "/var/*" \
+    ! -path "/tmp/*" \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
@@ -741,12 +737,13 @@ if [[ -n "$UNOWNED" ]]; then
     echo "[!] Found unowned files (review manually):"
     echo "$UNOWNED"
 fi
+
 chown root:adm -R /var/log
 chmod -R 0640 /var/log
 chmod 0750 /var/log
 
-# Risky stuff
-RISKY_PACKAGES=(
+# Shady stuff
+SHADY=(
     "aircrack-ng*"
     "arping"
     "arpspoof"
@@ -978,7 +975,7 @@ RISKY_PACKAGES=(
     "zenmap"
     "zmap"
 )
-    apt purge -y "${RISKY_PACKAGES[@]}"; 2>/dev/null || true
+    apt purge -y "${SHADY[@]}"; 2>/dev/null || true
 
 apt autoremove -y 2>/dev/null || true
 
@@ -994,11 +991,10 @@ DANGEROUS_BINARIES=(
     /usr/bin/nm
     /usr/bin/make 
     /usr/bin/cmake
-    /usr/bin/perl
-    /usr/bin/perl5*
+    /usr/bin/perl*
     /usr/bin/python
     /usr/bin/python2*
-    /usr/bin/ruby
+    /usr/bin/ruby*
     /usr/bin/irb
     /usr/bin/erb
     /usr/bin/lua 
@@ -1006,9 +1002,7 @@ DANGEROUS_BINARIES=(
     /usr/bin/node
     /usr/bin/nodejs
     /usr/bin/npm
-    /usr/bin/php
-    /usr/bin/php-cgi
-    /usr/bin/php-fpm
+    /usr/bin/php*
     /usr/bin/gdb 
     /usr/bin/lldb
     /usr/bin/strace
@@ -1025,6 +1019,12 @@ DANGEROUS_BINARIES=(
     /usr/bin/readelf
     /usr/bin/run0
     /usr/bin/su
+    /usr/bin/sudoedit
+    /usr/bin/sudoreplay
+    /usr/bin/pkexec
+    /usr/bin/arp*
+    /usr/bin/trace*
+    
 )
             rm -f "${DANGEROUS_BINARIES[@]}"; 2>/dev/null || true
 
@@ -1074,34 +1074,12 @@ SHELL_BINARIES=(
 )
             rm -f "${SHELL_BINARIES[@]}"; 2>/dev/null || true
 
-# Ensure /bin/sh points to bash (not dash)
-if [ -L /bin/sh ]; then
-    rm /bin/sh
-fi
-ln -sf /bin/bash /bin/sh
-
-chmod 644 /etc/shells#
-
-# Ensure all users have bash as shell (except system accounts with nologin)
-while IFS=: read -r username _ uid _ _ _ shell; do
-    if [ "$uid" -ge 1000 ] && [ "$shell" != "/usr/sbin/nologin" ] && [ "$shell" != "/bin/false" ]; then
-        if [ "$shell" != "/bin/bash" ]; then
-            echo "Changing shell for $username from $shell to /bin/bash"
-            usermod -s /bin/bash "$username" 2>/dev/null || true
-        fi
-    fi
-done < /etc/passwd
-
-# Create log file with proper permissions
+# Setup Opensnitch
 touch /var/log/opensnitchd.log
 chmod 640 /var/log/opensnitchd.log
-
-# Enable and start the daemon
 systemctl daemon-reload
 systemctl enable opensnitch
 systemctl start opensnitch
-
-# Install Blocklists
 apt install git 
 git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
 cd Respect-My-Internet
