@@ -262,7 +262,7 @@ Defaults editor=/bin/false
 Defaults !env_editor
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-dev  ALL=(ALL) /usr/sbin/, /usr/bin
+dev  ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
 
 # Set proper permissions
