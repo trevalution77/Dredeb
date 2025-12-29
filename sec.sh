@@ -271,12 +271,8 @@ order hosts
 EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
-gdm              -       nofile          65536
-gdm              -       nproc           4096
-gdm              -       memlock         unlimited
-gdm              -       rtprio          99
 root             -       nofile          65536
-root             -       nproc           unlimited
+root             -       nproc           4064
 root             -       memlock         unlimited
 *                soft    core            0
 *                hard    core            0
@@ -297,8 +293,8 @@ root              -      maxsyslogins    1
 *                -       rtprio          0
 dev              soft    nofile          4096
 dev              hard    nofile          8192
-dev              soft    nproc           512
-dev              hard    nproc           1024
+dev              soft    nproc           1024
+dev              hard    nproc           2048
 dev              soft    memlock         131072
 dev              hard    memlock         262144
 *                -       nice            0
@@ -322,8 +318,10 @@ chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
-+:gdm:LOCAL
-+:dev:LOCAL
++:dev:tty1 tty2 
+-:ALL EXCEPT dev:tty1 tty2 tty3 tty4 tty5 tty6
+-:ALL EXCEPT dev:LOCAL
+-:dev:ALL EXCEPT LOCAL
 -:root:ALL
 -:daemon bin sys sync games man lp mail news uucp proxy www-data backup list irc nobody _apt messagebus systemd-* tss rtkit saned colord  avahi-* :ALL
 -:ALL:REMOTE
@@ -769,14 +767,7 @@ STRIP_CAPS_BINARIES=(
     /usr/bin/tshark
     /usr/bin/wireshark
 )
-
-for bin in "${STRIP_CAPS_BINARIES[@]}"; do
-    for f in $bin; do
-        if [ -f "$f" ]; then
-            setcap -r "$f" 2>/dev/null || true
-        fi
-    done
-done
+            setcap -r "${STRIP_CAPS_BINARIES[@]}"; 2>/dev/null || true
 
 # Set MINIMAL required capabilities on specific binaries
 # ping needs net_raw only
@@ -791,7 +782,7 @@ for bin in /usr/bin/traceroute /usr/bin/mtr /usr/sbin/arping; do
     fi
 done
 
-# Compilers and build tools
+# Risky stuff
 RISKY_PACKAGES=(
     "aircrack-ng*"
     "arping"
@@ -1024,10 +1015,7 @@ RISKY_PACKAGES=(
     "zenmap"
     "zmap"
 )
-
-for pkg in "${RISKY_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
+    apt purge -y "${RISKY_PACKAGES[@]}"; 2>/dev/null || true
 
 apt autoremove -y 2>/dev/null || true
 
@@ -1075,21 +1063,9 @@ DANGEROUS_BINARIES=(
     /usr/bin/run0
     /usr/bin/su
 )
+            rm -f "${DANGEROUS_BINARIES[@]}"; 2>/dev/null || true
 
-echo "Removing remaining dangerous binaries..."
-for bin in "${DANGEROUS_BINARIES[@]}"; do
-    for f in $bin; do
-        if [ -f "$f" ] && [ ! -L "$f" ]; then
-            echo "Removing: $f"
-            rm -f "$f" 2>/dev/null || true
-        fi
-    done
-done
-
-echo "[6/9] Compilers and injection tools removed."
-
-# PURGE SHELLS
-# Shells to remove
+# Shells 
 SHELL_PACKAGES=(
     zsh 
     zsh-*
@@ -1108,10 +1084,7 @@ SHELL_PACKAGES=(
     sash
     yash
 )
-
-for pkg in "${SHELL_PACKAGES[@]}"; do
-    apt purge -y $pkg 2>/dev/null || true
-done
+    apt purge -y "${SHELL_PACKAGES[@]}"; 2>/dev/null || true
 
 # Remove shell binaries
 SHELL_BINARIES=(
@@ -1136,15 +1109,7 @@ SHELL_BINARIES=(
     /usr/bin/csh
     /usr/bin/ksh*
 )
-
-for shell in "${SHELL_BINARIES[@]}"; do
-    if [ -f "$shell" ] && [ "$shell" != "/bin/bash" ]; then
-        # Check if it's not bash
-        if ! [ "$shell" -ef "/bin/bash" ]; then
-            rm -f "$shell" 2>/dev/null || true
-        fi
-    fi
-done
+            rm -f "${SHELL_BINARIES[@]}"; 2>/dev/null || true
 
 # Ensure /bin/sh points to bash (not dash)
 if [ -L /bin/sh ]; then
