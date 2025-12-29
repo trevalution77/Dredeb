@@ -254,7 +254,7 @@ password  required    pam_deny.so
 session   required    pam_deny.so
 EOF
 
-cat > /etc/pam.d/systemd-user << 'EOF'
+cat > /usr/lib/pam.d/systemd-user << 'EOF'
 #%PAM-1.0
 account  include     common-account
 session  required    pam_limits.so
@@ -263,7 +263,7 @@ session  required    pam_env.so user_readenv=0
 session  optional    pam_systemd.so
 EOF
 
-cat > /etc/pam.d/polkit-1 << 'EOF'
+cat > /usr/lib/pam.d/polkit-1 << 'EOF'
 #%PAM-1.0
 auth      required    pam_deny.so
 account   required    pam_deny.so
