@@ -653,14 +653,12 @@ EOF
 # FSTAB 
 cp /etc/fstab /etc/fstab.bak
 
-cat > /etc/fstab << 'EOF'
-proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
+echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
 tmpfs    /tmp       tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /dev/shm   tmpfs     size=512M,noatime,nodev,nosuid,noexec,mode=1777   0 0
 tmpfs    /run       tmpfs     size=512M,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0
-EOF
+tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
