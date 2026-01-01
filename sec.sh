@@ -222,7 +222,7 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums unzip patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide tcpd fonts-liberation xfce4 xfce4-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide tcpd fonts-liberation xfce4 xfce4-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
