@@ -1,15 +1,10 @@
 #!/bin/bash
 
-###############-WARNING-#################
-###-THIS THE SHIT THAT KILLED BELUSHI-###
-#########-RUN HER LOW AND SLOW-##########
-
 set -euo pipefail
 
 # PRE-CONFIG 
 apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
 extrepo enable librewolf
-apt modernize-sources
 apt update
 apt install -y librewolf --no-install-recommends
 
@@ -222,7 +217,7 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra rsyslog chrony libpam-tmpdir acct rkhunter chkrootkit debsums patch pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber lynis unhide tcpd fonts-liberation xfce4 xfce4-terminal gnome-brave-icon-theme gdebi-core opensnitch python3-opensnitch*
+apt install -y rsyslog chrony libpam-tmpdir  pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber unhide fonts-liberation libxfce4ui-utils gnome-terminal xfce4-terminal xfce4-session xfce4-settings xfwm4 xfdesktop4 gnome-brave-icon-theme breeze-gtk-theme bibata* qt5ct gdebi-core opensnitch python3-opensnitch*
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -232,11 +227,6 @@ mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
-
-if ! getent group wheel &>/dev/null; then
-    groupadd wheel
-fi
-usermod -aG wheel dev
 
 # Faillock configuration
 cat > /etc/security/faillock.conf << 'EOF'
@@ -442,13 +432,12 @@ Defaults passwd_timeout=0
 Defaults passwd_tries=1
 Defaults use_pty
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
-Defaults requiretty
 Defaults logfile="/var/log/sudo.log"
 Defaults log_input,log_output
 Defaults editor=/bin/false
 Defaults !env_editor
 
-dev  ALL=(ALL) ALL
+dev  ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
 chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
