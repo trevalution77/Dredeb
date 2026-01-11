@@ -2,13 +2,35 @@
 
 set -euo pipefail
 
+# Color output for better readability
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+log_info() {
+    echo -e "${GREEN}[+]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[!]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[x]${NC} $1"
+}
+
 # PRE-CONFIG 
-apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
+log_info "Installing prerequisites..."
+apt install -y extrepo iptables iptables-persistent netfilter-persistent git --no-install-recommends
+
+log_info "Enabling Librewolf repository..."
 extrepo enable librewolf
 apt update
 apt install -y librewolf --no-install-recommends
 
 # SYSTEMD HARDENING
+log_info "Disabling unnecessary systemd services..."
 SERVICES_TO_DISABLE=(
 "accounts-daemon.service"
 "anacron.service"
@@ -160,7 +182,7 @@ for svc in "${SERVICES_TO_DISABLE[@]}"; do
     systemctl mask "$svc" 2>/dev/null || true
 done
 
-
+log_info "Configuring APT hardening..."
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
 APT::Get::AllowUnauthenticated "false";
 Acquire::AllowInsecureRepositories "false";
@@ -177,9 +199,12 @@ APT::Sandbox::Seccomp "true";
 EOF
 
 # FIREWALL
-apt purge -y nftables
+log_info "Configuring iptables firewall..."
+apt purge -y nftables 2>/dev/null || true
 systemctl enable netfilter-persistent
 service netfilter-persistent start
+
+# Flush all rules
 iptables -F
 iptables -X
 iptables -Z
@@ -189,26 +214,57 @@ iptables -t nat -Z
 iptables -t mangle -F
 iptables -t mangle -X
 iptables -t mangle -Z
+
+# Default policies
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
+
+# Allow established connections
 iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+# Allow loopback
 iptables -A INPUT -i lo -j ACCEPT
+
+# Drop invalid packets
 iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+
+# Default drop
 iptables -A INPUT -j DROP
+
+# IPv6 lockdown
 ip6tables -F
 ip6tables -X
 ip6tables -Z
 ip6tables -P INPUT DROP
 ip6tables -P FORWARD DROP
 ip6tables -P OUTPUT DROP
+
+# Save rules
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE REMOVAL/RESTRICTING
-apt purge -y anacron* cron* pp* perl python3 zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* dhcp*
+log_info "Removing unnecessary packages (this may take a while)..."
+REMOVE_PKGS=(
+    "anacron*" "cron*" "pp*" "perl" "python3" "zram*" "pci*" "pmount*"
+    "avahi*" "bc" "bind9*" "dns*" "fastfetch" "fonts-noto*" "fprint*"
+    "dhcp*" "lxc*" "docker*" "podman*" "xen*" "bochs*" "uml*" "vagrant*"
+    "ssh*" "openssh*" "libssh*" "usb*" "acpi*" "samba*" "winbind*"
+    "qemu*" "libvirt*" "virt*" "cup*" "print*" "rsync*" "nftables*"
+    "virtual*" "sane*" "rpc*" "bind*" "nfs*" "blue*" "spee*" "espeak*"
+    "mobile*" "wireless*" "inet*" "util-linux-locales" "tasksel*" "vim*"
+    "os-prober*" "netcat*" "gcc" "g++" "gdb" "lldb" "strace*" "ltrace*"
+    "build-essential" "automake" "autoconf" "libtool" "cmake"
+    "ninja-build" "meson" "traceroute" "libavahi*" "libcup*"
+)
 
+for pkg in "${REMOVE_PKGS[@]}"; do
+    apt purge -y "$pkg" 2>/dev/null || true
+done
+
+log_info "Creating package deny list..."
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
 Package: 7z aa-exec ab acpi* agetty aircrack-ng alpine anacron* ansible* aoss apache* ar aria2c arj arp* as ascii-xfr ascii85 ash aspell at atobm autoconf* automake* autopsy avahi* awk aws base32 base58 base64 basenc basez batcat bc bconsole beef* bettercap bind* binwalk blue* bochs* bochs* bpftrace bridge build-essential build* bundle bundler busctl byebug bzip2 c89 c99 cabal cabal-install cancel capsh cargo cdist certbot check_by_ssh check_cups check_log check_memory check_raid check_ssl_cert check_statusfile choom chroot clam* cmake* cmp cobc column comm composer container* courier* cowsay cowthink cp cpan cpio cpulimit crackmapexec crash crontab csh csplit csvtool cup* cup* curl cut dash date dc dd debugfs dhcp* dialog diff dig dirb distcc dma* dmesg dmidecode dmsetup dnf dns* docker* docker* dos2unix dosbox dotnet* dropbear* dsniff dstat dvips easy_install eb ed efax elixir elvish emacs* enscript enum4linux env eqn erlang espeak espeak* ettercap* ex exiftool exim* expand expect facter fastfetch finger fish flatpak flock fmt fold fonts-noto* foremost fping fprint* ftp g++* gawk gcc gcc* gcloud gcore gdb gdb* gem genie genisoimage ghc ghci ghostscript gimp ginsh gnustep* gobuster golang* grc grep gtester gzip hashcat hd head hexdump highlight hping3 hydra* iconv iftop imagemagick impacket-scripts inet* ionice irb ispell jjs joe john join jq jrunscript jtag julia knife ksh ksshell ksu kubectl latex latexmk ld.so ldconfig lftp lftp libtool libvirt* libvirt* links lldb lldb* ln loginctl logsave look lp ltrace ltrace* ltrace* lua* lualatex luatex lwp-download lwp-request lxc* lxc* lxd* macchanger mail make maltego man masscan mawk medusa meson metagoofil metasploit-framework minicom mitmproxy mobile* modemmanager* mono-complete more mosquitto msfconsole msgattrib msgcat msgconv msgfilter msgmerge msguniq mtr multitime mysql nano nasm nasm* nawk nbtscan nc ncat ncdu ncftp neofetch netcat* nfs* nft nftables* nice nikto ninja-build nl nm nmap node nodejs* nohup npm* nroff nsenter ntpdate octave od openssh* openssl openstego openvpn openvt opkg os-prober* outguess pandoc paste pax pci* pdb pdflatex pdftex perf perlbug pexec pg php* pic pico pidstat pip pkexec pkg pmount* podman* posh postfix* pp* pr print* proftpd-basic proxychains* pry psftp psql ptx puppet pure-ftpd pwsh qemu* qemu* r-base radare2 rake rc readelf recon-ng red redcarpet redis responder restic rev rlogin rlwrap rpc* rpm rpmdb rpmquery rpmverify rsh* rtorrent ruby* run-mailcap run-parts runscript rustc rview rvim samba* sane* sash scanmem scp screen script scrot sed sendmail* service set setarch setfacl setlock sftp sg shuf sleuthkit slsh smb* snap snapd socat social-engineer-toolkit socket soelim softlimit sort spee* spiderfoot split sql* ss ssh* sslstrip start-stop-daemon stdbuf steghide stegosuite strace* strings su systemd-resolve tac tail tar task tasksel* taskset tasksh tbl tcl tclsh tcpdump tdbtool tee telnet* terraform tex tftp* theharvester tic time timedatectl timeout tinyssh* tk tmate tmux top tor* traceroute* tripwire* troff tshark ul uml* uml* unexpand unicornscan uniq unshare unsquashfs unzip update-alternatives usb* util-linux-locales uuencode vagrant* valgrind varnishncsa view vigr vim* vimdiff vipw virsh virt* virt* virtual* volatility vsftpd w3m wall watch wc wfuzz wget whiptail whois winbind* wireless* wireless* wireshark* wish wpa* xargs xdg-user-dir xdotool xelatex xen* xetex xmodmap xmore xpad xxd xz yarn yash yasm* yelp yersinia yum zathura zip zmap zram* zsh zsoelim zypper
@@ -217,16 +273,33 @@ Pin-Priority: -1
 EOF
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog chrony libpam-tmpdir  pavucontrol pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber unhide fonts-liberation libxfce4ui-utils gnome-terminal xfce4-terminal xfce4-session xfce4-settings xfwm4 xfdesktop4 gnome-brave-icon-theme breeze-gtk-theme bibata* qt5ct gdebi-core opensnitch python3-opensnitch*
+log_info "Installing required packages..."
+apt install -y rsyslog chrony libpam-tmpdir pavucontrol pipewire \
+    pipewire-audio-client-libraries pipewire-pulse wireplumber unhide \
+    fonts-liberation libxfce4ui-utils gnome-terminal xfce4-terminal \
+    xfce4-session xfce4-settings xfwm4 xfdesktop4 gnome-brave-icon-theme \
+    breeze-gtk-theme bibata* qt5ct gdebi-core opensnitch python3-opensnitch*
 
 # PAM/U2F
-pamu2fcfg -u dev > /etc/security/u2f_keys
+log_info "Configuring U2F authentication..."
+log_warn "Please insert your U2F device and touch it when prompted..."
+
+# Check if U2F device is available
+if ! pamu2fcfg -u dev > /etc/security/u2f_keys 2>/dev/null; then
+    log_error "U2F device not detected or timeout occurred"
+    log_warn "Please ensure your U2F device is plugged in and try again"
+    log_warn "Running pamu2fcfg with verbose output..."
+    pamu2fcfg -u dev > /etc/security/u2f_keys
+fi
+
 chmod 0400 /etc/security/u2f_keys
 chown root:root /etc/security/u2f_keys
+
+log_info "Configuring faillock..."
 mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
-rm -f /etc/pam.d/remote
-rm -f /etc/pam.d/cron
+rm -f /etc/pam.d/remote 2>/dev/null || true
+rm -f /etc/pam.d/cron 2>/dev/null || true
 
 # Faillock configuration
 cat > /etc/security/faillock.conf << 'EOF'
@@ -237,6 +310,7 @@ silent
 EOF
 
 # PAM CONFIGURATIONS
+log_info "Configuring PAM modules..."
 cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=3000000
@@ -423,6 +497,7 @@ chmod 644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 
 # SUDO
+log_info "Configuring sudo..."
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
 Defaults !setenv
@@ -443,6 +518,7 @@ chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
 
 # MISC HARDENING
+log_info "Applying miscellaneous hardening..."
 cat >/etc/shells <<'EOF'
 /bin/bash
 EOF
@@ -499,12 +575,14 @@ EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB 
+log_info "Hardening GRUB bootloader..."
 sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="mitigations=auto,nosmt spectre_v2=on spec_store_bypass_disable=on l1tf=full,force mds=full,nosmt tsx=off tsx_async_abort=full,nosmt mmio_stale_data=full,nosmt retbleed=auto,nosmt srbds=on gather_data_sampling=force reg_file_data_sampling=on intel_iommu=on iommu=force iommu.passthrough=0 iommu.strict=1 efi=disable_early_pci_dma lockdown=confidentiality init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic module.sig_enforce=1 ipv6.disable=1 nosmt nowatchdog nmi_watchdog=0"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
 
 # SYSCTL 
+log_info "Applying sysctl hardening..."
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
@@ -579,6 +657,7 @@ EOF
 sysctl --system
 
 # MODULES
+log_info "Blacklisting kernel modules..."
 cat > /etc/modprobe.d/harden.conf << 'EOF'
 blacklist af_802154
 install af_802154 /bin/false
@@ -803,19 +882,26 @@ install ipv6 /bin/false
 EOF
 
 # FSTAB 
+log_info "Configuring filesystem mounts..."
 cp /etc/fstab /etc/fstab.bak
 
-echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
+# Only add if not already present
+if ! grep -q "proc.*hidepid=2" /etc/fstab; then
+    cat >> /etc/fstab << 'EOF'
+proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
 tmpfs    /tmp       tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /dev/shm   tmpfs     size=512M,noatime,nodev,nosuid,noexec,mode=1777   0 0
 tmpfs    /run       tmpfs     size=512M,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0
+EOF
+fi
 
 groupadd -f proc
 gpasswd -a root proc
 
 # PERMISSIONS
+log_info "Securing file permissions..."
 chmod 700 /root
 chown root:root /root
 chmod 700 /home/dev
@@ -837,13 +923,14 @@ chmod 440 /etc/sudoers
 chown root:root /etc/sudoers
 chmod 750 /etc/sudoers.d
 chown root:root /etc/sudoers.d
-find /etc/sudoers.d -type f -exec chmod 440 {} \;
+find /etc/sudoers.d -type f -exec chmod 440 {} \; 2>/dev/null || true
 chmod 644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 chmod 600 /etc/security/access.conf
 chmod 600 /etc/security/limits.conf
-chmod 600 /etc/security/namespace.conf
-chown root:root /etc/security/*
+chmod 600 /etc/security/namespace.conf 2>/dev/null || true
+chown root:root /etc/security/* 2>/dev/null || true
+
 if [[ -d /etc/ssh ]]; then
     chmod 700 /etc/ssh
     chmod 600 /etc/ssh/*_key 2>/dev/null || true
@@ -851,26 +938,31 @@ if [[ -d /etc/ssh ]]; then
     chmod 644 /etc/ssh/sshd_config 2>/dev/null || true
     chown -R root:root /etc/ssh
 fi
+
 chmod 700 /etc/cron.d 2>/dev/null || true
 chmod 700 /etc/cron.daily 2>/dev/null || true
 chmod 700 /etc/cron.hourly 2>/dev/null || true
 chmod 700 /etc/cron.weekly 2>/dev/null || true
 chmod 700 /etc/cron.monthly 2>/dev/null || true
 chmod 600 /etc/crontab 2>/dev/null || true
+
 if [[ -f /etc/at.deny ]]; then
     chmod 600 /etc/at.deny
 fi
+
 chmod 700 /boot
 chown root:root /boot
-find /boot -type f -name "vmlinuz*" -exec chmod 600 {} \;
-find /boot -type f -name "initrd*" -exec chmod 600 {} \;
-find /boot -type f -name "System.map*" -exec chmod 600 {} \;
-find /boot -type f -name "config-*" -exec chmod 600 {} \;
+find /boot -type f -name "vmlinuz*" -exec chmod 600 {} \; 2>/dev/null || true
+find /boot -type f -name "initrd*" -exec chmod 600 {} \; 2>/dev/null || true
+find /boot -type f -name "System.map*" -exec chmod 600 {} \; 2>/dev/null || true
+find /boot -type f -name "config-*" -exec chmod 600 {} \; 2>/dev/null || true
+
 if [[ -f /boot/grub/grub.cfg ]]; then
     chmod 600 /boot/grub/grub.cfg
     chown root:root /boot/grub/grub.cfg
 fi
 
+log_info "Searching for world-writable files..."
 WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
     ! -path "/tmp/*" \
     ! -path "/var/tmp/*" \
@@ -879,26 +971,29 @@ WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
     2>/dev/null || true)
 
 if [[ -n "$WORLD_WRITABLE" ]]; then
-    echo "[!] Found world-writable files:"
+    log_warn "Found world-writable files:"
     echo "$WORLD_WRITABLE"
-    echo "[*] Removing world-writable bit from these files"
+    log_info "Removing world-writable bit from these files"
     echo "$WORLD_WRITABLE" | xargs -r chmod o-w
 fi
 
+log_info "Searching for unowned files..."
 UNOWNED=$(find / -xdev \( -nouser -o -nogroup \) \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
 
 if [[ -n "$UNOWNED" ]]; then
-    echo "[!] Found unowned files (review manually):"
+    log_warn "Found unowned files (review manually):"
     echo "$UNOWNED"
 fi
-chown root:adm -R /var/log
-chmod -R 0640 /var/log
-chmod 0750 /var/log
+
+chown root:adm -R /var/log 2>/dev/null || true
+chmod -R 0640 /var/log 2>/dev/null || true
+chmod 0750 /var/log 2>/dev/null || true
 
 # OPENSNITCH 
+log_info "Configuring OpenSnitch application firewall..."
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
@@ -933,15 +1028,15 @@ systemctl enable opensnitchd.service
 systemctl start opensnitchd.service
 
 # Install Blocklists
-apt install git 
+log_info "Installing OpenSnitch blocklists..."
 git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
 cd Respect-My-Internet
 chmod +x install.sh
 ./install.sh
-systemctl restart opensnitchd
 cd
 
 # PRIVILEGE ESCALATION HARDENING
+log_info "Hardening privilege escalation vectors..."
 echo "" > /etc/securetty
 chmod 600 /etc/securetty
 
@@ -953,8 +1048,11 @@ chmod 600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-rm /usr/bin/run0
-rm /usr/bin/su
+# Remove dangerous privilege escalation tools
+rm -f /usr/bin/run0 2>/dev/null || true
+rm -f /usr/bin/su 2>/dev/null || true
+
+# Deny all polkit requests
 mkdir -p /etc/polkit-1/rules.d
 cat > /etc/polkit-1/rules.d/00-deny-all.rules << 'EOF'
 // Deny all polkit requests - hardened system
@@ -966,12 +1064,26 @@ EOF
 chmod 0644 /etc/polkit-1/rules.d/00-deny-all.rules
 
 # LOCKDOWN
+log_info "Final lockdown phase - removing SUID/SGID bits..."
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
+
+# Restore sudo SUID
 chmod u+s /usr/bin/sudo
+
+log_info "Cleaning up packages..."
 apt clean
 apt autopurge -y
+
+# Remove leftover config files
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
-[ -n "$RC_PKGS" ] && apt purge -y $RC_PKGS || true
+if [ -n "$RC_PKGS" ]; then
+    apt purge -y $RC_PKGS 2>/dev/null || true
+fi
+
+# Make critical system files immutable
+log_info "Setting immutable flags on critical system files..."
+log_warn "This will prevent system updates from modifying core configs"
+log_warn "Run 'chattr -i <file>' to unlock individual files if needed"
 
 chattr +i /etc/conf 2>/dev/null || true
 chattr +i /etc/passwd 2>/dev/null || true
@@ -1027,4 +1139,9 @@ chattr -R +i /lib/modules 2>/dev/null || true
 chattr -R +i /usr 2>/dev/null || true
 chattr -R +i /boot 2>/dev/null || true 
 
-echo “HARDENING COMPLETE”
+log_info "=========================================="
+log_info "HARDENING COMPLETE"
+log_info "=========================================="
+log_warn "System will require U2F device for all authentication"
+log_warn "Immutable files are locked - use 'chattr -i' to modify"
+log_warn "Reboot recommended to apply all changes"
