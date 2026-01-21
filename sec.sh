@@ -241,7 +241,7 @@ cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=3000000
 auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
+auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys
 auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
 auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
 EOF
@@ -254,7 +254,6 @@ EOF
 
 cat > /etc/pam.d/common-password << 'EOF'
 #%PAM-1.0
-# Password changes disabled - U2F only system
 password  requisite   pam_deny.so
 EOF
 
@@ -279,11 +278,7 @@ EOF
 
 cat > /etc/pam.d/sudo << 'EOF'
 #%PAM-1.0
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
-account   required    pam_faillock.so
+auth      include     common-auth
 account   include     common-account
 session   required    pam_limits.so
 session   include     common-session
@@ -291,11 +286,7 @@ EOF
 
 cat > /etc/pam.d/sudo-i << 'EOF'
 #%PAM-1.0
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
-account   required    pam_faillock.so
+auth      include     common-auth
 account   include     common-account
 session   required    pam_limits.so
 session   include     common-session
@@ -303,11 +294,7 @@ EOF
 
 cat > /etc/pam.d/su << 'EOF'
 #%PAM-1.0
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
-account   required    pam_faillock.so
+auth      include     common-auth
 account   include     common-account
 session   required    pam_limits.so
 session   include     common-session
@@ -315,11 +302,7 @@ EOF
 
 cat > /etc/pam.d/su-l << 'EOF'
 #%PAM-1.0
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
-account   required    pam_faillock.so
+auth      include     common-auth
 account   include     common-account
 session   required    pam_limits.so
 session   include     common-session
@@ -328,11 +311,7 @@ EOF
 cat > /etc/pam.d/login << 'EOF'
 #%PAM-1.0
 auth      requisite   pam_nologin.so
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      [success=1 default=bad] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      sufficient  pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900
-account   required    pam_faillock.so
+auth      include     common-auth
 account   required    pam_access.so
 account   include     common-account
 session   required    pam_limits.so
@@ -481,14 +460,9 @@ echo "ALL: ALL" > /etc/hosts.deny
 chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
-cat > /etc/profile.d/autologout.sh <<'EOF'
-TMOUT=600
-readonly TMOUT
-export TMOUT
-EOF
-
 cat > /etc/security/access.conf << EOF
-+:dev:tty1 tty2 
++:dev:tty1 tty2 tty3 tty4 tty5 tty6
++:dev:LOCAL
 -:ALL EXCEPT dev:tty1 tty2 tty3 tty4 tty5 tty6
 -:ALL EXCEPT dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
@@ -499,7 +473,7 @@ EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB 
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="mitigations=auto,nosmt spectre_v2=on spec_store_bypass_disable=on l1tf=full,force mds=full,nosmt tsx=off tsx_async_abort=full,nosmt mmio_stale_data=full,nosmt retbleed=auto,nosmt srbds=on gather_data_sampling=force reg_file_data_sampling=on intel_iommu=on iommu=force iommu.passthrough=0 iommu.strict=1 efi=disable_early_pci_dma lockdown=confidentiality init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic module.sig_enforce=1 ipv6.disable=1 nosmt nowatchdog nmi_watchdog=0"|' /etc/default/grub
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
@@ -513,8 +487,8 @@ kernel.kptr_restrict = 2
 kernel.dmesg_restrict = 1
 kernel.unprivileged_bpf_disabled = 1
 kernel.kexec_load_disabled = 1
-kernel.yama.ptrace_scope = 3
-kernel.sysrq = 0
+kernel.yama.ptrace_scope = 2
+kernel.sysrq = 4
 kernel.watchdog = 0
 kernel.core_uses_pid = 1
 kernel.suid_dumpable = 0
@@ -529,11 +503,11 @@ kernel.perf_cpu_time_max_percent = 1
 kernel.perf_event_max_sample_rate = 1
 vm.max_map_count = 1048576
 vm.mmap_min_addr = 65536
-vm.oom_kill_allocating_task = 1
-vm.panic_on_oom = 1
-vm.overcommit_memory = 2
-vm.overcommit_ratio = 100
-vm.swappiness = 1
+vm.oom_kill_allocating_task = 0
+vm.panic_on_oom = 0
+vm.overcommit_memory = 1
+vm.overcommit_ratio = 50
+vm.swappiness = 10
 vm.unprivileged_userfaultfd = 0
 fs.protected_hardlinks = 1
 fs.protected_symlinks = 1
@@ -565,8 +539,8 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 net.core.netdev_max_backlog = 65535
 net.core.somaxconn = 65535
-net.core.rmem_max = 6291456
-net.core.wmem_max = 6291456
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
 net.core.optmem_max = 65535
 net.netfilter.nf_conntrack_max = 2000000
 net.netfilter.nf_conntrack_tcp_loose = 0
@@ -580,6 +554,7 @@ sysctl --system
 
 # MODULES
 cat > /etc/modprobe.d/harden.conf << 'EOF'
+# Wireless/Bluetooth
 blacklist af_802154
 install af_802154 /bin/false
 blacklist ath10k_pci
@@ -600,10 +575,6 @@ blacklist ath9k
 install ath9k /bin/false
 blacklist ath9k_htc
 install ath9k_htc /bin/false
-blacklist atm
-install atm /bin/false
-blacklist ax25
-install ax25 /bin/false
 blacklist bluetooth
 install bluetooth /bin/false
 blacklist brcmsmac
@@ -618,66 +589,10 @@ blacklist btusb
 install btusb /bin/false
 blacklist btrtl
 install btrtl /bin/false
-blacklist can
-install can /bin/false
-blacklist cramfs
-install cramfs /bin/false
 blacklist cfg80211
 install cfg80211 /bin/false
-blacklist dccp
-install dccp /bin/false
-blacklist decnet
-install decnet /bin/false
-blacklist dvb_core
-install dvb_core /bin/false
-blacklist dvb_usb
-install dvb_usb /bin/false
-blacklist dvb_usb_v2
-install dvb_usb_v2 /bin/false
-blacklist econet
-install econet /bin/false
-blacklist firewire-core
-install firewire-core /bin/false
-blacklist firewire-ohci
-install firewire-ohci /bin/false
-blacklist floppy
-install floppy /bin/false
-blacklist freevxfs
-install freevxfs /bin/false
-blacklist garmin_gps
-install garmin_gps /bin/false
-blacklist gfs2
-install gfs2 /bin/false
-blacklist gnss
-install gnss /bin/false
-blacklist gnss-serial
-install gnss-serial /bin/false
-blacklist gnss-usb
-install gnss-usb /bin/false
-blacklist hfs
-install hfs /bin/false
-blacklist hfsplus
-install hfsplus /bin/false
-blacklist hamradio
-install hamradio /bin/false
-blacklist ipx
-install ipx /bin/false
 blacklist iwlwifi
 install iwlwifi /bin/false
-blacklist jffs2
-install jffs2 /bin/false
-blacklist joydev
-install joydev /bin/false
-blacklist jfs
-install jfs /bin/false
-blacklist kvm
-install kvm /bin/false
-blacklist kvm_amd
-install kvm_amd /bin/false
-blacklist kvm_intel
-install kvm_intel /bin/false
-blacklist lp
-install lp /bin/false
 blacklist mac80211
 install mac80211 /bin/false
 blacklist mt76
@@ -694,26 +609,10 @@ blacklist mt7615e
 install mt7615e /bin/false
 blacklist mt7921e
 install mt7921e /bin/false
-blacklist netrom
-install netrom /bin/false
-blacklist p8022
-install p8022 /bin/false
-blacklist p8023
-install p8023 /bin/false
-blacklist parport
-install parport /bin/false
-blacklist ppdev
-install ppdev /bin/false
-blacklist psnap
-install psnap /bin/false
-blacklist r820t
-install r820t /bin/false
-blacklist rds
-install rds /bin/false
-blacklist reiserfs
-install reiserfs /bin/false
-blacklist rose
-install rose /bin/false
+blacklist iwlmvm
+install iwlmvm /bin/false
+blacklist iwldvm
+install iwldvm /bin/false
 blacklist rt2800lib
 install rt2800lib /bin/false
 blacklist rt2800pci
@@ -740,28 +639,70 @@ blacklist rtl88x2bu
 install rtl88x2bu /bin/false
 blacklist rtl8xxxu
 install rtl8xxxu /bin/false
-blacklist rtl2830
-install rtl2830 /bin/false
-blacklist rtl2832
-install rtl2832 /bin/false
-blacklist rtl2832_sdr
-install rtl2832_sdr /bin/false
-blacklist rtl2838
-install rtl2838 /bin/false
+
+# Legacy/Unused protocols
+blacklist atm
+install atm /bin/false
+blacklist ax25
+install ax25 /bin/false
+blacklist can
+install can /bin/false
+blacklist dccp
+install dccp /bin/false
+blacklist decnet
+install decnet /bin/false
+blacklist econet
+install econet /bin/false
+blacklist ipx
+install ipx /bin/false
+blacklist netrom
+install netrom /bin/false
+blacklist p8022
+install p8022 /bin/false
+blacklist p8023
+install p8023 /bin/false
+blacklist psnap
+install psnap /bin/false
+blacklist rds
+install rds /bin/false
+blacklist rose
+install rose /bin/false
 blacklist sctp
 install sctp /bin/false
-blacklist squashfs
-install squashfs /bin/false
 blacklist tipc
 install tipc /bin/false
-blacklist uas
-install uas /bin/false
+blacklist x25
+install x25 /bin/false
+
+# Unused filesystems
+blacklist cramfs
+install cramfs /bin/false
+blacklist freevxfs
+install freevxfs /bin/false
+blacklist gfs2
+install gfs2 /bin/false
+blacklist hfs
+install hfs /bin/false
+blacklist hfsplus
+install hfsplus /bin/false
+blacklist jffs2
+install jffs2 /bin/false
+blacklist jfs
+install jfs /bin/false
+blacklist reiserfs
+install reiserfs /bin/false
+blacklist squashfs
+install squashfs /bin/false
 blacklist udf
 install udf /bin/false
-blacklist usb_storage
-install usb_storage /bin/false
-blacklist uvcvideo
-install uvcvideo /bin/false
+
+# Virtualization
+blacklist kvm
+install kvm /bin/false
+blacklist kvm_amd
+install kvm_amd /bin/false
+blacklist kvm_intel
+install kvm_intel /bin/false
 blacklist vboxdrv
 install vboxdrv /bin/false
 blacklist vboxnetadp
@@ -774,16 +715,38 @@ blacklist vhost_net
 install vhost_net /bin/false
 blacklist vhost_vsock
 install vhost_vsock /bin/false
-blacklist video1394
-install video1394 /bin/false
 blacklist vmmon
 install vmmon /bin/false
 blacklist vmw_vmci
 install vmw_vmci /bin/false
 blacklist xen
 install xen /bin/false
-blacklist x25
-install x25 /bin/false
+
+# Firewire
+blacklist firewire-core
+install firewire-core /bin/false
+blacklist firewire-ohci
+install firewire-ohci /bin/false
+blacklist video1394
+install video1394 /bin/false
+
+# Thunderbolt
+blacklist thunderbolt
+install thunderbolt /bin/false
+
+# Misc hardware not needed
+blacklist floppy
+install floppy /bin/false
+blacklist joydev
+install joydev /bin/false
+blacklist parport
+install parport /bin/false
+blacklist ppdev
+install ppdev /bin/false
+blacklist lp
+install lp /bin/false
+blacklist uvcvideo
+install uvcvideo /bin/false
 blacklist mei
 install mei /bin/false
 blacklist mei_me
@@ -792,12 +755,36 @@ blacklist mei_hdcp
 install mei_hdcp /bin/false
 blacklist mei_pxp
 install mei_pxp /bin/false
-blacklist thunderbolt
-install thunderbolt /bin/false
-blacklist iwlmvm
-install iwlmvm /bin/false
-blacklist iwldvm
-install iwldvm /bin/false
+
+# TV/Radio/GPS
+blacklist dvb_core
+install dvb_core /bin/false
+blacklist dvb_usb
+install dvb_usb /bin/false
+blacklist dvb_usb_v2
+install dvb_usb_v2 /bin/false
+blacklist r820t
+install r820t /bin/false
+blacklist rtl2830
+install rtl2830 /bin/false
+blacklist rtl2832
+install rtl2832 /bin/false
+blacklist rtl2832_sdr
+install rtl2832_sdr /bin/false
+blacklist rtl2838
+install rtl2838 /bin/false
+blacklist gnss
+install gnss /bin/false
+blacklist gnss-serial
+install gnss-serial /bin/false
+blacklist gnss-usb
+install gnss-usb /bin/false
+blacklist garmin_gps
+install garmin_gps /bin/false
+blacklist hamradio
+install hamradio /bin/false
+
+# IPv6
 blacklist ipv6
 install ipv6 /bin/false
 EOF
@@ -860,7 +847,7 @@ chmod 600 /etc/crontab 2>/dev/null || true
 if [[ -f /etc/at.deny ]]; then
     chmod 600 /etc/at.deny
 fi
-chmod 700 /boot
+chmod 755 /boot
 chown root:root /boot
 find /boot -type f -name "vmlinuz*" -exec chmod 600 {} \;
 find /boot -type f -name "initrd*" -exec chmod 600 {} \;
@@ -1024,7 +1011,5 @@ chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
 chattr -R +i /lib/modules 2>/dev/null || true
-chattr -R +i /usr 2>/dev/null || true
-chattr -R +i /boot 2>/dev/null || true 
 
 echo “HARDENING COMPLETE”
