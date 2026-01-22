@@ -10,165 +10,165 @@ apt install -y librewolf --no-install-recommends
 
 # SYSTEMD HARDENING
 SERVICES_TO_DISABLE=(
-“anacron.service”
-“anacron.timer”
-“apport.service”
-“apt-daily-upgrade.timer”
-“apt-daily.timer”
-“avahi-daemon.service”
-“avahi-daemon.socket”
-“bluetooth.service”
-“bluetooth.target”
-“bluez”
-“bolt.service”
-“brltty.service”
-“chef-client.service”
-“cloud-config.service”
-“cloud-final.service”
-“cloud-init-local.service”
-“cloud-init.service”
-“cockpit.service”
-“cockpit.socket”
-“containerd.service”
-“cron.service”
-“cups-browsed”
-“cups-browsed.service”
-“cups.path”
-“cups.service”
-“cups.socket”
-“debug-shell.service”
-“docker.service”
-“docker.socket”
-“e2scrub_all.timer”
-“exim4.service”
-“fprintd.service”
-“fwupd-refresh.timer”
-“fwupd.service”
-“geoclue.service”
-“gnome-remote-desktop.service”
-“hv-fcopy-daemon.service”
-“hv-kvp-daemon.service”
-“hv-vss-daemon.service”
-“iio-sensor-proxy.service”
-“iscsi.service”
-“iscsid.service”
-“iscsid.socket”
-“kerneloops.service”
-“krb5-admin-server.service”
-“krb5-kdc.service”
-“libvirtd-admin.socket”
-“libvirtd-ro.socket”
-“libvirtd.service”
-“libvirtd.socket”
-“lvm2-lvmpolld.service”
-“lvm2-lvmpolld.socket”
-“lxc-net.service”
-“lxc.service”
-“lxd.service”
-“lxd.socket”
-“man-db.timer”
-“ModemManager.service”
-“motd-news.timer”
-“multipassd.service”
-“multipathd.service”
-“nfs-client.target”
-“nfs-common.service”
-“nfs-mountd.service”
-“nfs-server.service”
-“nmbd.service”
-“nscd.service”
-“nslcd.service”
-“nvmefc-boot-connections.service”
-“nvmf-autoconnect.service”
-“open-iscsi.service”
-“packagekit.service”
-“pcscd.socket”
-“podman.service”
-“podman.socket”
-“postfix.service”
-“proftpd.service”
-“puppet.service”
-“pure-ftpd.service”
-“qemu-guest-agent.service”
-“rpcbind.service”
-“rpcbind.socket”
-“rsync.service”
-“salt-minion.service”
-“samba-ad-dc.service”
-“samba.service”
-“sendmail.service”
-“serial-getty@*.service”
-“smbd.service”
-“snapd.seeded.service”
-“snapd.service”
-“snapd.socket”
-“snmpd.service”
-“snmptrapd.service”
-“speech-dispatcher”
-“speech-dispatcher.service”
-“spice-vdagentd.service”
-“spice-vdagentd.socket”
-“ssh.service”
-“ssh.socket”
-“sshd.service”
-“sssd.service”
-“systemd-binfmt.service”
-“systemd-journal-gatewayd.socket”
-“systemd-journal-remote.socket”
-“systemd-journal-upload.service”
-“tigervnc.service”
+"anacron.service"
+"anacron.timer"
+"apport.service"
+"apt-daily-upgrade.timer"
+"apt-daily.timer"
+"avahi-daemon.service"
+"avahi-daemon.socket"
+"bluetooth.service"
+"bluetooth.target"
+"bluez"
+"bolt.service"
+"brltty.service"
+"chef-client.service"
+"cloud-config.service"
+"cloud-final.service"
+"cloud-init-local.service"
+"cloud-init.service"
+"cockpit.service"
+"cockpit.socket"
+"containerd.service"
+"cron.service"
+"cups-browsed"
+"cups-browsed.service"
+"cups.path"
+"cups.service"
+"cups.socket"
+"debug-shell.service"
+"docker.service"
+"docker.socket"
+"e2scrub_all.timer"
+"exim4.service"
+"fprintd.service"
+"fwupd-refresh.timer"
+"fwupd.service"
+"geoclue.service"
+"gnome-remote-desktop.service"
+"hv-fcopy-daemon.service"
+"hv-kvp-daemon.service"
+"hv-vss-daemon.service"
+"iio-sensor-proxy.service"
+"iscsi.service"
+"iscsid.service"
+"iscsid.socket"
+"kerneloops.service"
+"krb5-admin-server.service"
+"krb5-kdc.service"
+"libvirtd-admin.socket"
+"libvirtd-ro.socket"
+"libvirtd.service"
+"libvirtd.socket"
+"lvm2-lvmpolld.service"
+"lvm2-lvmpolld.socket"
+"lxc-net.service"
+"lxc.service"
+"lxd.service"
+"lxd.socket"
+"man-db.timer"
+"ModemManager.service"
+"motd-news.timer"
+"multipassd.service"
+"multipathd.service"
+"nfs-client.target"
+"nfs-common.service"
+"nfs-mountd.service"
+"nfs-server.service"
+"nmbd.service"
+"nscd.service"
+"nslcd.service"
+"nvmefc-boot-connections.service"
+"nvmf-autoconnect.service"
+"open-iscsi.service"
+"packagekit.service"
+"pcscd.socket"
+"podman.service"
+"podman.socket"
+"postfix.service"
+"proftpd.service"
+"puppet.service"
+"pure-ftpd.service"
+"qemu-guest-agent.service"
+"rpcbind.service"
+"rpcbind.socket"
+"rsync.service"
+"salt-minion.service"
+"samba-ad-dc.service"
+"samba.service"
+"sendmail.service"
+"serial-getty@*.service"
+"smbd.service"
+"snapd.seeded.service"
+"snapd.service"
+"snapd.socket"
+"snmpd.service"
+"snmptrapd.service"
+"speech-dispatcher"
+"speech-dispatcher.service"
+"spice-vdagentd.service"
+"spice-vdagentd.socket"
+"ssh.service"
+"ssh.socket"
+"sshd.service"
+"sssd.service"
+"systemd-binfmt.service"
+"systemd-journal-gatewayd.socket"
+"systemd-journal-remote.socket"
+"systemd-journal-upload.service"
+"tigervnc.service"
 "tracker-extract-3.service"
 "tracker-miner-fs-3.service"
 "tracker-miner-rss-3.service"
 "tracker-writeback-3.service"
-“udisks2.service”
-“unattended-upgrades”
-“unattended-upgrades.service”
-“usbmuxd.service”
-“vboxautostart-service.service”
-“vboxballoonctrl-service.service”
-“vboxdrv.service”
-“vboxweb-service.service”
-“vino-server.service”
-“virtlockd.service”
-“virtlockd.socket”
-“virtlogd.service”
-“virtlogd.socket”
-“vmtoolsd.service”
-“vmware-vmblock-fuse.service”
-“vsftpd.service”
-“webmin.service”
-“whoopsie.service”
-“winbind.service”
-“wpa_supplicant”
-“x11vnc.service”
-“xrdp-sesman.service”
-“xrdp.service”
+"udisks2.service"
+"unattended-upgrades"
+"unattended-upgrades.service"
+"usbmuxd.service"
+"vboxautostart-service.service"
+"vboxballoonctrl-service.service"
+"vboxdrv.service"
+"vboxweb-service.service"
+"vino-server.service"
+"virtlockd.service"
+"virtlockd.socket"
+"virtlogd.service"
+"virtlogd.socket"
+"vmtoolsd.service"
+"vmware-vmblock-fuse.service"
+"vsftpd.service"
+"webmin.service"
+"whoopsie.service"
+"winbind.service"
+"wpa_supplicant"
+"x11vnc.service"
+"xrdp-sesman.service"
+"xrdp.service"
 )
 
-for svc in “${SERVICES_TO_DISABLE[@]}”; do
-echo “    [-] Disabling ${svc}”
-systemctl stop “$svc” 2>/dev/null || true
-systemctl disable “$svc” 2>/dev/null || true
-systemctl mask “$svc” 2>/dev/null || true
+for svc in "${SERVICES_TO_DISABLE[@]}"; do
+echo "    [-] Disabling ${svc}"
+systemctl stop "$svc" 2>/dev/null || true
+systemctl disable "$svc" 2>/dev/null || true
+systemctl mask "$svc" 2>/dev/null || true
 done
 
 # Explicitly DO NOT disable these GNOME-essential services
 
 GNOME_SERVICES=(
-“gdm.service”
-“gdm3.service”
-“accounts-daemon.service”
-“colord.service”
-“rtkit-daemon.service”
-“switcheroo-control.service”
-“upower.service”
-“power-profiles-daemon.service”
+"gdm.service"
+"gdm3.service"
+"accounts-daemon.service"
+"colord.service"
+"rtkit-daemon.service"
+"switcheroo-control.service"
+"upower.service"
+"power-profiles-daemon.service"
 )
 
-for svc in “${GNOME_SERVICES[@]}”; do
-systemctl unmask “$svc” 2>/dev/null || true
-systemctl enable “$svc” 2>/dev/null || true
+for svc in "${GNOME_SERVICES[@]}"; do
+systemctl unmask "$svc" 2>/dev/null || true
+systemctl enable "$svc" 2>/dev/null || true
 done
 
 # APT
@@ -218,7 +218,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE REMOVAL/RESTRICTING
-apt purge -y anacron* cron* pp* perl python3 zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* dhcp*
+sudo apt purge -y anacron* cron* pp* perl python3 zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* samba* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* dhcp*
 
 # Block dangerous/unnecessary packages
 install -d /etc/apt/preferences.d
@@ -229,7 +229,7 @@ Pin-Priority: -1
 EOF
 
 # GNOME PACKAGE INSTALLATION
-apt install -y gnome-core gdm3 gnome-shell gnome-terminal gnome-control-center gnome-tweaks gnome-system-monitor gnome-text-editor rsyslog chrony libpam-tmpdir pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber unhide gdebi-core opensnitch* python3-opensnitch* dbus-x11 xdg-utils
+apt install -y gnome-session gdm3 gnome-shell gnome-terminal gnome-control-center gnome-tweaks gnome-system-monitor gnome-text-editor rsyslog chrony libpam-tmpdir pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber unhide gdebi-core opensnitch* python3-opensnitch* dbus-x11 xdg-utils librewolf gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-user-theme gnome-shell-extension-runcat gnome-shell-extension-dash-to-panel gnome-shell-extension-arc-menu gnome-shell-extension-manager
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -291,12 +291,10 @@ EOF
 cat > /etc/pam.d/gdm-password << 'EOF'
 #%PAM-1.0
 auth      requisite   pam_nologin.so
-auth      required    pam_succeed_if.so user != root quiet_success
 auth      required    pam_faildelay.so delay=2000000
 auth      required    pam_faillock.so preauth silent deny=5 unlock_time=600 fail_interval=900
 auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys cue
 auth      requisite   pam_deny.so
-auth      required    pam_permit.so
 auth      optional    pam_gnome_keyring.so
 auth      optional    pam_faillock.so authsucc
 account   required    pam_faillock.so
@@ -310,8 +308,6 @@ EOF
 cat > /etc/pam.d/gdm-autologin << 'EOF'
 #%PAM-1.0
 auth      requisite   pam_nologin.so
-auth      required    pam_succeed_if.so user != root quiet_success
-auth      required    pam_permit.so
 auth      optional    pam_gnome_keyring.so
 account   include     common-account
 password  include     common-password
@@ -468,7 +464,7 @@ order hosts
 EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
-*           hard    nproc         2048
+*           hard    nproc         4096
 *            -      maxlogins     3
 *            -      maxsyslogins  3
 dev          -      maxlogins     3
@@ -499,14 +495,14 @@ chmod 644 /etc/hosts.deny
 cat > /etc/security/access.conf << EOF
 +:dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
-+:root:LOCAL
+-:root:ALL
 -:ALL:REMOTE
 -:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB 
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait"|' /etc/default/grub
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
@@ -515,7 +511,6 @@ chmod 640 /etc/default/grub
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
-# Restrict kernel pointer exposure
 kernel.kptr_restrict = 2
 kernel.dmesg_restrict = 1
 kernel.unprivileged_bpf_disabled = 1
@@ -585,9 +580,9 @@ dev.tty.ldisc_autoload = 0
 EOF
 sysctl --system
 
+
 # MODULES
 cat > /etc/modprobe.d/harden.conf << 'EOF'
-# Wireless/Bluetooth
 blacklist af_802154
 install af_802154 /bin/false
 blacklist ath10k_pci
@@ -608,6 +603,10 @@ blacklist ath9k
 install ath9k /bin/false
 blacklist ath9k_htc
 install ath9k_htc /bin/false
+blacklist atm
+install atm /bin/false
+blacklist ax25
+install ax25 /bin/false
 blacklist bluetooth
 install bluetooth /bin/false
 blacklist brcmsmac
@@ -622,10 +621,66 @@ blacklist btusb
 install btusb /bin/false
 blacklist btrtl
 install btrtl /bin/false
+blacklist can
+install can /bin/false
+blacklist cramfs
+install cramfs /bin/false
 blacklist cfg80211
 install cfg80211 /bin/false
+blacklist dccp
+install dccp /bin/false
+blacklist decnet
+install decnet /bin/false
+blacklist dvb_core
+install dvb_core /bin/false
+blacklist dvb_usb
+install dvb_usb /bin/false
+blacklist dvb_usb_v2
+install dvb_usb_v2 /bin/false
+blacklist econet
+install econet /bin/false
+blacklist firewire-core
+install firewire-core /bin/false
+blacklist firewire-ohci
+install firewire-ohci /bin/false
+blacklist floppy
+install floppy /bin/false
+blacklist freevxfs
+install freevxfs /bin/false
+blacklist garmin_gps
+install garmin_gps /bin/false
+blacklist gfs2
+install gfs2 /bin/false
+blacklist gnss
+install gnss /bin/false
+blacklist gnss-serial
+install gnss-serial /bin/false
+blacklist gnss-usb
+install gnss-usb /bin/false
+blacklist hfs
+install hfs /bin/false
+blacklist hfsplus
+install hfsplus /bin/false
+blacklist hamradio
+install hamradio /bin/false
+blacklist ipx
+install ipx /bin/false
 blacklist iwlwifi
 install iwlwifi /bin/false
+blacklist jffs2
+install jffs2 /bin/false
+blacklist joydev
+install joydev /bin/false
+blacklist jfs
+install jfs /bin/false
+blacklist kvm
+install kvm /bin/false
+blacklist kvm_amd
+install kvm_amd /bin/false
+blacklist kvm_intel
+install kvm_intel /bin/false
+blacklist lp
+install lp /bin/false
 blacklist mac80211
 install mac80211 /bin/false
 blacklist mt76
@@ -642,10 +697,26 @@ blacklist mt7615e
 install mt7615e /bin/false
 blacklist mt7921e
 install mt7921e /bin/false
-blacklist iwlmvm
-install iwlmvm /bin/false
-blacklist iwldvm
-install iwldvm /bin/false
+blacklist netrom
+install netrom /bin/false
+blacklist p8022
+install p8022 /bin/false
+blacklist p8023
+install p8023 /bin/false
+blacklist parport
+install parport /bin/false
+blacklist ppdev
+install ppdev /bin/false
+blacklist psnap
+install psnap /bin/false
+blacklist r820t
+install r820t /bin/false
+blacklist rds
+install rds /bin/false
+blacklist reiserfs
+install reiserfs /bin/false
+blacklist rose
+install rose /bin/false
 blacklist rt2800lib
 install rt2800lib /bin/false
 blacklist rt2800pci
@@ -672,70 +743,28 @@ blacklist rtl88x2bu
 install rtl88x2bu /bin/false
 blacklist rtl8xxxu
 install rtl8xxxu /bin/false
-
-# Legacy/Unused protocols
-blacklist atm
-install atm /bin/false
-blacklist ax25
-install ax25 /bin/false
-blacklist can
-install can /bin/false
-blacklist dccp
-install dccp /bin/false
-blacklist decnet
-install decnet /bin/false
-blacklist econet
-install econet /bin/false
-blacklist ipx
-install ipx /bin/false
-blacklist netrom
-install netrom /bin/false
-blacklist p8022
-install p8022 /bin/false
-blacklist p8023
-install p8023 /bin/false
-blacklist psnap
-install psnap /bin/false
-blacklist rds
-install rds /bin/false
-blacklist rose
-install rose /bin/false
+blacklist rtl2830
+install rtl2830 /bin/false
+blacklist rtl2832
+install rtl2832 /bin/false
+blacklist rtl2832_sdr
+install rtl2832_sdr /bin/false
+blacklist rtl2838
+install rtl2838 /bin/false
 blacklist sctp
 install sctp /bin/false
-blacklist tipc
-install tipc /bin/false
-blacklist x25
-install x25 /bin/false
-
-# Unused filesystems
-blacklist cramfs
-install cramfs /bin/false
-blacklist freevxfs
-install freevxfs /bin/false
-blacklist gfs2
-install gfs2 /bin/false
-blacklist hfs
-install hfs /bin/false
-blacklist hfsplus
-install hfsplus /bin/false
-blacklist jffs2
-install jffs2 /bin/false
-blacklist jfs
-install jfs /bin/false
-blacklist reiserfs
-install reiserfs /bin/false
 blacklist squashfs
 install squashfs /bin/false
+blacklist tipc
+install tipc /bin/false
+blacklist uas
+install uas /bin/false
 blacklist udf
 install udf /bin/false
-
-# Virtualization
-blacklist kvm
-install kvm /bin/false
-blacklist kvm_amd
-install kvm_amd /bin/false
-blacklist kvm_intel
-install kvm_intel /bin/false
+blacklist usb_storage
+install usb_storage /bin/false
+blacklist uvcvideo
+install uvcvideo /bin/false
 blacklist vboxdrv
 install vboxdrv /bin/false
 blacklist vboxnetadp
@@ -748,38 +777,16 @@ blacklist vhost_net
 install vhost_net /bin/false
 blacklist vhost_vsock
 install vhost_vsock /bin/false
+blacklist video1394
+install video1394 /bin/false
 blacklist vmmon
 install vmmon /bin/false
 blacklist vmw_vmci
 install vmw_vmci /bin/false
 blacklist xen
 install xen /bin/false
-
-# Firewire
-blacklist firewire-core
-install firewire-core /bin/false
-blacklist firewire-ohci
-install firewire-ohci /bin/false
-blacklist video1394
-install video1394 /bin/false
-
-# Thunderbolt
-blacklist thunderbolt
-install thunderbolt /bin/false
-
-# Misc hardware not needed
-blacklist floppy
-install floppy /bin/false
-blacklist joydev
-install joydev /bin/false
-blacklist parport
-install parport /bin/false
-blacklist ppdev
-install ppdev /bin/false
-blacklist lp
-install lp /bin/false
-blacklist uvcvideo
-install uvcvideo /bin/false
+blacklist x25
+install x25 /bin/false
 blacklist mei
 install mei /bin/false
 blacklist mei_me
@@ -788,36 +795,12 @@ blacklist mei_hdcp
 install mei_hdcp /bin/false
 blacklist mei_pxp
 install mei_pxp /bin/false
-
-# TV/Radio/GPS
-blacklist dvb_core
-install dvb_core /bin/false
-blacklist dvb_usb
-install dvb_usb /bin/false
-blacklist dvb_usb_v2
-install dvb_usb_v2 /bin/false
-blacklist r820t
-install r820t /bin/false
-blacklist rtl2830
-install rtl2830 /bin/false
-blacklist rtl2832
-install rtl2832 /bin/false
-blacklist rtl2832_sdr
-install rtl2832_sdr /bin/false
-blacklist rtl2838
-install rtl2838 /bin/false
-blacklist gnss
-install gnss /bin/false
-blacklist gnss-serial
-install gnss-serial /bin/false
-blacklist gnss-usb
-install gnss-usb /bin/false
-blacklist garmin_gps
-install garmin_gps /bin/false
-blacklist hamradio
-install hamradio /bin/false
-
-# IPv6
+blacklist thunderbolt
+install thunderbolt /bin/false
+blacklist iwlmvm
+install iwlmvm /bin/false
+blacklist iwldvm
+install iwldvm /bin/false
 blacklist ipv6
 install ipv6 /bin/false
 EOF
@@ -826,11 +809,11 @@ EOF
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755            0 0
-tmpfs    /home/dev/.cache    tmpfs    size=4G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /tmp       tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /var/tmp   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /dev/shm   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777   0 0
+tmpfs    /run       tmpfs     size=1G,noatime,nodev,nosuid,mode=0755          0 0
+tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
@@ -976,50 +959,15 @@ echo "" > /etc/at.deny 2>/dev/null || true
 rm /usr/bin/run0
 rm /usr/bin/su
 
-# Polkit
-mkdir -p /etc/polkit-1/rules.d
-cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
-// Allow essential GNOME desktop actions for user 'dev'
-polkit.addRule(function(action, subject) {
-if (subject.user == “dev”) {
-// Allow essential desktop operations
-if (action.id == “org.freedesktop.login1.suspend” ||
-action.id == “org.freedesktop.login1.hibernate” ||
-action.id == “org.freedesktop.login1.reboot” ||
-action.id == “org.freedesktop.login1.power-off” ||
-action.id == “org.freedesktop.NetworkManager.network-control” ||
-action.id == “org.freedesktop.NetworkManager.settings.modify.system” ||
-action.id == “org.freedesktop.NetworkManager.enable-disable-network” ||
-action.id == “org.freedesktop.NetworkManager.enable-disable-wifi” ||
-action.id == “org.freedesktop.ModemManager1.Device.Control” ||
-action.id == “org.freedesktop.timedate1.set-time” ||
-action.id == “org.freedesktop.timedate1.set-timezone” ||
-action.id == “org.freedesktop.locale1.set-locale” ||
-action.id == “org.freedesktop.hostname1.set-static-hostname” ||
-action.id == “org.freedesktop.hostname1.set-hostname” ||
-action.id == “org.freedesktop.Accounts.UserAdministration” ||
-action.id.indexOf(“org.gnome.controlcenter”) == 0 ||
-action.id.indexOf(“org.freedesktop.color”) == 0) {
-return polkit.Result.YES;
-}
-}
-// Deny everything else
-return polkit.Result.NO;
-});
-EOF
-
-chmod 0644 /etc/polkit-1/rules.d/50-gnome-allow.rules
-
 # LOCKDOWN
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
+chmod u+s /usr/bin/sudo
 apt clean
 apt autopurge -y
+RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
+[ -n "$RC_PKGS" ] && apt purge -y $RC_PKGS || true
 
-RC_PKGS=$(dpkg -l | grep ‘^rc' | awk ‘{print $2}' || true)
-if [ -n “$RC_PKGS” ]; then
-apt purge -y $RC_PKGS 2>/dev/null || true
-fi
-
-# Make critical system files immutable
+chattr +i /etc/conf 2>/dev/null || true
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
 chattr +i /etc/shadow 2>/dev/null || true
@@ -1043,16 +991,19 @@ chattr -R +i /etc/default 2>/dev/null || true
 chattr -R +i /etc/sudoers 2>/dev/null || true
 chattr -R +i /etc/sudoers.d 2>/dev/null || true
 chattr -R +i /etc/pam.d 2>/dev/null || true
+chattr -R +i /usr/lib/pam.d 2>/dev/null || true
 chattr -R +i /etc/security 2>/dev/null || true
 chattr +i /usr/lib/sysctl.d/sysctl.conf 2>/dev/null || true
 chattr -R +i /usr/lib/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/sysctl.conf 2>/dev/null || true
 chattr -R +i /etc/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/modprobe.d 2>/dev/null || true
+chattr -R +i /usr/lib/modprobe.d 2>/dev/null || true
 chattr -R +i /etc/iptables 2>/dev/null || true
 chattr -R +i /etc/profile 2>/dev/null || true
 chattr -R +i /etc/profile.d 2>/dev/null || true
 chattr -R +i /etc/bash.bashrc 2>/dev/null || true
+chattr -R +i /etc/bashrc 2>/dev/null || true
 chattr +i /root/.bashrc 2>/dev/null || true
 chattr +i /home/dev/.bashrc 2>/dev/null || true
 chattr -R +i /etc/cron.allow 2>/dev/null || true
@@ -1062,8 +1013,12 @@ chattr -R +i /etc/cron.daily 2>/dev/null || true
 chattr -R +i /etc/cron.hourly 2>/dev/null || true
 chattr -R +i /etc/cron.monthly 2>/dev/null || true
 chattr -R +i /etc/cron.weekly 2>/dev/null || true
+chattr -R +i /etc/polkit-1 2>/dev/null || true
 chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
+chattr -R +i /lib/modules 2>/dev/null || true
+chattr -R +i /usr 2>/dev/null || true
+chattr -R +i /boot 2>/dev/null || true 
 
-echo “HARDENING COMPLETE”
+echo "HARDENING COMPLETE"
