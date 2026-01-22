@@ -307,7 +307,7 @@ session   optional    pam_gnome_keyring.so auto_start
 session   include     common-session
 EOF
 
-cat > /etc/pam.d/gdm-autologin << ‘EOF’
+cat > /etc/pam.d/gdm-autologin << 'EOF'
 #%PAM-1.0
 auth      requisite   pam_nologin.so
 auth      required    pam_succeed_if.so user != root quiet_success
@@ -979,7 +979,7 @@ rm /usr/bin/su
 # Polkit
 mkdir -p /etc/polkit-1/rules.d
 cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
-// Allow essential GNOME desktop actions for user ‘dev’
+// Allow essential GNOME desktop actions for user 'dev'
 polkit.addRule(function(action, subject) {
 if (subject.user == “dev”) {
 // Allow essential desktop operations
@@ -1014,7 +1014,7 @@ chmod 0644 /etc/polkit-1/rules.d/50-gnome-allow.rules
 apt clean
 apt autopurge -y
 
-RC_PKGS=$(dpkg -l | grep ‘^rc’ | awk ‘{print $2}’ || true)
+RC_PKGS=$(dpkg -l | grep ‘^rc' | awk ‘{print $2}' || true)
 if [ -n “$RC_PKGS” ]; then
 apt purge -y $RC_PKGS 2>/dev/null || true
 fi
