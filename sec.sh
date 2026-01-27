@@ -864,7 +864,11 @@ rm -f /usr/bin/run0 2>/dev/null || true
 rm -f /usr/bin/su 2>/dev/null || true
 rm -f /usr/bin/sudoreplay 2>/dev/null || true
 rm -f /usr/bin/sudoedit 2>/dev/null || true
-
+rm -f /dev/ng0n1 2>/dev/null || true
+rm -f /dev/vhost* 2>/dev/null || true
+rm -f /dev/vfio 2>/dev/null || true
+rm -f /dev/vhci 2>/dev/null || true
+rm -f /dev/ppp 2>/dev/null || true
 # LOCKDOWN
 
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
