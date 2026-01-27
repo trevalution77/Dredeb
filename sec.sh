@@ -4,38 +4,7 @@ set -euo pipefail
 #!/usr/bin/env bash
 #
 # ============================================================================
-# ULTRA-HARDENING SCRIPT - CONSOLIDATED
-# ============================================================================
-# Target: Debian 12+ / ThinkPad P16s Gen 2 / GNOME Wayland
-# User: Single-user system (dev) with U2F-only authentication
-#
-# MODULES INCLUDED:
-#   1. PAM Hardening        - U2F-only auth, session limits, polyinstantiation
-#   2. Kernel Parameters    - Sysctl hardening, module blacklisting, GRUB params
-#   3. Filesystem Hardening - Mount options, permissions, tmpfs, world-writable audit
-#   4. Services Hardening   - Disable/mask unnecessary services, GDM config
-#   5. Audit Framework      - auditd rules for comprehensive security monitoring
-#   6. AppArmor            - Browser and application confinement profiles
-#   7. Sudoers             - Locked-down sudo with GTFOBins protection
-#   8. GRUB Bootloader     - Password protection, secure boot params
-#   9. USB Hardening       - USBGuard with whitelist-only policy
-#  10. Banners             - Legal warnings at login points
-#  11. Package Minimization - Verify installed packages, remove unnecessary
-#  12. Integrity Verification - File integrity monitoring with baselines
-#
-# CRITICAL FIXES APPLIED:
-#   - chmod 755 /boot (not 700) - systemd needs read access
-#   - access.conf: +root:LOCAL included - allows systemd to function
-#   - Polkit rules for GNOME - desktop operations work properly
-#   - NO recursive chattr on /boot, /usr, /lib/modules, /etc
-#   - No USB storage/uas blacklisting (can break some NVMe drives)
-#
-# BEFORE RUNNING:
-#   1. Ensure libpam-u2f is installed: apt install libpam-u2f
-#   2. Register U2F key: pamu2fcfg -udev > /etc/security/u2f_keys/dev
-#   3. Have a live USB ready for recovery
-#   4. Test in VM first if possible
-#
+#                        ULTRA-HARDENING SCRIPT 
 # ============================================================================
 
 set -euo pipefail
