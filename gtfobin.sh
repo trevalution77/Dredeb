@@ -1175,7 +1175,7 @@ remove_dangerous_packages() {
     # Risky packages (cleanup)
     log_info "Cleaning up risky packages..."
     for pkg in "${RISKY_PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &>/dev/null 2>/dev/null; then
+        if dpkg -l "$pkg" &>/dev/null; then
             log_warn "Removing risky package: $pkg"
             apt purge -y "$pkg" 2>/dev/null || true
         fi
