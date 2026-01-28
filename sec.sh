@@ -121,7 +121,7 @@ cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=2000000
 auth      required    pam_faillock.so preauth silent deny=5 unlock_time=600 fail_interval=900
-auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
+auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys cue
 auth      requisite   pam_deny.so
 auth      optional    pam_faillock.so authsucc
 EOF
@@ -140,21 +140,21 @@ EOF
 cat > /etc/pam.d/common-session << 'EOF'
 #%PAM-1.0
 session   required    pam_limits.so
+session   required    pam_unix.so
 session   required    pam_env.so
 session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
-session   required    pam_unix.so
 EOF
 
 cat > /etc/pam.d/common-session-noninteractive << 'EOF'
 #%PAM-1.0
 session   required    pam_limits.so
+session   required    pam_unix.so
 session   required    pam_env.so
 session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
-session   required    pam_unix.so
 EOF
 
 cat > /etc/pam.d/gdm-password << 'EOF'
@@ -162,7 +162,7 @@ cat > /etc/pam.d/gdm-password << 'EOF'
 auth      requisite   pam_nologin.so
 auth      required    pam_faildelay.so delay=2000000
 auth      required    pam_faillock.so preauth silent deny=5 unlock_time=600 fail_interval=900
-auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
+auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys cue
 auth      requisite   pam_deny.so
 auth      optional    pam_gnome_keyring.so
 auth      optional    pam_faillock.so authsucc
@@ -290,7 +290,7 @@ password  required    pam_deny.so
 session   required    pam_deny.so
 EOF
 
-cat > /usr/lib/pam.d/systemd-user << 'EOF'
+cat > /etc/pam.d/systemd-user << 'EOF'
 #%PAM-1.0
 account   include     common-account
 session   required    pam_limits.so
@@ -334,9 +334,10 @@ EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
 *           hard    nproc         4096
-*            -      maxlogins   2
-dev          -      maxlogins    2
-dev          -      maxsyslogins  2
+*            -      maxlogins     3
+*            -      maxsyslogins  3
+dev          -      maxlogins     3
+dev          -      maxsyslogins  3
 root         -      maxlogins     2
 root         -      maxsyslogin   2
 root        hard    nproc         65536
@@ -370,26 +371,24 @@ cat > /etc/security/access.conf << EOF
 EOF
 chmod 644 /etc/security/access.conf
 
-## GRUB 
+# GRUB
 
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="mitigations=auto,nosmt spectre_v2=on spec_store_bypass_disable=on l1tf=full,force mds=full,nosmt tsx=off tsx_async_abort=full,nosmt mmio_stale_data=full,nosmt retbleed=auto,nosmt srbds=on gather_data_sampling=force reg_file_data_sampling=on intel_iommu=on iommu=force iommu.passthrough=0 iommu.strict=1 efi=disable_early_pci_dma lockdown=confidentiality init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic module.sig_enforce=1 ipv6.disable=1 nosmt nowatchdog nmi_watchdog=0"|' /etc/default/grub
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
-
 
 # SYSCTL
 
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
-
 kernel.kptr_restrict = 2
 kernel.dmesg_restrict = 1
 kernel.unprivileged_bpf_disabled = 1
 kernel.kexec_load_disabled = 1
-kernel.yama.ptrace_scope = 3
-kernel.sysrq = 0
+kernel.yama.ptrace_scope = 2
+kernel.sysrq = 4
 kernel.watchdog = 0
 kernel.core_uses_pid = 1
 kernel.suid_dumpable = 0
@@ -404,11 +403,11 @@ kernel.perf_cpu_time_max_percent = 1
 kernel.perf_event_max_sample_rate = 1
 vm.max_map_count = 1048576
 vm.mmap_min_addr = 65536
-vm.oom_kill_allocating_task = 1
-vm.panic_on_oom = 1
-vm.overcommit_memory = 2
-vm.overcommit_ratio = 100
-vm.swappiness = 1
+vm.oom_kill_allocating_task = 0
+vm.panic_on_oom = 0
+vm.overcommit_memory = 1
+vm.overcommit_ratio = 50
+vm.swappiness = 10
 vm.unprivileged_userfaultfd = 0
 fs.protected_hardlinks = 1
 fs.protected_symlinks = 1
@@ -440,8 +439,8 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 net.core.netdev_max_backlog = 65535
 net.core.somaxconn = 65535
-net.core.rmem_max = 6291456
-net.core.wmem_max = 6291456
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
 net.core.optmem_max = 65535
 net.netfilter.nf_conntrack_max = 2000000
 net.netfilter.nf_conntrack_tcp_loose = 0
@@ -456,7 +455,6 @@ sysctl --system
 # MODULES
 
 cat > /etc/modprobe.d/harden.conf << 'EOF'
-
 blacklist af_802154
 install af_802154 /bin/false
 blacklist ath10k_pci
@@ -631,12 +629,8 @@ blacklist squashfs
 install squashfs /bin/false
 blacklist tipc
 install tipc /bin/false
-blacklist uas
-install uas /bin/false
 blacklist udf
 install udf /bin/false
-blacklist usb_storage
-install usb_storage /bin/false
 blacklist uvcvideo
 install uvcvideo /bin/false
 blacklist vboxdrv
@@ -860,6 +854,8 @@ echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
 rm -f /usr/bin/run0 2>/dev/null || true
+rm -f /usr/bin/su 2>/dev/null || 
+rm -f /usr/bin/run0 2>/dev/null || true
 rm -f /usr/bin/su 2>/dev/null || true
 rm -f /usr/bin/sudoreplay 2>/dev/null || true
 rm -f /usr/bin/sudoedit 2>/dev/null || true
@@ -868,6 +864,7 @@ rm -f /dev/vhost* 2>/dev/null || true
 rm -f /dev/vfio 2>/dev/null || true
 rm -f /dev/vhci 2>/dev/null || true
 rm -f /dev/ppp 2>/dev/null || true
+
 # LOCKDOWN
 
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
