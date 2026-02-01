@@ -5,51 +5,28 @@
 set -euo pipefail
 
 # PRE-CONFIG
-
 apt install -y extrepo iptables iptables-persistent netfilter-persistent
 extrepo enable librewolf
 apt update
 apt install -y librewolf
 
-# SYSTEMD HARDENING
+# SERVICES
+systemctl disable --now accounts-daemon.service anacron.service anacron.timer apport.service apt-daily-upgrade.timer apt-daily.timer avahi-daemon.service avahi-daemon.socket bluetooth.service bluez bolt.service chef-client.service cloud-config.service cloud-final.service cloud-init-local.service cloud-init.service cloud-init.target cockpit.service cockpit.socket colord.service console-getty.service containerd.service cron.service ctrl-alt-del.target cups-browsed cups.path cups.service cups.socket debug-shell.service docker.service docker.socket e2scrub_all.timer fprintd.service fwupd.service geoclue.service getty@ttyS0.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service iio-sensor-proxy.service inetd.service iscsi.service iscsid.service iscsid.socket kerneloops.service kexec.target krb5-admin-server.service krb5-kdc.service libvirt-guests.service libvirtd-admin.socket libvirtd-ro.socket libvirtd.service libvirtd.socket lxc-net.service lxc.service lxd.service lxd.socket machines.target man-db.timer ModemManager.service motd-news.timer multipassd.service nfs-blkmap.service nfs-client.target nfs-common.service nfs-idmapd.service nfs-mountd.service nfs-server.service nmbd.service nscd.service nslcd.service nvmefc-boot-connections.service nvmf-autoconnect.service open-iscsi.service open-vm-tools.service packagekit.service pcscd.socket podman.service podman.socket power-profiles-daemon.service printer.target proc-sys-fs-binfmt_misc.automount proc-sys-fs-binfmt_misc.mount proftpd.service puppet.service pure-ftpd.service qemu-guest-agent.service remote-cryptsetup.target remote-fs-pre.target remote-fs.target rpcbind.service rpcbind.socket rpcbind.target rsync.service rtkit-daemon.service salt-minion.service samba-ad-dc.service samba.service serial-getty@.service serial-getty@*.service smbd.service snmpd.service snmptrapd.service speech-dispatcher spice-vdagentd.service spice-vdagentd.socket ssh.service ssh.socket sssd-autofs.socket sssd-kcm.socket sssd-nss.socket sssd-pac.socket sssd-pam.socket sssd-ssh.socket sssd-sudo.socket sssd.service sssd.socket switcheroo-control.service systemd-binfmt.service systemd-coredump.socket systemd-journal-gatewayd.socket systemd-journal-remote.socket systemd-journal-upload.service systemd-kexec.service systemd-nspawn@.service telnet.socket tigervnc.service udisks2.service unattended-upgrades usb-gadget.target usbip.service usbipd.service usbmuxd.service usbmuxd.socket vboxadd-service.service vboxadd.service vboxautostart-service.service vboxballoonctrl-service.service vboxdrv.service vboxweb-service.service vino-server.service virtlockd.service virtlockd.socket virtlogd.service virtlogd.socket vmtoolsd.service vmware-tools.service vmware-vmblock-fuse.service vsftpd.service webmin.service winbind.service wpa_supplicant x11vnc.service xinetd.service xrdp-sesman.service xrdp.service xrdp.socket 2>/dev/null || true
 
-systemctl disable --now ssh.service ssh.socket vino-server.service x11vnc.service tigervnc.service xrdp.service xrdp-sesman.service serial-getty@*.service systemd-journal-remote.socket systemd-journal-gatewayd.socket systemd-journal-upload.service cockpit.socket cockpit.service webmin.service nfs-client.target nfs-common.service nfs-mountd.service nfs-server.service rpcbind.socket rpcbind.service iscsid.socket iscsid.service iscsi.service open-iscsi.service nvmf-autoconnect.service nvmefc-boot-connections.service smbd.service nmbd.service samba.service samba-ad-dc.service vsftpd.service proftpd.service pure-ftpd.service sssd.service krb5-kdc.service krb5-admin-server.service nslcd.service nscd.service winbind.service libvirtd.service libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket virtlogd.service virtlogd.socket virtlockd.service virtlockd.socket qemu-guest-agent.service vboxdrv.service vboxballoonctrl-service.service vboxautostart-service.service vboxweb-service.service vmtoolsd.service vmware-vmblock-fuse.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service docker.service docker.socket containerd.service podman.socket podman.service lxd.socket lxd.service lxc.service lxc-net.service multipassd.service snmpd.service snmptrapd.service salt-minion.service puppet.service chef-client.service cloud-init.service cloud-init-local.service cloud-config.service cloud-final.service spice-vdagentd.service spice-vdagentd.socket usbmuxd.service ModemManager.service unattended-upgrades wpa_supplicant speech-dispatcher bluez bluetooth.service apport.service avahi-daemon.socket avahi-daemon.service cups-browsed cups.socket cups.path cups.service debug-shell.service accounts-daemon.service colord.service geoclue.service switcheroo-control.service power-profiles-daemon.service bolt.service fwupd.service packagekit.service rtkit-daemon.service iio-sensor-proxy.service apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer motd-news.timer kerneloops.service anacron.timer anacron.service cron.service rsync.service pcscd.socket udisks2.service fprintd.service systemd-binfmt.service 2>/dev/null || true
-
-systemctl mask ssh.service ssh.socket telnet.socket inetd.service xinetd.service vino-server.service x11vnc.service tigervnc.service xrdp.service xrdp-sesman.service xrdp.socket serial-getty@.service getty@ttyS0.service console-getty.service debug-shell.service systemd-journal-remote.socket systemd-journal-gatewayd.socket systemd-journal-upload.service cockpit.socket cockpit.service webmin.service nfs-client.target nfs-common.service nfs-mountd.service nfs-server.service nfs-blkmap.service nfs-idmapd.service rpcbind.socket rpcbind.service rpcbind.target iscsid.socket iscsid.service iscsi.service open-iscsi.service nvmf-autoconnect.service nvmefc-boot-connections.service smbd.service nmbd.service samba.service samba-ad-dc.service remote-fs.target remote-fs-pre.target remote-cryptsetup.target vsftpd.service proftpd.service pure-ftpd.service sssd.socket sssd-nss.socket sssd-pam.socket sssd-sudo.socket sssd-autofs.socket sssd-ssh.socket sssd-pac.socket sssd-kcm.socket krb5-kdc.service krb5-admin-server.service nslcd.service winbind.service libvirtd.service libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket virtlogd.service virtlogd.socket virtlockd.service virtlockd.socket libvirt-guests.service qemu-guest-agent.service vboxdrv.service vboxballoonctrl-service.service vboxautostart-service.service vboxweb-service.service vboxadd.service vboxadd-service.service vmtoolsd.service vmware-vmblock-fuse.service vmware-tools.service open-vm-tools.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service docker.service docker.socket containerd.service podman.socket podman.service lxd.socket lxd.service lxc.service lxc-net.service systemd-nspawn@.service machines.target multipassd.service snmpd.service snmptrapd.service salt-minion.service puppet.service chef-client.service cloud-init.target cloud-init.service cloud-init-local.service cloud-config.service cloud-final.service spice-vdagentd.service spice-vdagentd.socket usbip.service usbipd.service usbmuxd.service usbmuxd.socket ModemManager.service debug-shell.service ctrl-alt-del.target kexec.target systemd-kexec.service proc-sys-fs-binfmt_misc.mount proc-sys-fs-binfmt_misc.automount printer.target remote-fs.target remote-cryptsetup.target usb-gadget.target systemd-coredump.socket 2>/dev/null || true
-
-# Explicitly enable GNOME-essential services
-
-GNOME_SERVICES=(
-"gdm.service"
-"gdm3.service"
-"accounts-daemon.service"
-"colord.service"
-"rtkit-daemon.service"
-"switcheroo-control.service"
-"upower.service"
-"power-profiles-daemon.service"
-)
-
-for svc in "${GNOME_SERVICES[@]}"; do
-systemctl unmask "$svc" 2>/dev/null || true
-systemctl enable "$svc" 2>/dev/null || true
-done
+systemctl mask accounts-daemon.service anacron.service anacron.timer apport.service apt-daily-upgrade.timer apt-daily.timer avahi-daemon.service avahi-daemon.socket bluetooth.service bluez bolt.service chef-client.service cloud-config.service cloud-final.service cloud-init-local.service cloud-init.service cloud-init.target cockpit.service cockpit.socket colord.service console-getty.service containerd.service cron.service ctrl-alt-del.target cups-browsed cups.path cups.service cups.socket debug-shell.service docker.service docker.socket e2scrub_all.timer fprintd.service fwupd.service geoclue.service getty@ttyS0.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service iio-sensor-proxy.service inetd.service iscsi.service iscsid.service iscsid.socket kerneloops.service kexec.target krb5-admin-server.service krb5-kdc.service libvirt-guests.service libvirtd-admin.socket libvirtd-ro.socket libvirtd.service libvirtd.socket lxc-net.service lxc.service lxd.service lxd.socket machines.target man-db.timer ModemManager.service motd-news.timer multipassd.service nfs-blkmap.service nfs-client.target nfs-common.service nfs-idmapd.service nfs-mountd.service nfs-server.service nmbd.service nscd.service nslcd.service nvmefc-boot-connections.service nvmf-autoconnect.service open-iscsi.service open-vm-tools.service packagekit.service pcscd.socket podman.service podman.socket power-profiles-daemon.service printer.target proc-sys-fs-binfmt_misc.automount proc-sys-fs-binfmt_misc.mount proftpd.service puppet.service pure-ftpd.service qemu-guest-agent.service remote-cryptsetup.target remote-fs-pre.target remote-fs.target rpcbind.service rpcbind.socket rpcbind.target rsync.service rtkit-daemon.service salt-minion.service samba-ad-dc.service samba.service serial-getty@.service serial-getty@*.service smbd.service snmpd.service snmptrapd.service speech-dispatcher spice-vdagentd.service spice-vdagentd.socket ssh.service ssh.socket sssd-autofs.socket sssd-kcm.socket sssd-nss.socket sssd-pac.socket sssd-pam.socket sssd-ssh.socket sssd-sudo.socket sssd.service sssd.socket switcheroo-control.service systemd-binfmt.service systemd-coredump.socket systemd-journal-gatewayd.socket systemd-journal-remote.socket systemd-journal-upload.service systemd-kexec.service systemd-nspawn@.service telnet.socket tigervnc.service udisks2.service unattended-upgrades usb-gadget.target usbip.service usbipd.service usbmuxd.service usbmuxd.socket vboxadd-service.service vboxadd.service vboxautostart-service.service vboxballoonctrl-service.service vboxdrv.service vboxweb-service.service vino-server.service virtlockd.service virtlockd.socket virtlogd.service virtlogd.socket vmtoolsd.service vmware-tools.service vmware-vmblock-fuse.service vsftpd.service webmin.service winbind.service wpa_supplicant x11vnc.service xinetd.service xrdp-sesman.service xrdp.service xrdp.socket 2>/dev/null || true
 
 # PACKAGE REMOVAL
-
-apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd bind9 telnet vsftpd apache2 gcc g++ make cmake perl python3 ruby anacron* pp* zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* 2>/dev/null || true
+apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd bind9 telnet vsftpd apache2 gcc g++ make cmake perl python3 ruby anacron* pp* zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup*
 
 # PACKAGE DENY LIST
-
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
-Package: 7z aa-exec ab acpi* age try aircrack-ng alpine anacron* ansible* aoss apache* ar aria2c arj arp* as ascii-xfr ascii85 ash aspell at atobm autoconf* automake* autopsy avahi* awk aws base32 base58 base64 basenc basez batcat bc bconsole beef* bettercap bind* binwalk blue* bochs* bpftrace bridge build-essential build* bundle bundler busctl byebug bzip2 c89 c99 cabal cabal-install cancel capsh cargo cdist certbot check_by_ssh check_cups check_log check_memory check_raid check_ssl_cert check_statusfile choom chroot clam* cmake* cmp cobc column comm composer container* courier* cowsay cowthink cp cpan cpio cpulimit crackmapexec crash crontab csh csplit csvtool cup* cup* curl cut dash date dc dd debugfs dhcp* dialog diff dig dirb distcc dma* dmesg dmidecode dmsetup dnf dns* docker* docker* dos2unix dosbox dotnet* dropbear* dsniff dstat dvips easy_install eb ed efax elixir elvish emacs* enscript enum4linux env eqn erlang espeak espeak* ettercap* ex exiftool exim* expand expect facter fastfetch finger fish flatpak flock fmt fold fonts-noto* foremost fping fprint* ftp g++* gawk gcc gcc* gcloud gcore gdb gdb* gem genie genisoimage ghc ghci ghostscript gimp ginsh gnustep* gobuster golang* grc grep gtester gzip hashcat hd head hexdump highlight hping3 hydra* iconv iftop imagemagick impacket-scripts inet* ionice irb ispell jjs joe john join jq jrunscript jtag julia knife ksh ksshell ksu kubectl latex latexmk ld.so ldconfig lftp lftp libtool libvirt* libvirt* links lldb lldb* ln loginctl logsave look lp ltrace ltrace* ltrace* lua* lualatex luatex lwp-download lwp-request lxc* lxc* lxd* macchanger mail make maltego man masscan mawk medusa meson metagoofil metasploit-framework minicom mitmproxy mobile* modemmanager* mono-complete more mosquitto msfconsole msgattrib msgcat msgconv msgfilter msgmerge msguniq mtr multitime mysql nano nasm nasm* nawk nbtscan nc ncat ncdu ncftp neofetch netcat* nfs* nft nftables* nice nikto ninja-build nl nm nmap node nodejs* nohup npm* nroff nsenter ntpdate octave od openssh* openssl openstego openvpn openvt opkg os-prober* outguess pandoc paste pax pdb pdflatex pdftex perf perlbug pexec pg php* pic pico pidstat pip pkg pmount* podman* posh postfix* pp* pr print* proftpd-basic proxychains* pry psftp psql ptx puppet pure-ftpd pwsh qemu* qemu* r-base radare2 rake rc readelf recon-ng red redcarpet redis responder restic rev rlogin rlwrap rpc* rpm rpmdb rpmquery rpmverify rsh* rtorrent ruby* run-mailcap run-parts runscript rustc rview rvim sane* sash scanmem scp screen script scrot sed sendmail* service set setarch setfacl setlock sftp sg shuf sleuthkit slsh smb* snap snapd socat social-engineer-toolkit socket soelim softlimit sort spee* spiderfoot split sql* ss ssh* sslstrip start-stop-daemon stdbuf steghide stegosuite strace* strings su systemd-resolve tac tail tar task tasksel* taskset tasksh tbl tcl tclsh tcpdump tdbtool tee telnet* terraform tex tftp* theharvester tic time timedatectl timeout tinyssh* tk tmate tmux top tor* traceroute* tripwire* troff tshark ul uml* uml* unexpand unicornscan uniq unshare unsquashfs update-alternatives util-linux-locales uuencode vagrant* valgrind varnishncsa view vigr vim* vimdiff vipw virsh virt* virt* virtual* volatility vsftpd w3m wall watch wc wfuzz wget whiptail whois winbind* wireless* wireless* wireshark* wish wpa* xargs xdg-user-dir xdotool xelatex xen* xetex xmodmap xmore xpad xxd xz yarn yash yasm* yum zathura zip zmap zram* zsh zsoelim zypper openssh* dropbear* ssh* tinyssh* qemu* libvirt* uml* virt* courier* dma* tripwire* avahi* pmount* sane* netcat* os-prober* bluetooth* bluez* rpc* nfs* cups* anacron* exim* postfix* sendmail* print* vagrant* lxc* docker* podman* xen* bochs* gnustep* modemmanager* wpasupplicant* wireless* inet* nftables* gcc* g++* gdb* lldb* strace* ltrace* build-essential* automake* autoconf* cmake* nasm* yasm* nodejs* npm* php* ruby* traceroute*
+Package: 7z aa-exec ab acpi* age try aircrack-ng alpine anacron* ansible* aoss apache* ar aria2c arj arp* as ascii-xfr ascii85 ash aspell at atobm autoconf* automake* autopsy avahi* awk aws base32 base58 base64 basenc basez batcat bc bconsole beef* bettercap bind* binwalk blue* bochs* bpftrace bridge build-essential build* bundle bundler busctl byebug bzip2 c89 c99 cabal cabal-install cancel capsh cargo cdist certbot check_by_ssh check_cups check_log check_memory check_raid check_ssl_cert check_statusfile choom chroot clam* cmake* cmp cobc column comm composer container* courier* cowsay cowthink cp cpan cpio cpulimit crackmapexec crash crontab csh csplit csvtool cup* cup* curl cut dash date dc dd debugfs dhcp* dialog diff dig dirb distcc dma* dmesg dmidecode dmsetup dnf dns* docker* docker* dos2unix dosbox dotnet* dropbear* dsniff dstat dvips easy_install eb ed efax elixir elvish emacs* enscript enum4linux env eqn erlang espeak espeak* ettercap* ex exiftool exim* expand expect facter fastfetch finger fish flatpak flock fmt fold fonts-noto* foremost fping fprint* ftp g++* gawk gcc gcc* gcloud gcore gdb gdb* gem genie genisoimage ghc ghci ghostscript gimp ginsh gnustep* gobuster golang* grc grep gtester gzip hashcat hd head hexdump highlight hping3 hydra* iconv iftop imagemagick impacket-scripts inet* ionice irb ispell jjs joe john join jq jrunscript jtag julia knife ksh ksshell ksu kubectl latex latexmk ld.so ldconfig lftp lftp libtool libvirt* libvirt* links lldb lldb* ln loginctl logsave look lp ltrace ltrace* ltrace* lua* lualatex luatex lwp-download lwp-request lxc* lxc* lxd* macchanger mail make maltego man masscan mawk medusa meson metagoofil metasploit-framework minicom mitmproxy mobile* modemmanager* mono-complete more mosquitto msfconsole msgattrib msgcat msgconv msgfilter msgmerge msguniq mtr multitime mysql nano nasm nasm* nawk nbtscan nc ncat ncdu ncftp neofetch netcat* nfs* nft nftables* nice nikto ninja-build nl nm nmap node nodejs* nohup npm* nroff nsenter ntpdate octave od openssh* openssl openstego openvpn openvt opkg os-prober* outguess pandoc paste pax pdb pdflatex pdftex perf perlbug pexec pg php* pic pico pidstat pip pkg pmount* podman* posh postfix* pp* pr print* proftpd-basic proxychains* pry psftp psql ptx puppet pure-ftpd pwsh qemu* qemu* r-base radare2 rake rc readelf recon-ng red redcarpet redis responder restic rev rlogin rlwrap rpc* rpm rpmdb rpmquery rpmverify rsh* rtorrent ruby* run-mailcap run-parts runscript rustc rview rvim samba* sane* sash scanmem scp screen script scrot sed sendmail* service set setarch setfacl setlock sftp sg shuf sleuthkit slsh smb* snap snapd socat social-engineer-toolkit socket soelim softlimit sort spee* spiderfoot split sql* ss ssh* sslstrip start-stop-daemon stdbuf steghide stegosuite strace* strings su systemd-resolve tac tail tar task tasksel* taskset tasksh tbl tcl tclsh tcpdump tdbtool tee telnet* terraform tex tftp* theharvester tic time timedatectl timeout tinyssh* tk tmate tmux top tor* traceroute* tripwire* troff tshark ul uml* uml* unexpand unicornscan uniq unshare unsquashfs update-alternatives util-linux-locales uuencode vagrant* valgrind varnishncsa view vigr vim* vimdiff vipw virsh virt* virt* virtual* volatility vsftpd w3m wall watch wc wfuzz wget whiptail whois winbind* wireless* wireless* wireshark* wish wpa* xargs xdg-user-dir xdotool xelatex xen* xetex xmodmap xmore xpad xxd xz yarn yash yasm* yelp* yum zathura zip zmap zram* zsh zsoelim zypper openssh* dropbear* ssh* tinyssh* qemu* libvirt* uml* virt* courier* dma* tripwire* avahi* pmount* sane* netcat* os-prober* bluetooth* bluez* rpc* nfs* cups* anacron* exim* postfix* sendmail* print* vagrant* lxc* docker* podman* xen* bochs* gnustep* modemmanager* wpasupplicant* wireless* inet* nftables* gcc* g++* gdb* lldb* strace* ltrace* build-essential* automake* autoconf* cmake* nasm* yasm* nodejs* npm* php* ruby* traceroute*
 Pin: release *
 Pin-Priority: -1
 EOF
 
 # APT HARDENING
-
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
 APT::Get::AllowUnauthenticated "false";
 Acquire::AllowInsecureRepositories "false";
@@ -66,7 +43,6 @@ APT::Sandbox::Seccomp "true";
 EOF
 
 # FIREWALL
-
 apt purge -y nftables
 systemctl enable netfilter-persistent
 service netfilter-persistent start
@@ -79,12 +55,18 @@ iptables -t nat -Z
 iptables -t mangle -F
 iptables -t mangle -X
 iptables -t mangle -Z
+iptables -N UDP
+iptables -N TCP
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+iptables -A INPUT -p tcp --syn -m conntrack --ctstate NEW -j TCP
+iptables -A INPUT -p udp -j DROP
+iptables -A INPUT -p tcp -j DROP
 iptables -A INPUT -j DROP
 ip6tables -F
 ip6tables -X
@@ -92,13 +74,34 @@ ip6tables -Z
 ip6tables -P INPUT DROP
 ip6tables -P FORWARD DROP
 ip6tables -P OUTPUT DROP
-iptables-save > /etc/iptables/rules.v4
-ip6tables-save > /etc/iptables/rules.v6
+iptables-save   > /etc/iptables/rules.v4
+ip6tables-save  > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
+apt install -y rsyslog lxqt-core lxqt-wayland-session labwc arc-theme qt6-gtk-platformtheme lxappearance qterminal xdg-desktop-portal-lxqt lxqt-qtplugin labwc-tweaks librewolf gnome-terminal pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gnome-brave-icon-theme breeze-gtk-theme bibata* qt6ct gdebi-core opensnitch opensnitch-* python3-opensnitch* xinit xserver-xorg xserver-xorg-legacy gdebi unzip
 
-apt install -y rsyslog chrony gnome-session gdm3 gnome-shell gnome-terminal gnome-control-center gnome-tweaks gnome-system-monitor dbus-x11 xdg-utils librewolf gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber unhide gnome-brave-icon-theme  bibata-cursor-theme gdebi qtwayland5 opensnitch* python3-opensnitch*
+# UNNECESSARY ACCOUNTS/GROUPS
+groupdel _ssh --force
+groupdel bluetooth --force
+groupdel irc --force
+groupdel kvm --force
+groupdel voice --force
+groupdel games --force
+groupdel colord --force
+userdel nobody
+userdel games
+userdel irc
+userdel list
+userdel news
+userdel bluetooth
+userdel uucp
+userdel sync
+userdel man
+userdel mail
+adduser dev render
+adduser dev input
+adduser dev tty
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -109,7 +112,6 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
-# Faillock configuration
 cat > /etc/security/faillock.conf << 'EOF'
 deny = 3
 unlock_time = 900
@@ -155,34 +157,6 @@ session   required    pam_env.so
 session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
-EOF
-
-cat > /etc/pam.d/gdm-password << 'EOF'
-#%PAM-1.0
-auth      requisite   pam_nologin.so
-auth      required    pam_faildelay.so delay=2000000
-auth      required    pam_faillock.so preauth silent deny=5 unlock_time=600 fail_interval=900
-auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys cue
-auth      requisite   pam_deny.so
-auth      optional    pam_gnome_keyring.so
-auth      optional    pam_faillock.so authsucc
-account   required    pam_faillock.so
-account   include     common-account
-password  include     common-password
-session   required    pam_loginuid.so
-session   optional    pam_gnome_keyring.so auto_start
-session   include     common-session
-EOF
-
-cat > /etc/pam.d/gdm-autologin << 'EOF'
-#%PAM-1.0
-auth      requisite   pam_nologin.so
-auth      optional    pam_gnome_keyring.so
-account   include     common-account
-password  include     common-password
-session   required    pam_loginuid.so
-session   optional    pam_gnome_keyring.so auto_start
-session   include     common-session
 EOF
 
 cat > /etc/pam.d/sudo << 'EOF'
@@ -290,7 +264,7 @@ password  required    pam_deny.so
 session   required    pam_deny.so
 EOF
 
-cat > /etc/pam.d/systemd-user << 'EOF'
+cat > /usr/lib/pam.d/systemd-user << 'EOF'
 #%PAM-1.0
 account   include     common-account
 session   required    pam_limits.so
@@ -305,20 +279,25 @@ chown root:root /etc/pam.d/*
 # SUDO
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
+Defaults ignore_dot
 Defaults !setenv
 Defaults always_set_home
-Defaults timestamp_timeout=0
-Defaults passwd_timeout=0
-Defaults passwd_tries=1
 Defaults use_pty
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Defaults umask=0077
+Defaults passwd_tries=1
+Defaults passwd_timeout=0
+Defaults timestamp_timeout=0
 Defaults logfile="/var/log/sudo.log"
-Defaults log_input,log_output
+Defaults log_input, log_output
+Defaults iolog_dir="/var/log/sudo-io"
+Defaults iolog_file="%{user}/%{command}-%Y%m%d-%H%M%S"
 Defaults editor=/bin/false
 Defaults !env_editor
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-dev  ALL=(ALL) /usr/sbin/, /usr/bin/
+dev   ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
+
 chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
 
@@ -332,16 +311,18 @@ multi on
 order hosts
 EOF
 
+echo "needs_root_rights=no" >> /etc/X11/Xwrapper.config
+dpkg-reconfigure xserver-xorg-legacy
+
 cat >/etc/security/limits.d/limits.conf <<'EOF'
-*           hard    nproc         4096
-*            -      maxlogins     3
-*            -      maxsyslogins  3
-dev          -      maxlogins     3
-dev          -      maxsyslogins  3
-root         -      maxlogins     2
-root         -      maxsyslogins  2
+*           hard    nproc         2048
+*            -      maxlogins     1
+*            -      maxsyslogins  1
+dev          -      maxlogins     1
+dev          -      maxsyslogins  1
+root         -      maxlogins     1
+root         -      maxsyslogin   1
 root        hard    nproc         65536
-*           hard    core          0
 EOF
 
 echo "ProcessSizeMax=0
@@ -362,24 +343,23 @@ chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
-+:dev:LOCAL
++:dev:tty1 tty2
+-:ALL EXCEPT dev:tty1 tty2 tty3 tty4 tty5 tty6
+-:ALL EXCEPT dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
-+:root:LOCAL
--:root:ALL EXCEPT LOCAL
+-:root:ALL
 -:ALL:REMOTE
 -:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB
-
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet init_on_alloc=1 init_on_free=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic kfence.sample_interval=100 efi_pstore.pstore_disable=1 iommu.strict=1 iommu=force amd_iommu=force_isolation amd_iommu=pt efi=disable_early_pci_dma random.trust_bootloader=off random.trust_cpu=off extra_latent_entropy vdso32=0 page_alloc.shuffle=1 mitigations=auto spectre_v2=on spec_store_bypass_disable=on ssbd=force-on l1tf=full,force kvm-intel.vmentry_l1d_flush=always mds=full,nosmt tsx=off tsx_async_abort=full,nosmt retbleed=auto,nosmt kvm.nx_huge_pages=force l1d_flush=on mmio_stale_data=full,nosmt reg_file_data_sampling=on gather_data_sampling=force module.sig_enforce=1 lockdown=confidentiality ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
 
 # SYSCTL
-
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
@@ -453,7 +433,6 @@ EOF
 sysctl --system
 
 # MODULES
-
 cat > /etc/modprobe.d/harden.conf << 'EOF'
 blacklist af_802154
 install af_802154 /bin/false
@@ -674,29 +653,25 @@ install ipv6 /bin/false
 EOF
 
 # FSTAB
-
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /tmp       tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /var/tmp   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /dev/shm   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777   0 0
+tmpfs    /run       tmpfs     size=1G,noatime,nodev,nosuid,mode=0755          0 0
+tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
 
 # PERMISSIONS
-
 chmod 700 /root
 chown root:root /root
 chmod 700 /home/dev
 chown dev:dev /home/dev
-
 find /home/dev -type f -exec chmod o-rwx {} \; 2>/dev/null || true
 find /home/dev -type d -exec chmod o-rwx {} \; 2>/dev/null || true
-
 chmod 600 /etc/shadow
 chmod 600 /etc/gshadow
 chown root:root /etc/shadow
@@ -745,7 +720,7 @@ fi
 
 WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
     ! -path "/tmp/*" \
-    ! -path "/var/tmp/*" \
+    ! -path "/usr/*" \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
@@ -771,7 +746,6 @@ chmod -R 0640 /var/log
 chmod 0750 /var/log
 
 # OPENSNITCH 
-
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
@@ -809,38 +783,6 @@ chmod +x install.sh
 systemctl restart opensnitchd
 cd
 
-# POLKIT
-
-mkdir -p /etc/polkit-1/rules.d
-cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
-polkit.addRule(function(action, subject) {
-if (subject.user == "dev") {
-if (action.id == "org.freedesktop.login1.suspend" ||
-action.id == "org.freedesktop.login1.hibernate" ||
-action.id == "org.freedesktop.login1.reboot" ||
-action.id == "org.freedesktop.login1.power-off" ||
-action.id == "org.freedesktop.NetworkManager.network-control" ||
-action.id == "org.freedesktop.NetworkManager.settings.modify.system" ||
-action.id == "org.freedesktop.NetworkManager.enable-disable-network" ||
-action.id == "org.freedesktop.NetworkManager.enable-disable-wifi" ||
-action.id == "org.freedesktop.ModemManager1.Device.Control" ||
-action.id == "org.freedesktop.timedate1.set-time" ||
-action.id == "org.freedesktop.timedate1.set-timezone" ||
-action.id == "org.freedesktop.locale1.set-locale" ||
-action.id == "org.freedesktop.hostname1.set-static-hostname" ||
-action.id == "org.freedesktop.hostname1.set-hostname" ||
-action.id == "org.freedesktop.Accounts.UserAdministration" ||
-action.id.indexOf("org.gnome.controlcenter") == 0 ||
-action.id.indexOf("org.freedesktop.color") == 0) {
-return polkit.Result.YES;
-}
-}
-return polkit.Result.NO;
-});
-EOF
-
-chmod 0644 /etc/polkit-1/rules.d/50-gnome-allow.rules
-
 # PRIVILEGE ESCALATION HARDENING
 
 echo "" > /etc/securetty
@@ -853,18 +795,18 @@ chmod 600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-rm -f /usr/bin/run0 2>/dev/null || true
-rm -f /usr/bin/su 2>/dev/null || true
-rm -f /usr/bin/sudoreplay 2>/dev/null || true
-rm -f /usr/bin/sudoedit 2>/dev/null || true
-rm -f /dev/ng0n1 2>/dev/null || true
-rm -f /dev/vhost* 2>/dev/null || true
-rm -f /dev/vfio 2>/dev/null || true
-rm -f /dev/vhci 2>/dev/null || true
-rm -f /dev/ppp 2>/dev/null || true
+rm -rf /usr/bin/run0 2>/dev/null || true
+rm -rf /usr/bin/su 2>/dev/null || true
+rm -rf /usr/bin/sudoreplay 2>/dev/null || true
+rm -rf /usr/bin/sudoedit 2>/dev/null || true
+rm -rf /dev/ng0n1 2>/dev/null || true
+rm -rf /dev/vhost* 2>/dev/null || true
+rm -rf /dev/vfio 2>/dev/null || true
+rm -rf /dev/vhci 2>/dev/null || true
+rm -rf /dev/ppp 2>/dev/null || true
+rm -rf /dev/watchdog* 2>/dev/null || true
 
 # LOCKDOWN
-
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
 chmod u+s /usr/bin/sudo
 
@@ -876,7 +818,7 @@ apt purge -y "$RC_PKGS" 2>/dev/null || true
 fi
 
 # IMMUTABLE FLAGS
-
+chattr +i /etc/conf 2>/dev/null || true
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
 chattr +i /etc/shadow 2>/dev/null || true
@@ -892,7 +834,7 @@ chattr +i /etc/services 2>/dev/null || true
 chattr +i /etc/fstab 2>/dev/null || true
 chattr +i /etc/adduser.conf 2>/dev/null || true
 chattr +i /etc/deluser.conf 2>/dev/null || true
-chattr +i /etc/host.conf 2>/dev/null || true
+chattr -R +i /etc/host.conf 2>/dev/null || true
 chattr +i /etc/hosts 2>/dev/null || true
 chattr +i /etc/hosts.allow 2>/dev/null || true
 chattr +i /etc/hosts.deny 2>/dev/null || true
@@ -900,16 +842,19 @@ chattr -R +i /etc/default 2>/dev/null || true
 chattr -R +i /etc/sudoers 2>/dev/null || true
 chattr -R +i /etc/sudoers.d 2>/dev/null || true
 chattr -R +i /etc/pam.d 2>/dev/null || true
+chattr -R +i /usr/lib/pam.d 2>/dev/null || true
 chattr -R +i /etc/security 2>/dev/null || true
 chattr +i /usr/lib/sysctl.d/sysctl.conf 2>/dev/null || true
 chattr -R +i /usr/lib/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/sysctl.conf 2>/dev/null || true
 chattr -R +i /etc/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/modprobe.d 2>/dev/null || true
+chattr -R +i /usr/lib/modprobe.d 2>/dev/null || true
 chattr -R +i /etc/iptables 2>/dev/null || true
 chattr -R +i /etc/profile 2>/dev/null || true
 chattr -R +i /etc/profile.d 2>/dev/null || true
-chattr +i /etc/bash.bashrc 2>/dev/null || true
+chattr -R +i /etc/bash.bashrc 2>/dev/null || true
+chattr -R +i /etc/bashrc 2>/dev/null || true
 chattr +i /root/.bashrc 2>/dev/null || true
 chattr +i /home/dev/.bashrc 2>/dev/null || true
 chattr -R +i /etc/cron.allow 2>/dev/null || true
@@ -923,5 +868,8 @@ chattr -R +i /etc/polkit-1 2>/dev/null || true
 chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
-
-echo "HARDENING COMPLETE"
+chattr -R +i /lib/modules 2>/dev/null || true
+chattr -R +i /usr 2>/dev/null || true
+chattr -R +i /boot 2>/dev/null || true 
+chattr -R +i /boot/efi 2>/dev/null || true
+echo “HARDENING COMPLETE”
