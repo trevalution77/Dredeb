@@ -108,7 +108,6 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
-# Faillock configuration
 cat > /etc/security/faillock.conf << 'EOF'
 deny = 3
 unlock_time = 900
@@ -341,14 +340,12 @@ EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB
-
 sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
 
 # SYSCTL
-
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
@@ -422,7 +419,6 @@ EOF
 sysctl --system
 
 # MODULES
-
 cat > /etc/modprobe.d/harden.conf << 'EOF'
 blacklist af_802154
 install af_802154 /bin/false
@@ -643,7 +639,6 @@ install ipv6 /bin/false
 EOF
 
 # FSTAB
-
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
@@ -657,7 +652,6 @@ groupadd -f proc
 gpasswd -a root proc
 
 # PERMISSIONS
-
 chmod 700 /root
 chown root:root /root
 chmod 700 /home/dev
@@ -740,7 +734,6 @@ chmod -R 0640 /var/log
 chmod 0750 /var/log
 
 # OPENSNITCH 
-
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
@@ -779,7 +772,6 @@ systemctl restart opensnitchd
 cd
 
 # PRIVILEGE ESCALATION HARDENING
-
 echo "" > /etc/securetty
 chmod 600 /etc/securetty
 
@@ -801,7 +793,6 @@ rm -f /dev/vhci 2>/dev/null || true
 rm -f /dev/ppp 2>/dev/null || true
 
 # LOCKDOWN
-
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
 chmod u+s /usr/bin/sudo
 
@@ -813,7 +804,6 @@ apt purge -y "$RC_PKGS" 2>/dev/null || true
 fi
 
 # IMMUTABLE FLAGS
-
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
 chattr +i /etc/shadow 2>/dev/null || true
