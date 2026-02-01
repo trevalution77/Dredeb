@@ -16,7 +16,7 @@ systemctl disable --now accounts-daemon.service anacron.service anacron.timer ap
 systemctl mask accounts-daemon.service anacron.service anacron.timer apport.service apt-daily-upgrade.timer apt-daily.timer avahi-daemon.service avahi-daemon.socket bluetooth.service bluez bolt.service chef-client.service cloud-config.service cloud-final.service cloud-init-local.service cloud-init.service cloud-init.target cockpit.service cockpit.socket colord.service console-getty.service containerd.service cron.service ctrl-alt-del.target cups-browsed cups.path cups.service cups.socket debug-shell.service docker.service docker.socket e2scrub_all.timer fprintd.service fwupd.service geoclue.service getty@ttyS0.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service iio-sensor-proxy.service inetd.service iscsi.service iscsid.service iscsid.socket kerneloops.service kexec.target krb5-admin-server.service krb5-kdc.service libvirt-guests.service libvirtd-admin.socket libvirtd-ro.socket libvirtd.service libvirtd.socket lxc-net.service lxc.service lxd.service lxd.socket machines.target man-db.timer ModemManager.service motd-news.timer multipassd.service nfs-blkmap.service nfs-client.target nfs-common.service nfs-idmapd.service nfs-mountd.service nfs-server.service nmbd.service nscd.service nslcd.service nvmefc-boot-connections.service nvmf-autoconnect.service open-iscsi.service open-vm-tools.service packagekit.service pcscd.socket podman.service podman.socket power-profiles-daemon.service printer.target proc-sys-fs-binfmt_misc.automount proc-sys-fs-binfmt_misc.mount proftpd.service puppet.service pure-ftpd.service qemu-guest-agent.service remote-cryptsetup.target remote-fs-pre.target remote-fs.target rpcbind.service rpcbind.socket rpcbind.target rsync.service rtkit-daemon.service salt-minion.service samba-ad-dc.service samba.service serial-getty@.service serial-getty@*.service smbd.service snmpd.service snmptrapd.service speech-dispatcher spice-vdagentd.service spice-vdagentd.socket ssh.service ssh.socket sssd-autofs.socket sssd-kcm.socket sssd-nss.socket sssd-pac.socket sssd-pam.socket sssd-ssh.socket sssd-sudo.socket sssd.service sssd.socket switcheroo-control.service systemd-binfmt.service systemd-coredump.socket systemd-journal-gatewayd.socket systemd-journal-remote.socket systemd-journal-upload.service systemd-kexec.service systemd-nspawn@.service telnet.socket tigervnc.service udisks2.service unattended-upgrades usb-gadget.target usbip.service usbipd.service usbmuxd.service usbmuxd.socket vboxadd-service.service vboxadd.service vboxautostart-service.service vboxballoonctrl-service.service vboxdrv.service vboxweb-service.service vino-server.service virtlockd.service virtlockd.socket virtlogd.service virtlogd.socket vmtoolsd.service vmware-tools.service vmware-vmblock-fuse.service vsftpd.service webmin.service winbind.service wpa_supplicant x11vnc.service xinetd.service xrdp-sesman.service xrdp.service xrdp.socket 2>/dev/null || true
 
 # PACKAGE REMOVAL
-apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd bind9 telnet vsftpd apache2 gcc g++ make cmake perl python3 ruby anacron* pp* zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup*
+apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd telnet vsftpd apache2 gcc g++ make cmake perl python3 ruby anacron* pp* zram* pci* pmount* cron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* usb* acpi* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* nftables* virtual* sane* rpc* bind* nfs* blue* spee* espeak* mobile* wireless* inet* util-linux-locales tasksel* vim* os-prober* netcat* gcc g++ gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup*
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
@@ -83,18 +83,15 @@ apt install -y rsyslog lxqt-core lxqt-wayland-session labwc arc-theme qt6-gtk-pl
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force
-groupdel bluetooth --force
 groupdel irc --force
 groupdel kvm --force
 groupdel voice --force
 groupdel games --force
-groupdel colord --force
 userdel nobody
 userdel games
 userdel irc
 userdel list
 userdel news
-userdel bluetooth
 userdel uucp
 userdel sync
 userdel man
@@ -112,6 +109,7 @@ chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
+# Faillock configuration
 cat > /etc/security/faillock.conf << 'EOF'
 deny = 3
 unlock_time = 900
@@ -279,25 +277,20 @@ chown root:root /etc/pam.d/*
 # SUDO
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
-Defaults ignore_dot
 Defaults !setenv
 Defaults always_set_home
-Defaults use_pty
-Defaults umask=0077
-Defaults passwd_tries=1
-Defaults passwd_timeout=0
 Defaults timestamp_timeout=0
+Defaults passwd_timeout=0
+Defaults passwd_tries=1
+Defaults use_pty
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 Defaults logfile="/var/log/sudo.log"
-Defaults log_input, log_output
-Defaults iolog_dir="/var/log/sudo-io"
-Defaults iolog_file="%{user}/%{command}-%Y%m%d-%H%M%S"
+Defaults log_input,log_output
 Defaults editor=/bin/false
 Defaults !env_editor
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 
-dev   ALL=(ALL) /usr/sbin/, /usr/bin/
+dev  ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
-
 chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
 
@@ -311,9 +304,6 @@ multi on
 order hosts
 EOF
 
-echo "needs_root_rights=no" >> /etc/X11/Xwrapper.config
-dpkg-reconfigure xserver-xorg-legacy
-
 cat >/etc/security/limits.d/limits.conf <<'EOF'
 *           hard    nproc         2048
 *            -      maxlogins     1
@@ -321,8 +311,9 @@ cat >/etc/security/limits.d/limits.conf <<'EOF'
 dev          -      maxlogins     1
 dev          -      maxsyslogins  1
 root         -      maxlogins     1
-root         -      maxsyslogin   1
+root         -      maxsyslogins  1
 root        hard    nproc         65536
+*           hard    core          0
 EOF
 
 echo "ProcessSizeMax=0
@@ -343,23 +334,22 @@ chmod 644 /etc/hosts.allow
 chmod 644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
-+:dev:tty1 tty2
--:ALL EXCEPT dev:tty1 tty2 tty3 tty4 tty5 tty6
--:ALL EXCEPT dev:LOCAL
++:dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
--:root:ALL
 -:ALL:REMOTE
 -:ALL:ALL
 EOF
 chmod 644 /etc/security/access.conf
 
 # GRUB
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet init_on_alloc=1 init_on_free=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic kfence.sample_interval=100 efi_pstore.pstore_disable=1 iommu.strict=1 iommu=force amd_iommu=force_isolation amd_iommu=pt efi=disable_early_pci_dma random.trust_bootloader=off random.trust_cpu=off extra_latent_entropy vdso32=0 page_alloc.shuffle=1 mitigations=auto spectre_v2=on spec_store_bypass_disable=on ssbd=force-on l1tf=full,force kvm-intel.vmentry_l1d_flush=always mds=full,nosmt tsx=off tsx_async_abort=full,nosmt retbleed=auto,nosmt kvm.nx_huge_pages=force l1d_flush=on mmio_stale_data=full,nosmt reg_file_data_sampling=on gather_data_sampling=force module.sig_enforce=1 lockdown=confidentiality ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
+
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
 
 # SYSCTL
+
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
@@ -433,6 +423,7 @@ EOF
 sysctl --system
 
 # MODULES
+
 cat > /etc/modprobe.d/harden.conf << 'EOF'
 blacklist af_802154
 install af_802154 /bin/false
@@ -653,25 +644,29 @@ install ipv6 /bin/false
 EOF
 
 # FSTAB
+
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=1G,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777   0 0
+tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755          0 0
+tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
 
 # PERMISSIONS
+
 chmod 700 /root
 chown root:root /root
 chmod 700 /home/dev
 chown dev:dev /home/dev
+
 find /home/dev -type f -exec chmod o-rwx {} \; 2>/dev/null || true
 find /home/dev -type d -exec chmod o-rwx {} \; 2>/dev/null || true
+
 chmod 600 /etc/shadow
 chmod 600 /etc/gshadow
 chown root:root /etc/shadow
@@ -720,7 +715,7 @@ fi
 
 WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
     ! -path "/tmp/*" \
-    ! -path "/usr/*" \
+    ! -path "/var/tmp/*" \
     ! -path "/proc/*" \
     ! -path "/sys/*" \
     2>/dev/null || true)
@@ -746,6 +741,7 @@ chmod -R 0640 /var/log
 chmod 0750 /var/log
 
 # OPENSNITCH 
+
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
@@ -784,6 +780,7 @@ systemctl restart opensnitchd
 cd
 
 # PRIVILEGE ESCALATION HARDENING
+
 echo "" > /etc/securetty
 chmod 600 /etc/securetty
 
@@ -794,18 +791,18 @@ chmod 600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-rm -rf /usr/bin/run0 2>/dev/null || true
-rm -rf /usr/bin/su 2>/dev/null || true
-rm -rf /usr/bin/sudoreplay 2>/dev/null || true
-rm -rf /usr/bin/sudoedit 2>/dev/null || true
-rm -rf /dev/ng0n1 2>/dev/null || true
-rm -rf /dev/vhost* 2>/dev/null || true
-rm -rf /dev/vfio 2>/dev/null || true
-rm -rf /dev/vhci 2>/dev/null || true
-rm -rf /dev/ppp 2>/dev/null || true
-rm -rf /dev/watchdog* 2>/dev/null || true
+rm -f /usr/bin/run0 2>/dev/null || true
+rm -f /usr/bin/su 2>/dev/null || true
+rm -f /usr/bin/sudoreplay 2>/dev/null || true
+rm -f /usr/bin/sudoedit 2>/dev/null || true
+rm -f /dev/ng0n1 2>/dev/null || true
+rm -f /dev/vhost* 2>/dev/null || true
+rm -f /dev/vfio 2>/dev/null || true
+rm -f /dev/vhci 2>/dev/null || true
+rm -f /dev/ppp 2>/dev/null || true
 
 # LOCKDOWN
+
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
 chmod u+s /usr/bin/sudo
 
@@ -817,7 +814,7 @@ apt purge -y "$RC_PKGS" 2>/dev/null || true
 fi
 
 # IMMUTABLE FLAGS
-chattr +i /etc/conf 2>/dev/null || true
+
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
 chattr +i /etc/shadow 2>/dev/null || true
@@ -833,7 +830,7 @@ chattr +i /etc/services 2>/dev/null || true
 chattr +i /etc/fstab 2>/dev/null || true
 chattr +i /etc/adduser.conf 2>/dev/null || true
 chattr +i /etc/deluser.conf 2>/dev/null || true
-chattr -R +i /etc/host.conf 2>/dev/null || true
+chattr +i /etc/host.conf 2>/dev/null || true
 chattr +i /etc/hosts 2>/dev/null || true
 chattr +i /etc/hosts.allow 2>/dev/null || true
 chattr +i /etc/hosts.deny 2>/dev/null || true
@@ -841,19 +838,16 @@ chattr -R +i /etc/default 2>/dev/null || true
 chattr -R +i /etc/sudoers 2>/dev/null || true
 chattr -R +i /etc/sudoers.d 2>/dev/null || true
 chattr -R +i /etc/pam.d 2>/dev/null || true
-chattr -R +i /usr/lib/pam.d 2>/dev/null || true
 chattr -R +i /etc/security 2>/dev/null || true
 chattr +i /usr/lib/sysctl.d/sysctl.conf 2>/dev/null || true
 chattr -R +i /usr/lib/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/sysctl.conf 2>/dev/null || true
 chattr -R +i /etc/sysctl.d 2>/dev/null || true
 chattr -R +i /etc/modprobe.d 2>/dev/null || true
-chattr -R +i /usr/lib/modprobe.d 2>/dev/null || true
 chattr -R +i /etc/iptables 2>/dev/null || true
 chattr -R +i /etc/profile 2>/dev/null || true
 chattr -R +i /etc/profile.d 2>/dev/null || true
-chattr -R +i /etc/bash.bashrc 2>/dev/null || true
-chattr -R +i /etc/bashrc 2>/dev/null || true
+chattr +i /etc/bash.bashrc 2>/dev/null || true
 chattr +i /root/.bashrc 2>/dev/null || true
 chattr +i /home/dev/.bashrc 2>/dev/null || true
 chattr -R +i /etc/cron.allow 2>/dev/null || true
@@ -867,8 +861,5 @@ chattr -R +i /etc/polkit-1 2>/dev/null || true
 chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
-chattr -R +i /lib/modules 2>/dev/null || true
-chattr -R +i /usr 2>/dev/null || true
-chattr -R +i /boot 2>/dev/null || true 
-chattr -R +i /boot/efi 2>/dev/null || true
-echo “HARDENING COMPLETE”
+
+echo "HARDENING COMPLETE"
