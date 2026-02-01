@@ -784,7 +784,6 @@ systemctl restart opensnitchd
 cd
 
 # PRIVILEGE ESCALATION HARDENING
-
 echo "" > /etc/securetty
 chmod 600 /etc/securetty
 
