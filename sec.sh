@@ -79,7 +79,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog libpam-tmpdir lxqt-core lxqt-wayland-session labwc arc-theme qt6-gtk-platformtheme lxappearance qterminal xdg-desktop-portal-lxqt lxqt-qtplugin labwc-tweaks librewolf gnome-terminal pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gnome-brave-icon-theme breeze-gtk-theme bibata* qt6ct gdebi-core opensnitch opensnitch-* python3-opensnitch* xinit xserver-xorg xserver-xorg-legacy gdebi unzip
+apt install -y rsyslog libpam-tmpdir lxqt-core lxqt-wayland-session labwc arc-theme qt6-gtk-platformtheme lxappearance qterminal xdg-desktop-portal-lxqt lxqt-qtplugin librewolf gnome-terminal pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gnome-brave-icon-theme breeze-gtk-theme bibata* qt6ct gdebi-core opensnitch opensnitch-* python3-opensnitch* xinit xserver-xorg xserver-xorg-legacy gdebi unzip
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force
