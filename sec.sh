@@ -62,10 +62,10 @@ iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
-iptables -A INPUT -m conntrack –ctstate INVALID -j DROP
-iptables -A INPUT -m conntrack –ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -p udp -m conntrack –ctstate NEW -j UDP
-iptables -A INPUT -p tcp –syn -m conntrack –ctstate NEW -j TCP
+iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+iptables -A INPUT -p tcp --syn -m conntrack --ctstate NEW -j TCP
 iptables -A INPUT -p udp -j DROP
 iptables -A INPUT -p tcp -j DROP
 iptables -A INPUT -j DROP
