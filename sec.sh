@@ -20,7 +20,7 @@ apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd inet* vsft
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
-cat >/etc/apt/preferences.d/deny.pref <<‘EOF’
+cat > /etc/apt/preferences.d/deny.pref <<‘EOF’
 Package: 7z aa-exec ab age try aircrack-ng alpine anacron* ansible* aoss apache* ar aria2c arj arp* as ascii-xfr ascii85 ash aspell at atobm autoconf* automake* autopsy avahi* awk aws base32 base58 base64 basenc basez batcat bc bconsole beef* bettercap bind* binwalk blue* bochs* bpftrace bridge build-essential build* bundle bundler busctl byebug bzip2 c89 c99 cabal cabal-install cancel capsh cargo cdist certbot check_by_ssh check_cups check_log check_memory check_raid check_ssl_cert check_statusfile choom chroot clam* cmake* cmp cobc column comm composer container* courier* cowsay cowthink cp cpan cpio cpulimit crackmapexec crash crontab csh csplit csvtool cup* cup* curl cut dash date dc dd debugfs dhcp* dialog diff dig dirb distcc dma* dmesg dmidecode dmsetup dnf dns* docker* docker* dos2unix dosbox dotnet* dropbear* dsniff dstat dvips easy_install eb ed efax elixir elvish emacs* enscript enum4linux env eqn erlang espeak espeak* ettercap* ex exiftool exim* expand expect facter fastfetch finger fish flatpak flock fmt fold fonts-noto* foremost fping fprint* ftp g++* gawk gcc gcc* gcloud gcore gdb gdb* gem genie genisoimage ghc ghci ghostscript gimp ginsh gnustep* gobuster golang* grc grep gtester gzip hashcat hd head hexdump highlight hping3 hydra* iconv iftop imagemagick impacket-scripts inet* ionice irb ispell jjs joe john join jq jrunscript jtag julia knife ksh ksshell ksu kubectl latex latexmk ld.so ldconfig lftp lftp libtool libvirt* libvirt* links lldb lldb* ln loginctl logsave look lp ltrace ltrace* ltrace* lua* lualatex luatex lwp-download lwp-request lxc* lxc* lxd* macchanger mail make maltego man masscan mawk medusa meson metagoofil metasploit-framework minicom mitmproxy mobile* modemmanager* mono-complete more mosquitto msfconsole msgattrib msgcat msgconv msgfilter msgmerge msguniq mtr multitime mysql nano nasm nasm* nawk nbtscan nc ncat ncdu ncftp neofetch netcat* nfs* nft nftables* nice nikto ninja-build nl nm nmap node nodejs* nohup npm* nroff nsenter ntpdate octave od openssh* openssl openstego openvpn openvt opkg os-prober* outguess pandoc paste pax pdb pdflatex pdftex perf perlbug pexec pg php* pic pico pidstat pip pkg pmount* podman* posh postfix* pp* pr print* proftpd-basic proxychains* pry psftp psql ptx puppet pure-ftpd pwsh qemu* qemu* r-base radare2 rake rc readelf recon-ng red redcarpet redis responder restic rev rlogin rlwrap rpc* rpm rpmdb rpmquery rpmverify rsh* rtorrent ruby* run-mailcap run-parts runscript rustc rview rvim samba* sane* sash scanmem scp screen script scrot sed sendmail* service set setarch setfacl setlock sftp sg shuf sleuthkit slsh smb* snap snapd socat social-engineer-toolkit socket soelim softlimit sort spee* spiderfoot split sql* ss ssh* sslstrip start-stop-daemon stdbuf steghide stegosuite strace* strings su systemd-resolve tac tail tar task tasksel* taskset tasksh tbl tcl tclsh tcpdump tdbtool tee telnet* terraform tex tftp* theharvester tic time timedatectl timeout tinyssh* tk tmate tmux top tor* traceroute* tripwire* troff tshark ul uml* uml* unexpand unicornscan uniq unshare unsquashfs update-alternatives util-linux-locales uuencode vagrant* valgrind varnishncsa view vigr vim* vimdiff vipw virsh virt* virt* virtual* volatility vsftpd w3m wall watch wc wfuzz wget whiptail whois winbind* wireless* wireless* wireshark* wish wpa* xargs xdg-user-dir xdotool xelatex xen* xetex xmodmap xmore xpad xxd xz yarn yash yasm* yelp* yum zathura zip zmap zram* zsh zsoelim zypper openssh* dropbear* ssh* tinyssh* qemu* libvirt* uml* virt* courier* dma* tripwire* avahi* pmount* sane* netcat* os-prober* bluetooth* bluez* rpc* nfs* cups* anacron* exim* postfix* sendmail* print* vagrant* lxc* docker* podman* xen* bochs* gnustep* modemmanager* wpasupplicant* wireless* inet* nftables* gcc* g++* gdb* lldb* strace* ltrace* build-essential* automake* autoconf* cmake* nasm* yasm* nodejs* npm* php* ruby* traceroute*
 Pin: release *
 Pin-Priority: -1
@@ -80,46 +80,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog libpam-tmpdir   
-lxqt-core   
-lxqt-session   
-lxqt-wayland-session   
-lxqt-policykit   
-lxqt-config   
-lxqt-notificationd   
-lxqt-panel   
-lxqt-runner   
-lxqt-powermanagement   
-labwc   
-seatd   
-xwayland   
-xdg-desktop-portal-lxqt   
-xdg-desktop-portal-wlr   
-xdg-desktop-portal-gtk   
-lxqt-qtplugin   
-wlr-randr   
-arc-theme   
-qt6-gtk-platformtheme   
-qt6ct   
-lxappearance   
-qterminal   
-pcmanfm-qt   
-librewolf   
-pipewire   
-pipewire-audio-client-libraries   
-pipewire-pulse   
-wireplumber   
-pavucontrol   
-rtkit   
-gnome-brave-icon-theme   
-breeze-gtk-theme   
-bibata-cursor-theme   
-gdebi-core   
-gdebi   
-opensnitch   
-opensnitch-ebpf   
-python3-opensnitch-ui   
-unzip
+apt install -y rsyslog libpam-tmpdir lxqt-core lxqt-session lxqt-wayland-session lxqt-policykit lxqt-config lxqt-notificationd lxqt-panel lxqt-runner lxqt-powermanagement labwc seatd xwayland xdg-desktop-portal-lxqt xdg-desktop-portal-wlr xdg-desktop-portal-gtk lxqt-qtplugin wlr-randr arc-theme qt6-gtk-platformtheme qt6ct lxappearance qterminal pcmanfm-qt librewolf   pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol rtkit gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme gdebi-core gdebi opensnitch opensnitch-ebpf python3-opensnitch-ui unzip
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh –force 2>/dev/null || true
@@ -135,6 +96,10 @@ userdel news 2>/dev/null || true
 userdel sync 2>/dev/null || true
 userdel man 2>/dev/null || true
 userdel mail 2>/dev/null || true
+userdel dhcpcd 2>/dev/null || true
+userdel lp 2>/dev/null || true
+userdel proxy 2>/dev/null || true
+userdel www-data 2>/dev/null || true
 
 # USER GROUPS FOR WAYLAND
 adduser dev render 2>/dev/null || true
@@ -147,7 +112,6 @@ adduser dev tty 2>/dev/null || true
 # WAYLAND
 systemctl enable seatd.service
 systemctl start seatd.service
-
 systemctl enable rtkit-daemon.service
 systemctl start rtkit-daemon.service
 
@@ -416,7 +380,7 @@ chmod 644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 
 # SUDO
-cat >/etc/sudoers <<‘EOF’
+cat > /etc/sudoers <<‘EOF’
 Defaults env_reset
 Defaults !setenv
 Defaults always_set_home
@@ -436,17 +400,16 @@ chmod 0440 /etc/sudoers
 chmod -R 0440 /etc/sudoers.d
 
 # MISC HARDENING
-cat >/etc/shells <<‘EOF’
+cat > /etc/shells <<‘EOF’
 /bin/bash
 EOF
 
-cat >/etc/host.conf <<‘EOF’
+cat > /etc/host.conf <<‘EOF’
 multi on
 order hosts
 EOF
 
-cat >/etc/security/limits.d/limits.conf <<‘EOF’
-
+cat > /etc/security/limits.d/limits.conf <<‘EOF’
 *           hard    nproc         2048
 *            -      maxlogins     1
 *            -      maxsyslogins  1
