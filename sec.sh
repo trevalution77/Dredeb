@@ -18,7 +18,7 @@ systemctl mask accounts-daemon.service anacron.service anacron.timer apport.serv
 # PACKAGE REMOVAL
 apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd vsftpd apache2 gcc make cmake perl python3 ruby zram* pmount* avahi* bc bind9* fastfetch fonts-noto* fprint* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* virtual* sane* nfs* blue* espeak* mobile* wireless* util-linux-locales tasksel* vim* os-prober* netcat* gcc gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* 2>/dev/null || true
 
-# PACKAGE DENY LIST - CLEANED (actual packages only, no commands)
+# PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
 Package: 7zip p7zip p7zip-full aircrack-ng alpine alpine-pico anacron ansible ansible-core apache2 apache2-bin apache2-utils libapache2-* at autopsy avahi-daemon avahi-utils avahi-autoipd libavahi-* beef-xss bettercap bind9 bind9-host bind9-utils bind9-dnsutils binwalk bluetooth bluez bluez-tools libbluetooth* bpftrace build-essential cabal-install certbot python3-certbot* clamav clamav-daemon clamav-freshclam cmake cmake-data colord containerd containerd.io courier-mta courier-imap courier-pop cowsay cpulimit crackmapexec cron cups cups-browsed cups-client cups-daemon cups-core-drivers libcups* dnsmasq dnsmasq-base dnsutils docker docker.io docker-ce docker-ce-cli docker-compose docker-compose-plugin dos2unix dosbox dosbox-x dotnet* aspnetcore-* dropbear dropbear-bin dropbear-initramfs dsniff efax elixir elvish emacs emacs-nox emacs-gtk emacs-common enum4linux erlang erlang-base erlang-nox espeak espeak-ng espeak-ng-espeak ettercap-common ettercap-graphical ettercap-text-only exiftool libimage-exiftool-perl exim4 exim4-base exim4-daemon-light exim4-daemon-heavy expect finger fish fish-common flatpak fonts-noto* foremost fping fprintd libfprint* ftp ftpd proftpd* vsftpd pure-ftpd* gawk gcc gcc-* g++ g++-* cpp cpp-* gdb gdb-multiarch gdbserver genisoimage ghc ghc-prof libghc-* ghostscript libgs* gimp gimp-data libgimp* gnustep* libgnustep* gobuster golang golang-go golang-src grc hashcat hashcat-data highlight highlight-common hping3 hydra hydra-gtk imagemagick imagemagick-6* libmagick* impacket-scripts python3-impacket inetutils-ftpd inetutils-telnetd inetutils-inetd irb ispell john john-data jq julia ksh ksh93* kubectl kubernetes-client texlive* latex* tex-common lftp libtool libtool-bin libvirt* virt-manager virt-viewer virtinst links links2 lldb lldb-* ltrace lua* liblua* lxc lxc-utils lxcfs liblxc* lxd lxd-client macchanger mailutils mailutils-common make maltego masscan medusa meson metasploit-framework minicom mitmproxy modemmanager libmm-glib* mono-complete mono-runtime mono-mcs libmono-* mosquitto mosquitto-clients mtr mtr-tiny mysql-client mysql-server mariadb-client mariadb-server nano nasm nbtscan ncat ncdu ncftp neofetch fastfetch screenfetch netcat netcat-openbsd netcat-traditional nfs-common nfs-kernel-server nftables libnftables* nikto ninja-build nmap nmap-common zenmap nodejs npm ntpdate octave octave-common openstego openvpn openssh-client openssh-server openssh-sftp-server libssh-* libssh2-* os-prober outguess pandoc pandoc-data perl perl-base perl-modules* php* libphp* libapache2-mod-php* pmount podman podman-compose postfix postfix-* proxychains proxychains4 puppet puppet-agent python3 python3-minimal python3-pip python3-venv qemu qemu-system* qemu-user* qemu-utils r-base r-base-core radare2 libradare2-* recon-ng redis redis-server redis-tools restic rlogin rsh-client rsh-server rlwrap rpcbind rsync ruby ruby-full ruby-dev rubygems bundler rustc cargo samba samba-common samba-common-bin smbclient sane sane-utils libsane* scanmem gameconqueror screen sendmail sendmail-bin sendmail-base sleuthkit snap snapd snmpd snmp libsnmp* socat speech-dispatcher speech-dispatcher-* spice-vdagent spiderfoot sqlmap sslstrip steghide stegosuite strace tasksel tasksel-data tcl tcl8* libtcl* tcpdump telnet telnetd terraform tftp tftp-hpa tftpd tftpd-hpa atftpd theharvester tigervnc-standalone-server tigervnc-common tigervnc-viewer tinyssh tinyssh-server tmate tmux tor torbrowser-launcher traceroute tripwire tshark wireshark wireshark-* udisks2 libudisks2-* unicornscan unattended-upgrades usbmuxd libusbmuxd* vagrant vagrant-* valgrind valgrind-* vim vim-tiny vim-common vim-runtime vino virtualbox virtualbox-* libvbox* webmin wfuzz whiptail winbind libnss-winbind libpam-winbind wireless-tools wpasupplicant iw x11vnc xen* libxen* xinetd xrdp yarn yasm yelp yelp-xsl yum zathura zathura-* zmap zram-tools zram-config zsh zsh-common zypper
@@ -79,47 +79,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION - XFCE + X11
-apt install -y \
-    rsyslog \
-    libpam-tmpdir \
-    xfce4 \
-    xfce4-terminal \
-    xfce4-notifyd \
-    xfce4-power-manager \
-    xfce4-screenshooter \
-    xfce4-taskmanager \
-    xfce4-whiskermenu-plugin \
-    xfce4-pulseaudio-plugin \
-    thunar \
-    thunar-archive-plugin \
-    mousepad \
-    ristretto \
-    xinit \
-    xserver-xorg \
-    xserver-xorg-core \
-    xserver-xorg-input-libinput \
-    x11-xserver-utils \
-    x11-utils \
-    xdg-desktop-portal-gtk \
-    arc-theme \
-    papirus-icon-theme \
-    breeze-gtk-theme \
-    bibata-cursor-theme \
-    lxappearance \
-    librewolf \
-    pipewire \
-    pipewire-audio-client-libraries \
-    pipewire-pulse \
-    wireplumber \
-    pavucontrol \
-    gdebi-core \
-    gdebi \
-    opensnitch \
-    opensnitch-ebpf \
-    python3-opensnitch-ui \
-    unzip \
-    file-roller \
-    --no-install-recommends
+apt install -y rsyslog libpam-tmpdir libxfce4ui-utils gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gdebi-core opensnitch opensnitch-ebpf python3-opensnitch-ui unzip --no-install-recommends
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force 2>/dev/null || true
@@ -216,21 +176,22 @@ EOF
 cat > /etc/pam.d/common-session << 'EOF'
 #%PAM-1.0
 session   required    pam_limits.so
-session   required    pam_unix.so
 session   required    pam_env.so
 session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
+session   required    pam_unix.so
+
 EOF
 
 cat > /etc/pam.d/common-session-noninteractive << 'EOF'
 #%PAM-1.0
 session   required    pam_limits.so
-session   required    pam_unix.so
 session   required    pam_env.so
 session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
+session   required    pam_unix.so
 EOF
 
 cat > /etc/pam.d/sudo << 'EOF'
@@ -347,6 +308,14 @@ session   required    pam_env.so user_readenv=0
 session   optional    pam_systemd.so
 EOF
 
+cat > /usr/lib/pam.d/polkit << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
+EOF
+
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 
@@ -368,7 +337,7 @@ Defaults !env_editor
 dev  ALL=(ALL) /usr/sbin/, /usr/bin/
 EOF
 chmod 0440 /etc/sudoers
-chmod -R 0440 /etc/sudoers.d
+chmod -R 0000 /etc/sudoers.d
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
@@ -389,7 +358,6 @@ dev          -      maxsyslogins  1
 root         -      maxlogins     1
 root         -      maxsyslogins  1
 root        hard    nproc         65536
-*           hard    core          0
 EOF
 
 echo "ProcessSizeMax=0
@@ -929,5 +897,8 @@ chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
 chattr -R +i /etc/X11 2>/dev/null || true
+chattr -R +i /lib/modules 2>/dev/null || true
+chattr -R +i /boot 2>/dev/null || true
+chattr -R +i /usr 2>/dev/null || true
 
 echo "HARDENING COMPLETE"
