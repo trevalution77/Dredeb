@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#######-DEBIAN-HARDENING-XFCE-#########
+#######-DEBIAN-HARDENING-#########
 
 set -euo pipefail
 
@@ -929,3 +929,5 @@ chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
 chattr -R +i /etc/ld.so.conf.d 2>/dev/null || true
 chattr -R +i /etc/X11 2>/dev/null || true
+
+echo "HARDENING COMPLETE"
