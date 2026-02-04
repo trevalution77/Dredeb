@@ -21,7 +21,7 @@ apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd vsftpd apa
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
-Package: 7zip p7zip p7zip-full aircrack-ng alpine alpine-pico anacron ansible ansible-core apache2 apache2-bin apache2-utils libapache2-* at autopsy avahi-daemon avahi-utils avahi-autoipd libavahi-* beef-xss bettercap bind9 bind9-host bind9-utils bind9-dnsutils binwalk bluetooth bluez bluez-tools libbluetooth* bpftrace build-essential cabal-install certbot python3-certbot* clamav clamav-daemon clamav-freshclam cmake cmake-data colord containerd containerd.io courier-mta courier-imap courier-pop cowsay cpulimit crackmapexec cron cups cups-browsed cups-client cups-daemon cups-core-drivers libcups* dnsmasq dnsmasq-base dnsutils docker docker.io docker-ce docker-ce-cli docker-compose docker-compose-plugin dos2unix dosbox dosbox-x dotnet* aspnetcore-* dropbear dropbear-bin dropbear-initramfs dsniff efax elixir elvish emacs emacs-nox emacs-gtk emacs-common enum4linux erlang erlang-base erlang-nox espeak espeak-ng espeak-ng-espeak ettercap-common ettercap-graphical ettercap-text-only exiftool libimage-exiftool-perl exim4 exim4-base exim4-daemon-light exim4-daemon-heavy expect finger fish fish-common flatpak fonts-noto* foremost fping fprintd libfprint* ftp ftpd proftpd* vsftpd pure-ftpd* gawk gcc gcc-* g++ g++-* cpp cpp-* gdb gdb-multiarch gdbserver genisoimage ghc ghc-prof libghc-* ghostscript libgs* gimp gimp-data libgimp* gnustep* libgnustep* gobuster golang golang-go golang-src grc hashcat hashcat-data highlight highlight-common hping3 hydra hydra-gtk imagemagick imagemagick-6* libmagick* impacket-scripts python3-impacket inetutils-ftpd inetutils-telnetd inetutils-inetd irb ispell john john-data jq julia ksh ksh93* kubectl kubernetes-client texlive* latex* tex-common lftp libtool libtool-bin libvirt* virt-manager virt-viewer virtinst links links2 lldb lldb-* ltrace lua* liblua* lxc lxc-utils lxcfs liblxc* lxd lxd-client macchanger mailutils mailutils-common make maltego masscan medusa meson metasploit-framework minicom mitmproxy modemmanager libmm-glib* mono-complete mono-runtime mono-mcs libmono-* mosquitto mosquitto-clients mtr mtr-tiny mysql-client mysql-server mariadb-client mariadb-server nano nasm nbtscan ncat ncdu ncftp neofetch fastfetch screenfetch netcat netcat-openbsd netcat-traditional nfs-common nfs-kernel-server nftables libnftables* nikto ninja-build nmap nmap-common zenmap nodejs npm ntpdate octave octave-common openstego openvpn openssh-client openssh-server openssh-sftp-server libssh-* libssh2-* os-prober outguess pandoc pandoc-data perl perl-base perl-modules* php* libphp* libapache2-mod-php* pmount podman podman-compose postfix postfix-* proxychains proxychains4 puppet puppet-agent python3 python3-minimal python3-pip python3-venv qemu qemu-system* qemu-user* qemu-utils r-base r-base-core radare2 libradare2-* recon-ng redis redis-server redis-tools restic rlogin rsh-client rsh-server rlwrap rpcbind rsync ruby ruby-full ruby-dev rubygems bundler rustc cargo samba samba-common samba-common-bin smbclient sane sane-utils libsane* scanmem gameconqueror screen sendmail sendmail-bin sendmail-base sleuthkit snap snapd snmpd snmp libsnmp* socat speech-dispatcher speech-dispatcher-* spice-vdagent spiderfoot sqlmap sslstrip steghide stegosuite strace tasksel tasksel-data tcl tcl8* libtcl* tcpdump telnet telnetd terraform tftp tftp-hpa tftpd tftpd-hpa atftpd theharvester tigervnc-standalone-server tigervnc-common tigervnc-viewer tinyssh tinyssh-server tmate tmux tor torbrowser-launcher traceroute tripwire tshark wireshark wireshark-* udisks2 libudisks2-* unicornscan unattended-upgrades usbmuxd libusbmuxd* vagrant vagrant-* valgrind valgrind-* vim vim-tiny vim-common vim-runtime vino virtualbox virtualbox-* libvbox* webmin wfuzz whiptail winbind libnss-winbind libpam-winbind wireless-tools wpasupplicant iw x11vnc xen* libxen* xinetd xrdp yarn yasm yelp yelp-xsl yum zathura zathura-* zmap zram-tools zram-config zsh zsh-common zypper
+Package: 7zip p7zip p7zip-full aircrack-ng alpine alpine-pico anacron ansible ansible-core apache2 apache2-bin apache2-utils libapache2-* at autopsy avahi-daemon avahi-utils avahi-autoipd beef-xss bettercap bind9 bind9-host bind9-utils bind9-dnsutils binwalk bluetooth bluez bluez-tools libbluetooth* bpftrace build-essential cabal-install certbot python3-certbot* clamav clamav-daemon clamav-freshclam cmake cmake-data colord containerd containerd.io courier-mta courier-imap courier-pop cowsay cpulimit crackmapexec cron cups cups-browsed cups-client cups-daemon cups-core-drivers dnsmasq dnsmasq-base dnsutils docker docker.io docker-ce docker-ce-cli docker-compose docker-compose-plugin dos2unix dosbox dosbox-x dotnet* aspnetcore-* dropbear dropbear-bin dropbear-initramfs dsniff efax elixir elvish emacs emacs-nox emacs-gtk emacs-common enum4linux erlang erlang-base erlang-nox espeak espeak-ng espeak-ng-espeak ettercap-common ettercap-graphical ettercap-text-only exiftool libimage-exiftool-perl exim4 exim4-base exim4-daemon-light exim4-daemon-heavy expect finger fish fish-common flatpak fonts-noto* foremost fping fprintd libfprint* ftp ftpd proftpd* vsftpd pure-ftpd* gawk gcc gcc-* g++ g++-* cpp cpp-* gdb gdb-multiarch gdbserver genisoimage ghc ghc-prof libghc-* ghostscript libgs* gimp gimp-data libgimp* gnustep* libgnustep* gobuster golang golang-go golang-src grc hashcat hashcat-data highlight highlight-common hping3 hydra hydra-gtk imagemagick imagemagick-6* libmagick* impacket-scripts python3-impacket inetutils-ftpd inetutils-telnetd inetutils-inetd irb ispell john john-data jq julia ksh ksh93* kubectl kubernetes-client texlive* latex* tex-common lftp libtool libtool-bin libvirt* virt-manager virt-viewer virtinst links links2 lldb lldb-* ltrace lua* liblua* lxc lxc-utils lxcfs liblxc* lxd lxd-client macchanger mailutils mailutils-common make maltego masscan medusa meson metasploit-framework minicom mitmproxy modemmanager libmm-glib* mono-complete mono-runtime mono-mcs libmono-* mosquitto mosquitto-clients mtr mtr-tiny mysql-client mysql-server mariadb-client mariadb-server nano nasm nbtscan ncat ncdu ncftp neofetch fastfetch screenfetch netcat netcat-openbsd netcat-traditional nfs-common nfs-kernel-server nftables libnftables* nikto ninja-build nmap nmap-common zenmap nodejs npm ntpdate octave octave-common openstego openvpn openssh-client openssh-server openssh-sftp-server libssh-* libssh2-* os-prober outguess pandoc pandoc-data perl-base perl-modules* php* libphp* libapache2-mod-php* pmount podman podman-compose postfix postfix-* proxychains proxychains4 puppet puppet-agent python3-minimal python3-pip python3-venv qemu qemu-system* qemu-user* qemu-utils r-base r-base-core radare2 libradare2-* recon-ng redis redis-server redis-tools restic rlogin rsh-client rsh-server rlwrap rpcbind rsync ruby ruby-full ruby-dev rubygems bundler rustc cargo samba samba-common samba-common-bin smbclient sane sane-utils libsane* scanmem gameconqueror screen sendmail sendmail-bin sendmail-base sleuthkit snap snapd snmpd snmp libsnmp* socat speech-dispatcher speech-dispatcher-* spice-vdagent spiderfoot sqlmap sslstrip steghide stegosuite strace tasksel tasksel-data tcl tcl8* libtcl* tcpdump telnet telnetd terraform tftp tftp-hpa tftpd tftpd-hpa atftpd theharvester tigervnc-standalone-server tigervnc-common tigervnc-viewer tinyssh tinyssh-server tmate tmux tor torbrowser-launcher traceroute tripwire tshark wireshark wireshark-* udisks2 libudisks2-* unicornscan unattended-upgrades usbmuxd libusbmuxd* vagrant vagrant-* valgrind valgrind-* vim vim-tiny vim-common vim-runtime vino virtualbox virtualbox-* libvbox* webmin wfuzz whiptail winbind libnss-winbind libpam-winbind wireless-tools wpasupplicant iw x11vnc xen* libxen* xinetd xrdp yarn yasm yelp yelp-xsl yum zathura zathura-* zmap zram-tools zram-config zsh zsh-common zypper
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -79,7 +79,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION - XFCE + X11
-apt install -y rsyslog libpam-tmpdir libxfce4ui-utils gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gdebi-core opensnitch opensnitch-ebpf python3-opensnitch-ui unzip --no-install-recommends
+apt install -y rsyslog libpam-tmpdir libxfce4ui-utils gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch-ui unzip --no-install-recommends
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force 2>/dev/null || true
@@ -688,11 +688,11 @@ EOF
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /tmp       tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /var/tmp   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /dev/shm   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777   0 0
+tmpfs    /run       tmpfs     size=1G,noatime,nodev,nosuid,mode=0755          0 0
+tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
@@ -828,10 +828,113 @@ chmod 0600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-rm -r /usr/bin/run0 2>/dev/null || true
-rm -r /usr/bin/su 2>/dev/null || true
-rm -r /usr/bin/sudoreplay 2>/dev/null || true
-rm -r /usr/bin/sudoedit 2>/dev/null || true
+PACKAGES_TO_PURGE=(
+    # Development tools & compilers
+    "as86" "autoconf" "automake" "bin86" "binutils" "bison" "byacc"
+    "cabal-install" "cargo" "chrpath" "clang" "clang-*" "cmake"
+    "cpp" "cpp-*" "default-jdk" "default-jre" "dotnet-sdk-6.0"
+    "dotnet-sdk-7.0" "dotnet-sdk-8.0" "dwarfdump" "elfutils" "elixir"
+    "elixir*" "erlang" "erlang*" "execstack" "expect" "flex" "fpc"
+    "g++" "g++*" "gap*" "gawk" "gcc" "gcc-*" "gdb" "gdb-*"
+    "gfortran" "gfortran-*" "ghc" "ghc-*" "golang" "golang-*"
+    "golang-go" "guile-*" "hexedit" "hopper*" "ida-*" "java-*"
+    "julia" "libtool" "lldb" "lldb-*" "llvm" "llvm-*" "ltrace"
+    "lua5.1" "lua5.3" "lua5.4" "lua*" "luajit" "m4" "make" "mawk"
+    "maxima*" "meson" "mono-*" "mono-complete" "nasm" "ndisasm"
+    "ninja-build" "node" "nodejs" "npm" "objdump" "octave" "octave*"
+    "openjdk-*" "patchelf" "perl" "perl-base" "perl-modules"
+    "php" "php-*" "php-cli" "php-common" "php*" "pike*" "prelink"
+    "python-is-python*" "python2*" "r-base" "r-bash" "r-cran-*"
+    "r2*" "racket*" "radare2" "readelf" "ruby" "ruby-*" "ruby-full"
+    "rustc" "strace" "swig" "tcl" "tcl-*" "tk" "upx" "upx-ucl"
+    "valgrind" "yasm"
+    
+    # Offensive security / pentesting tools
+    "aircrack-ng*" "arping" "arpspoof" "arpwatch" "autopsy" "beef-xss"
+    "bettercap" "binwalk" "bvi" "crackmapexec" "dirb" "dsniff"
+    "enum4linux" "ettercap-common" "ettercap-graphical" "ettercap*"
+    "exiftool" "foremost" "fping" "ftp" "ghidra" "gobuster" "hashcat"
+    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john" "lftp"
+    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
+    "metasploit-framework" "metasploit*" "mitmproxy" "msfvenom"
+    "nbtscan" "nc" "ncat" "ncftp" "netcat" "netcat-*" "netcat-openbsd"
+    "netcat-traditional" "nikto" "nmap" "openstego" "outguess"
+    "proxychains" "proxychains4" "python3-impacket" "recon-ng"
+    "responder" "scapy" "set" "sleuthkit" "smbclient" "smbmap"
+    "social-engineer-toolkit" "socat" "spiderfoot" "sqlmap" "sslstrip"
+    "steghide" "stegosuite" "tcpdump" "theharvester" "tshark"
+    "unicornscan" "volatility" "wfuzz" "wireshark" "wireshark-*"
+    "wireshark-gtk" "wireshark-qt" "xxd" "yersinia" "zenmap" "zmap"
+    
+    # Network services / remote access
+    "proftpd-basic" "pure-ftpd" "rsh-client" "rsh-redone-client"
+    "telnet" "telnetd" "tftp" "tftp-hpa" "tor" "torsocks" "vsftpd" "inet*"
+    
+    # Container runtimes
+    "containerd.io" "docker-ce" "docker-ce-cli" "docker.io"
+    "flatpak" "lxc" "lxd" "lxd-client" "podman" "snapd"
+    
+    # Image manipulation (potential stego vectors)
+    "ghostscript" "gimp" "imagemagick"
+    
+    # Alternative shells
+    "ash" "busybox" "csh" "dash" "es" "fish" "ksh" "ksh93"
+    "mksh" "pdksh" "rc" "sash" "tcsh" "yash" "zsh" "zsh-*"
+)
+
+echo "[*] Purging packages..."
+apt purge -y "${PACKAGES_TO_PURGE[@]}" 2>/dev/null || true
+
+echo "[*] Removing orphaned packages and configs..."
+apt autoremove -y --purge 2>/dev/null || true
+
+# Binary patterns requiring glob expansion
+DANGEROUS_BINARY_PATTERNS=(
+    # Compilers & build tools
+    '/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++'
+    '/usr/bin/as' '/usr/bin/ld' '/usr/bin/ar' '/usr/bin/nm'
+    '/usr/bin/make' '/usr/bin/cmake'
+    
+    # Scripting languages (globs)
+    '/usr/bin/perl*'
+    '/usr/bin/python' '/usr/bin/python2*'
+    '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb'
+    '/usr/bin/lua' '/usr/bin/luac'
+    '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm'
+    '/usr/bin/php*'
+    
+    # Debuggers & RE tools
+    '/usr/bin/gdb' '/usr/bin/lldb'
+    '/usr/bin/strace' '/usr/bin/ltrace'
+    '/usr/bin/xxd' '/usr/bin/hexdump'
+    '/usr/bin/objdump' '/usr/bin/readelf'
+    
+    # Network tools
+    '/usr/bin/nc' '/usr/bin/ncat' '/usr/bin/netcat'
+    '/usr/bin/nmap' '/usr/bin/masscan'
+    '/usr/bin/socat'
+    '/usr/bin/arp*' '/usr/bin/trace*'
+    
+    # Privilege escalation vectors
+    '/usr/bin/run0' '/usr/bin/su'
+    '/usr/bin/sudoedit' '/usr/bin/sudoreplay'
+    '/usr/bin/pkexec'
+    
+    # Alternative shells
+    '/bin/sh' '/bin/dash' '/bin/zsh' '/bin/fish'
+    '/bin/tcsh' '/bin/csh' '/bin/ksh' '/bin/ksh93'
+    '/bin/mksh' '/bin/pdksh' '/bin/ash'
+    '/bin/rc' '/bin/es' '/bin/sash' '/bin/yash'
+    '/usr/bin/zsh' '/usr/bin/fish' '/usr/bin/tcsh'
+    '/usr/bin/csh' '/usr/bin/ksh*'
+)
+
+echo "[*] Removing dangerous binaries..."
+for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
+    # shellcheck disable=SC2086
+    rm -f $pattern 2>/dev/null || true
+done
+
 rm -r /dev/ng0n1 2>/dev/null || true
 rm -r /dev/vhost* 2>/dev/null || true
 rm -r /dev/vfio 2>/dev/null || true
