@@ -16,7 +16,7 @@ systemctl disable --now accounts-daemon.service anacron.service anacron.timer ap
 systemctl mask accounts-daemon.service anacron.service anacron.timer apport.service apt-daily-upgrade.timer apt-daily.timer avahi-daemon.service avahi-daemon.socket bluetooth.service bluez bolt.service chef-client.service cloud-config.service cloud-final.service cloud-init-local.service cloud-init.service cloud-init.target cockpit.service cockpit.socket colord.service console-getty.service containerd.service cron.service ctrl-alt-del.target cups-browsed cups.path cups.service cups.socket debug-shell.service docker.service docker.socket e2scrub_all.timer fprintd.service fwupd.service geoclue.service getty@ttyS0.service hv-fcopy-daemon.service hv-kvp-daemon.service hv-vss-daemon.service hyperv-daemons.service iio-sensor-proxy.service inetd.service iscsi.service iscsid.service iscsid.socket kerneloops.service kexec.target krb5-admin-server.service krb5-kdc.service libvirt-guests.service libvirtd-admin.socket libvirtd-ro.socket libvirtd.service libvirtd.socket lxc-net.service lxc.service lxd.service lxd.socket machines.target man-db.timer ModemManager.service motd-news.timer multipassd.service nfs-blkmap.service nfs-client.target nfs-common.service nfs-idmapd.service nfs-mountd.service nfs-server.service nmbd.service nscd.service nslcd.service nvmefc-boot-connections.service nvmf-autoconnect.service open-iscsi.service open-vm-tools.service packagekit.service pcscd.socket podman.service podman.socket power-profiles-daemon.service printer.target proc-sys-fs-binfmt_misc.automount proc-sys-fs-binfmt_misc.mount proftpd.service puppet.service pure-ftpd.service qemu-guest-agent.service remote-cryptsetup.target remote-fs-pre.target remote-fs.target rpcbind.service rpcbind.socket rpcbind.target rsync.service rtkit-daemon.service salt-minion.service samba-ad-dc.service samba.service serial-getty@.service serial-getty@*.service smbd.service snmpd.service snmptrapd.service speech-dispatcher spice-vdagentd.service spice-vdagentd.socket ssh.service ssh.socket sssd-autofs.socket sssd-kcm.socket sssd-nss.socket sssd-pac.socket sssd-pam.socket sssd-ssh.socket sssd-sudo.socket sssd.service sssd.socket switcheroo-control.service systemd-binfmt.service systemd-coredump.socket systemd-journal-gatewayd.socket systemd-journal-remote.socket systemd-journal-upload.service systemd-kexec.service systemd-nspawn@.service telnet.socket tigervnc.service udisks2.service unattended-upgrades usb-gadget.target usbip.service usbipd.service usbmuxd.service usbmuxd.socket vboxadd-service.service vboxadd.service vboxautostart-service.service vboxballoonctrl-service.service vboxdrv.service vboxweb-service.service vino-server.service virtlockd.service virtlockd.socket virtlogd.service virtlogd.socket vmtoolsd.service vmware-tools.service vmware-vmblock-fuse.service vsftpd.service webmin.service winbind.service wpa_supplicant x11vnc.service xinetd.service xrdp-sesman.service xrdp.service xrdp.socket 2>/dev/null || true
 
 # PACKAGE REMOVAL
-apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd vsftpd apache2 gcc make cmake perl python3 ruby zram* pmount* avahi* bc bind9* fastfetch fonts-noto* fprint* lxc* docker* podman* xen* bochs* uml* vagrant* ssh* openssh* libssh* winbind* qemu* libvirt* virt* avahi* cup* print* rsync* virtual* sane* nfs* blue* espeak* mobile* wireless* util-linux-locales tasksel* vim* os-prober* netcat* gcc gdb lldb strace* ltrace* build-essential automake autoconf libtool cmake ninja-build meson traceroute libavahi* libcup* 2>/dev/null || true
+apt purge -y aircrack* anacron* ansible* apache* at autopsy* avahi* beef* bettercap* bind9* binwalk* blue* build* burp* cargo* chef* cmake* cockpit* container* courier* cowsay* crack* cron* cup* dirb* dns* docker* dropbear* dsniff* emacs* enum4linux* espeak* ettercap* exim* fastfetch* flatpak* foremost* fortune* fping* fprint* ftp* fuzz* gdb* ghc* ghost* gimp* gobuster* golang* hashcat* hping* hydra* imagemagick* impacket* inet* iw* john* libavahi* libcup libfprint* libsql* libssh* libvirt* lighttpd* lldb* ltrace* lxc* lxd* maltego* masscan* medusa* meson* metasploit* mitm* mobile* modem* mosquit* nasm* nbtscan* ncat* neofetch* netcat* nfs* nginx* nikto* ninja* nmap* nodejs* npm* npm* open-vm* openssh* opensteg* outguess* perl pip* podman* postfix* proftp* proxy* puppet* pure-ftp* python3 qemu* radar* recon* rlogin* rpc* rsh* rsync* rust* samba* scalpel* screen* screenfetch* sendmail* sleuth* smb* snap* sniff* snmp* socat* spee* spice* spiderfoot* sql* ssh* sslstrip* steg* strace* tcp* telnet* theharvester* tiger* tinyssh* tmux* tor* traceroute* tshark* unattended* unicornscan* vagrant* valgrind* vbox* vim* virt* vmw* volatil* vsftp* webmin* wfuzz* wireless* wireshark* wpa* x11vnc* xen* xinetd* xrdp* yarn* yasm* zenmap* 2>/dev/null || true
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
@@ -78,8 +78,8 @@ iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
-# PACKAGE INSTALLATION - XFCE + X11
-apt install -y rsyslog libpam-tmpdir libxfce4ui-utils xfce4-session xfce4-settings xfwm4 xfdesktop4 xfce4-panel featherpad gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gdebi-core opensnitch python3-opensnitch-ui unzip --no-install-recommends
+# PACKAGE INSTALLATION
+apt install -y rsyslog libpam-tmpdir libxfce4ui-utils xfce4-session xfce4-settings xfwm4 xfdesktop4 xfce4-panel featherpad gnome-terminal xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy arc-theme gnome-text-editor gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gdebi-core qt5ct opensnitch python3-opensnitch-ui unzip --no-install-recommends
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force 2>/dev/null || true
@@ -350,14 +350,16 @@ order hosts
 EOF
 
 cat >/etc/security/limits.d/limits.conf <<'EOF'
-*           hard    nproc         2048
+*           hard    nproc         512
 *            -      maxlogins     1
 *            -      maxsyslogins  1
+dev         hard    nproc         2048
 dev          -      maxlogins     1
 dev          -      maxsyslogins  1
+root        hard    nproc         65536
 root         -      maxlogins     1
 root         -      maxsyslogins  1
-root        hard    nproc         65536
+
 EOF
 
 echo "ProcessSizeMax=0
