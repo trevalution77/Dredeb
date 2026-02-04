@@ -1214,112 +1214,12 @@ chmod 0600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-PACKAGES_TO_PURGE=(
-    # Development tools & compilers
-    "as86" "autoconf" "automake" "bin86" "binutils" "bison" "byacc"
-    "cabal-install" "cargo" "chrpath" "clang" "clang-*" "cmake"
-    "cpp" "cpp-*" "default-jdk" "default-jre" "dotnet-sdk-6.0"
-    "dotnet-sdk-7.0" "dotnet-sdk-8.0" "dwarfdump" "elfutils" "elixir"
-    "elixir*" "erlang" "erlang*" "execstack" "expect" "flex" "fpc"
-    "g++" "g++*" "gap*" "gawk" "gcc" "gcc-*" "gdb" "gdb-*"
-    "gfortran" "gfortran-*" "ghc" "ghc-*" "golang" "golang-*"
-    "golang-go" "guile-*" "hexedit" "hopper*" "ida-*" "java-*"
-    "julia" "libtool" "lldb" "lldb-*" "llvm" "llvm-*" "ltrace"
-    "lua5.1" "lua5.3" "lua5.4" "lua*" "luajit" "m4" "make" "mawk"
-    "maxima*" "meson" "mono-*" "mono-complete" "nasm" "ndisasm"
-    "ninja-build" "node" "nodejs" "npm" "objdump" "octave" "octave*"
-    "openjdk-*" "patchelf" "perl" "perl-base" "perl-modules"
-    "php" "php-*" "php-cli" "php-common" "php*" "pike*" "prelink"
-    "python-is-python*" "python2*" "r-base" "r-bash" "r-cran-*"
-    "r2*" "racket*" "radare2" "readelf" "ruby" "ruby-*" "ruby-full"
-    "rustc" "strace" "swig" "tcl" "tcl-*" "tk" "upx" "upx-ucl"
-    "valgrind" "yasm"
-    
-    # Offensive security / pentesting tools
-    "aircrack-ng*" "arping" "arpspoof" "arpwatch" "autopsy" "beef-xss"
-    "bettercap" "binwalk" "bvi" "crackmapexec" "dirb" "dsniff"
-    "enum4linux" "ettercap-common" "ettercap-graphical" "ettercap*"
-    "exiftool" "foremost" "fping" "ftp" "ghidra" "gobuster" "hashcat"
-    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john" "lftp"
-    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
-    "metasploit-framework" "metasploit*" "mitmproxy" "msfvenom"
-    "nbtscan" "nc" "ncat" "ncftp" "netcat" "netcat-*" "netcat-openbsd"
-    "netcat-traditional" "nikto" "nmap" "openstego" "outguess"
-    "proxychains" "proxychains4" "python3-impacket" "recon-ng"
-    "responder" "scapy" "set" "sleuthkit" "smbclient" "smbmap"
-    "social-engineer-toolkit" "socat" "spiderfoot" "sqlmap" "sslstrip"
-    "steghide" "stegosuite" "tcpdump" "theharvester" "tshark"
-    "unicornscan" "volatility" "wfuzz" "wireshark" "wireshark-*"
-    "wireshark-gtk" "wireshark-qt" "xxd" "yersinia" "zenmap" "zmap"
-    
-    # Network services / remote access
-    "proftpd-basic" "pure-ftpd" "rsh-client" "rsh-redone-client"
-    "telnet" "telnetd" "tftp" "tftp-hpa" "tor" "torsocks" "vsftpd" "inet*"
-    
-    # Container runtimes
-    "containerd.io" "docker-ce" "docker-ce-cli" "docker.io"
-    "flatpak" "lxc" "lxd" "lxd-client" "podman" "snapd"
-    
-    # Image manipulation (potential stego vectors)
-    "ghostscript" "gimp" "imagemagick"
-    
-    # Alternative shells
-    "ash" "busybox" "csh" "dash" "es" "fish" "ksh" "ksh93"
-    "mksh" "pdksh" "rc" "sash" "tcsh" "yash" "zsh" "zsh-*"
-)
 
-echo "[*] Purging packages..."
-apt purge -y "${PACKAGES_TO_PURGE[@]}" 2>/dev/null || true
-
-echo "[*] Removing orphaned packages and configs..."
-apt autoremove -y --purge 2>/dev/null || true
-
-DANGEROUS_BINARY_PATTERNS=(
-    # Compilers & build tools
-    '/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++'
-    '/usr/bin/as' '/usr/bin/ld' '/usr/bin/ar' '/usr/bin/nm'
-    '/usr/bin/make' '/usr/bin/cmake'
-    
-    # Scripting languages (globs)
-    '/usr/bin/perl*'
-    '/usr/bin/python2*'
-    '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb'
-    '/usr/bin/lua' '/usr/bin/luac'
-    '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm'
-    '/usr/bin/php*'
-    
-    # Debuggers & RE tools
-    '/usr/bin/gdb' '/usr/bin/lldb'
-    '/usr/bin/strace' '/usr/bin/ltrace'
-    '/usr/bin/xxd' '/usr/bin/hexdump'
-    '/usr/bin/objdump' '/usr/bin/readelf'
-    
-    # Network tools
-    '/usr/bin/nc' '/usr/bin/ncat' '/usr/bin/netcat'
-    '/usr/bin/nmap' '/usr/bin/masscan'
-    '/usr/bin/socat'
-    '/usr/bin/arp*' '/usr/bin/trace*'
-    
-    # Privilege escalation vectors
-    '/usr/bin/run0' '/usr/bin/su'
-    '/usr/bin/sudoedit' '/usr/bin/sudoreplay'
-    '/usr/bin/pkexec'
-    
-    # Alternative shells
-    '/bin/sh' '/bin/dash' '/bin/zsh' '/bin/fish'
-    '/bin/tcsh' '/bin/csh' '/bin/ksh' '/bin/ksh93'
-    '/bin/mksh' '/bin/pdksh' '/bin/ash'
-    '/bin/rc' '/bin/es' '/bin/sash' '/bin/yash'
-    '/usr/bin/zsh' '/usr/bin/fish' '/usr/bin/tcsh'
-    '/usr/bin/csh' '/usr/bin/ksh*'
-)
-
-echo "[*] Removing dangerous binaries..."
-for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
-    # shellcheck disable=SC2086
-    rm -f $pattern 2>/dev/null || true
-done
-
+rm -r /usr/bin/run0 2>/dev/null || true
+rm -r /usr/bin/su 2>/dev/null || true
+rm -r /usr/bin/sudoreplay 2>/dev/null || true
+rm -r /usr/bin/sudoedit 2>/dev/null || true
+rm -r /usr/bin/aeehFCc 2>/dev/null || true
 rm -r /dev/ng0n1 2>/dev/null || true
 rm -r /dev/vhost* 2>/dev/null || true
 rm -r /dev/vfio 2>/dev/null || true
