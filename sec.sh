@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#######-DEBIAN-HARDENING-#########
+########----DEBIAN-HARDENING----########
 
 set -euo pipefail
 
