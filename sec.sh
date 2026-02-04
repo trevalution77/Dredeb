@@ -21,7 +21,393 @@ apt purge -y zram* print* rsync* bc wpasupplicant modemmanager xinetd vsftpd apa
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
-Package: 7zip p7zip p7zip-full aircrack-ng alpine alpine-pico anacron ansible ansible-core apache2 apache2-bin apache2-utils libapache2-* at autopsy avahi-daemon avahi-utils avahi-autoipd beef-xss bettercap bind9 bind9-host bind9-utils bind9-dnsutils binwalk bluetooth bluez bluez-tools libbluetooth* bpftrace build-essential cabal-install certbot python3-certbot* clamav clamav-daemon clamav-freshclam cmake cmake-data colord containerd containerd.io courier-mta courier-imap courier-pop cowsay cpulimit crackmapexec cron cups cups-browsed cups-client cups-daemon cups-core-drivers dnsmasq dnsmasq-base dnsutils docker docker.io docker-ce docker-ce-cli docker-compose docker-compose-plugin dos2unix dosbox dosbox-x dotnet* aspnetcore-* dropbear dropbear-bin dropbear-initramfs dsniff efax elixir elvish emacs emacs-nox emacs-gtk emacs-common enum4linux erlang erlang-base erlang-nox espeak espeak-ng espeak-ng-espeak ettercap-common ettercap-graphical ettercap-text-only exiftool libimage-exiftool-perl exim4 exim4-base exim4-daemon-light exim4-daemon-heavy expect finger fish fish-common flatpak fonts-noto* foremost fping fprintd libfprint* ftp ftpd proftpd* vsftpd pure-ftpd* gawk gcc gcc-* g++ g++-* cpp cpp-* gdb gdb-multiarch gdbserver genisoimage ghc ghc-prof libghc-* ghostscript libgs* gimp gimp-data libgimp* gnustep* libgnustep* gobuster golang golang-go golang-src grc hashcat hashcat-data highlight highlight-common hping3 hydra hydra-gtk imagemagick imagemagick-6* libmagick* impacket-scripts python3-impacket inetutils-ftpd inetutils-telnetd inetutils-inetd irb ispell john john-data jq julia ksh ksh93* kubectl kubernetes-client texlive* latex* tex-common lftp libtool libtool-bin libvirt* virt-manager virt-viewer virtinst links links2 lldb lldb-* ltrace lua* liblua* lxc lxc-utils lxcfs liblxc* lxd lxd-client macchanger mailutils mailutils-common make maltego masscan medusa meson metasploit-framework minicom mitmproxy modemmanager libmm-glib* mono-complete mono-runtime mono-mcs libmono-* mosquitto mosquitto-clients mtr mtr-tiny mysql-client mysql-server mariadb-client mariadb-server nano nasm nbtscan ncat ncdu ncftp neofetch fastfetch screenfetch netcat netcat-openbsd netcat-traditional nfs-common nfs-kernel-server nftables libnftables* nikto ninja-build nmap nmap-common zenmap nodejs npm ntpdate octave octave-common openstego openvpn openssh-client openssh-server openssh-sftp-server libssh-* libssh2-* os-prober outguess pandoc pandoc-data perl-base perl-modules* php* libphp* libapache2-mod-php* pmount podman podman-compose postfix postfix-* proxychains proxychains4 puppet puppet-agent python3-minimal python3-pip python3-venv qemu qemu-system* qemu-user* qemu-utils r-base r-base-core radare2 libradare2-* recon-ng redis redis-server redis-tools restic rlogin rsh-client rsh-server rlwrap rpcbind rsync ruby ruby-full ruby-dev rubygems bundler rustc cargo samba samba-common samba-common-bin smbclient sane sane-utils libsane* scanmem gameconqueror screen sendmail sendmail-bin sendmail-base sleuthkit snap snapd snmpd snmp libsnmp* socat speech-dispatcher speech-dispatcher-* spice-vdagent spiderfoot sqlmap sslstrip steghide stegosuite strace tasksel tasksel-data tcl tcl8* libtcl* tcpdump telnet telnetd terraform tftp tftp-hpa tftpd tftpd-hpa atftpd theharvester tigervnc-standalone-server tigervnc-common tigervnc-viewer tinyssh tinyssh-server tmate tmux tor torbrowser-launcher traceroute tripwire tshark wireshark wireshark-* udisks2 libudisks2-* unicornscan unattended-upgrades usbmuxd libusbmuxd* vagrant vagrant-* valgrind valgrind-* vim vim-tiny vim-common vim-runtime vino virtualbox virtualbox-* libvbox* webmin wfuzz whiptail winbind libnss-winbind libpam-winbind wireless-tools wpasupplicant iw x11vnc xen* libxen* xinetd xrdp yarn yasm yelp yelp-xsl yum zathura zathura-* zmap zram-tools zram-config zsh zsh-common zypper
+# Remote access / shells (DANGEROUS)
+Package: openssh-server openssh-client openssh-sftp-server
+Pin: release *
+Pin-Priority: -1
+
+Package: dropbear dropbear-bin dropbear-initramfs
+Pin: release *
+Pin-Priority: -1
+
+Package: tinyssh tinyssh-server
+Pin: release *
+Pin-Priority: -1
+
+Package: telnet telnetd inetutils-telnetd
+Pin: release *
+Pin-Priority: -1
+
+Package: rsh-client rsh-server rlogin
+Pin: release *
+Pin-Priority: -1
+
+Package: x11vnc tigervnc-standalone-server tigervnc-common xrdp
+Pin: release *
+Pin-Priority: -1
+
+# FTP servers
+Package: vsftpd proftpd-basic pure-ftpd pure-ftpd-common ftpd
+Pin: release *
+Pin-Priority: -1
+
+# Mail servers
+Package: postfix exim4 exim4-base exim4-daemon-light exim4-daemon-heavy sendmail sendmail-bin sendmail-base courier-mta
+Pin: release *
+Pin-Priority: -1
+
+# Web servers
+Package: apache2 apache2-bin nginx nginx-core lighttpd
+Pin: release *
+Pin-Priority: -1
+
+# Containers / VMs
+Package: docker.io docker-ce docker-ce-cli containerd containerd.io
+Pin: release *
+Pin-Priority: -1
+
+Package: podman podman-compose
+Pin: release *
+Pin-Priority: -1
+
+Package: lxc lxc-utils lxcfs lxd lxd-client
+Pin: release *
+Pin-Priority: -1
+
+Package: qemu-system-x86 qemu-system-arm qemu-user qemu-utils
+Pin: release *
+Pin-Priority: -1
+
+Package: virtualbox virtualbox-qt virtualbox-dkms
+Pin: release *
+Pin-Priority: -1
+
+Package: libvirt-daemon libvirt-clients virt-manager virtinst
+Pin: release *
+Pin-Priority: -1
+
+Package: xen-hypervisor-common xen-utils-common
+Pin: release *
+Pin-Priority: -1
+
+Package: vagrant
+Pin: release *
+Pin-Priority: -1
+
+# Pentesting / hacking tools
+Package: nmap zenmap
+Pin: release *
+Pin-Priority: -1
+
+Package: metasploit-framework
+Pin: release *
+Pin-Priority: -1
+
+Package: aircrack-ng
+Pin: release *
+Pin-Priority: -1
+
+Package: hydra hydra-gtk
+Pin: release *
+Pin-Priority: -1
+
+Package: john john-data hashcat hashcat-data
+Pin: release *
+Pin-Priority: -1
+
+Package: wireshark wireshark-qt wireshark-gtk tshark
+Pin: release *
+Pin-Priority: -1
+
+Package: tcpdump
+Pin: release *
+Pin-Priority: -1
+
+Package: ettercap-common ettercap-graphical ettercap-text-only
+Pin: release *
+Pin-Priority: -1
+
+Package: bettercap
+Pin: release *
+Pin-Priority: -1
+
+Package: sqlmap
+Pin: release *
+Pin-Priority: -1
+
+Package: nikto
+Pin: release *
+Pin-Priority: -1
+
+Package: gobuster dirb
+Pin: release *
+Pin-Priority: -1
+
+Package: wfuzz
+Pin: release *
+Pin-Priority: -1
+
+Package: burpsuite
+Pin: release *
+Pin-Priority: -1
+
+Package: beef-xss
+Pin: release *
+Pin-Priority: -1
+
+Package: mitmproxy
+Pin: release *
+Pin-Priority: -1
+
+Package: recon-ng spiderfoot theharvester maltego
+Pin: release *
+Pin-Priority: -1
+
+Package: masscan unicornscan
+Pin: release *
+Pin-Priority: -1
+
+Package: crackmapexec impacket-scripts
+Pin: release *
+Pin-Priority: -1
+
+Package: enum4linux nbtscan
+Pin: release *
+Pin-Priority: -1
+
+Package: medusa
+Pin: release *
+Pin-Priority: -1
+
+Package: hping3 fping
+Pin: release *
+Pin-Priority: -1
+
+Package: dsniff
+Pin: release *
+Pin-Priority: -1
+
+Package: sslstrip
+Pin: release *
+Pin-Priority: -1
+
+Package: proxychains proxychains4
+Pin: release *
+Pin-Priority: -1
+
+Package: tor torbrowser-launcher
+Pin: release *
+Pin-Priority: -1
+
+# Forensics / reverse engineering
+Package: sleuthkit autopsy
+Pin: release *
+Pin-Priority: -1
+
+Package: foremost scalpel
+Pin: release *
+Pin-Priority: -1
+
+Package: binwalk
+Pin: release *
+Pin-Priority: -1
+
+Package: radare2
+Pin: release *
+Pin-Priority: -1
+
+Package: steghide stegosuite openstego outguess
+Pin: release *
+Pin-Priority: -1
+
+Package: volatility
+Pin: release *
+Pin-Priority: -1
+
+# Debuggers / RE tools (block standalone, not libs)
+Package: gdb gdbserver
+Pin: release *
+Pin-Priority: -1
+
+Package: lldb
+Pin: release *
+Pin-Priority: -1
+
+Package: strace
+Pin: release *
+Pin-Priority: -1
+
+Package: ltrace
+Pin: release *
+Pin-Priority: -1
+
+Package: valgrind
+Pin: release *
+Pin-Priority: -1
+
+# Compilers / build tools (block explicitly installed, not deps)
+Package: build-essential
+Pin: release *
+Pin-Priority: -1
+
+Package: cmake cmake-data
+Pin: release *
+Pin-Priority: -1
+
+Package: ninja-build
+Pin: release *
+Pin-Priority: -1
+
+Package: meson
+Pin: release *
+Pin-Priority: -1
+
+Package: nasm yasm
+Pin: release *
+Pin-Priority: -1
+
+Package: rustc cargo
+Pin: release *
+Pin-Priority: -1
+
+Package: golang golang-go
+Pin: release *
+Pin-Priority: -1
+
+Package: ghc
+Pin: release *
+Pin-Priority: -1
+
+Package: nodejs npm
+Pin: release *
+Pin-Priority: -1
+
+# Network services
+Package: avahi-daemon avahi-utils
+Pin: release *
+Pin-Priority: -1
+
+Package: cups cups-daemon cups-browsed
+Pin: release *
+Pin-Priority: -1
+
+Package: samba samba-common-bin smbclient
+Pin: release *
+Pin-Priority: -1
+
+Package: nfs-kernel-server nfs-common
+Pin: release *
+Pin-Priority: -1
+
+Package: rpcbind
+Pin: release *
+Pin-Priority: -1
+
+Package: bind9 dnsmasq
+Pin: release *
+Pin-Priority: -1
+
+Package: snmpd snmp
+Pin: release *
+Pin-Priority: -1
+
+Package: mosquitto mosquitto-clients
+Pin: release *
+Pin-Priority: -1
+
+# Bluetooth / wireless
+Package: bluetooth bluez bluez-tools
+Pin: release *
+Pin-Priority: -1
+
+Package: wpasupplicant wireless-tools iw
+Pin: release *
+Pin-Priority: -1
+
+Package: modemmanager
+Pin: release *
+Pin-Priority: -1
+
+# Misc dangerous
+Package: netcat netcat-openbsd netcat-traditional ncat socat
+Pin: release *
+Pin-Priority: -1
+
+Package: screen tmux
+Pin: release *
+Pin-Priority: -1
+
+Package: cron anacron at
+Pin: release *
+Pin-Priority: -1
+
+Package: rsync
+Pin: release *
+Pin-Priority: -1
+
+Package: xinetd inetutils-inetd
+Pin: release *
+Pin-Priority: -1
+
+Package: flatpak snap snapd
+Pin: release *
+Pin-Priority: -1
+
+Package: puppet puppet-agent ansible ansible-core
+Pin: release *
+Pin-Priority: -1
+
+Package: webmin cockpit
+Pin: release *
+Pin-Priority: -1
+
+# Package managers that bypass apt
+Package: npm yarn pip
+Pin: release *
+Pin-Priority: -1
+
+# Auto-update (we manage manually)
+Package: unattended-upgrades
+Pin: release *
+Pin-Priority: -1
+
+# Fingerprint (often insecure)
+Package: fprintd libfprint-2-2
+Pin: release *
+Pin-Priority: -1
+
+# Speech (unnecessary attack surface)
+Package: espeak espeak-ng speech-dispatcher
+Pin: release *
+Pin-Priority: -1
+
+# Spice/VM guest tools
+Package: spice-vdagent open-vm-tools
+Pin: release *
+Pin-Priority: -1
+
+# Misc unwanted
+Package: nano vim vim-tiny
+Pin: release *
+Pin-Priority: -1
+
+Package: emacs emacs-nox emacs-gtk
+Pin: release *
+Pin-Priority: -1
+
+Package: neofetch fastfetch screenfetch
+Pin: release *
+Pin-Priority: -1
+
+Package: cowsay fortune-mod
+Pin: release *
+Pin-Priority: -1
+
+Package: imagemagick ghostscript
+Pin: release *
+Pin-Priority: -1
+
+Package: gimp
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -79,7 +465,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION - XFCE + X11
-apt install -y rsyslog libpam-tmpdir libxfce4ui-utils gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber gdebi-core opensnitch python3-opensnitch-ui unzip --no-install-recommends
+apt install -y rsyslog libpam-tmpdir libxfce4ui-utils xfce4-session xfce4-settings xfwm4 xfdesktop4 xfce4-panel featherpad gnome-terminal xfce4-power-manager xfce4-taskmanager xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils x11-utils xdg-desktop-portal-gtk arc-theme papirus-icon-theme breeze-gtk-theme bibata-cursor-theme librewolf pipewire pipewire-audio-client-libraries pipewire-pulse wireplumber pavucontrol gdebi-core opensnitch python3-opensnitch-ui unzip --no-install-recommends
 
 # UNNECESSARY ACCOUNTS/GROUPS
 groupdel _ssh --force 2>/dev/null || true
@@ -135,7 +521,7 @@ chmod 700 /home/dev/.xinitrc
 cat > /etc/profile.d/xhost-deny.sh << 'EOF'
 alias xhost='echo "xhost disabled for security"'
 EOF
-chmod 0644 /etc/profile.d/xhost-deny.sh
+chmod 644 /etc/profile.d/xhost-deny.sh
 
 # PAM/U2F
 pamu2fcfg -u dev > /etc/security/u2f_keys
@@ -386,10 +772,10 @@ EOF
 chmod 0644 /etc/security/access.conf
 
 # GRUB
-sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 processor.max_cstate=1 idle=nomwait amd_pstate=passive"|' /etc/default/grub
+sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 amdgpu.dcdebugmask=0x10 amdgpu.sg_display=0 amdgpu.gfx_off=0"|' /etc/default/grub
 update-grub
 chown root:root /etc/default/grub
-chmod 0640 /etc/default/grub
+chmod 640 /etc/default/grub
 
 # SYSCTL
 rm -rf /usr/lib/sysctl.d
@@ -888,7 +1274,6 @@ apt purge -y "${PACKAGES_TO_PURGE[@]}" 2>/dev/null || true
 echo "[*] Removing orphaned packages and configs..."
 apt autoremove -y --purge 2>/dev/null || true
 
-# Binary patterns requiring glob expansion
 DANGEROUS_BINARY_PATTERNS=(
     # Compilers & build tools
     '/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++'
@@ -897,7 +1282,7 @@ DANGEROUS_BINARY_PATTERNS=(
     
     # Scripting languages (globs)
     '/usr/bin/perl*'
-    '/usr/bin/python' '/usr/bin/python2*'
+    '/usr/bin/python2*'
     '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb'
     '/usr/bin/lua' '/usr/bin/luac'
     '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm'
