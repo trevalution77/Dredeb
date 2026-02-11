@@ -1106,6 +1106,10 @@ userdel news 2>/dev/null || true
 userdel sync 2>/dev/null || true
 userdel man 2>/dev/null || true
 userdel mail 2>/dev/null || true
+userdel lp 2>/dev/null || true
+userdel www-data 2>/dev/null || true
+addgroup wheel 2>/dev/null || true
+adduser dev wheel 2>/dev/null || true
 adduser dev render 2>/dev/null || true
 adduser dev input 2>/dev/null || true
 adduser dev video 2>/dev/null || true
@@ -1116,7 +1120,7 @@ adduser dev tty 2>/dev/null || true
 sudo cp /etc/passwd /etc/passwd.bak
 echo "Permissions (Should be 644):" && ls -l /etc/passwd
 
-# AUDIT
+# USER AUDIT
 echo "Accounts with UID 0:" && awk -F: '($3 == 0) {print $1}' /etc/passwd
 echo "Duplicate UIDs:" && cut -d: -f3 /etc/passwd | sort | uniq -d
 echo "Missing 'x' placeholders:" && awk -F: '$2 != "x" {print $1}' /etc/passwd
@@ -1125,7 +1129,7 @@ sudo awk -F: '($2 ~ /^\$/ && length($2) < 20) {print "WARNING: Weak hash for " $
 sudo find /home -name "authorized_keys" -exec echo "Found keys for: " {} \; -exec cat {} \;
 awk -F: -v current_user="$USER" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd | xargs -I {} sudo usermod -s /usr/sbin/nologin {}
 
-# VERIFICATION
+# USER SHELL VERIFICATION
 echo "Your shell status:" && grep "^$USER:" /etc/passwd
 echo "Remaining active shells (should be only you and root):"
 grep -vE "(/usr/sbin/nologin|/bin/false|^$USER:|#)" /etc/passwd
@@ -1220,6 +1224,7 @@ EOF
 
 cat > /etc/pam.d/login << 'EOF'
 #%PAM-1.0
+auth      required    pam_securetty.co
 auth      requisite   pam_nologin.so
 auth      include     common-auth
 account   required    pam_access.so
@@ -1326,8 +1331,13 @@ Defaults log_input,log_output
 Defaults editor=/bin/false
 Defaults !env_editor
 
-dev  ALL=(ALL) /usr/sbin/, /usr/bin/
+Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/iptables-save
+Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
+Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
+
+dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
+
 chmod 0440 /etc/sudoers
 chmod -R 0000 /etc/sudoers.d
 
@@ -1682,11 +1692,11 @@ EOF
 cp /etc/fstab /etc/fstab.bak
 
 echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=1G,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=1G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777   0 0
+tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755          0 0
+tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0" >> /etc/fstab
 
 groupadd -f proc
 gpasswd -a root proc
@@ -1712,7 +1722,7 @@ chmod 0440 /etc/sudoers
 chown root:root /etc/sudoers
 chmod 0000 /etc/sudoers.d
 chown root:root /etc/sudoers.d
-find /etc/sudoers.d -type f -exec chmod 0440 {} \;
+find /etc/sudoers.d -type f -exec chmod 0000 {} \;
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 chmod 0600 /etc/security/access.conf
@@ -1720,10 +1730,7 @@ chmod 0600 /etc/security/limits.conf
 chmod 0600 /etc/security/namespace.conf
 chown root:root /etc/security/*
 if [[ -d /etc/ssh ]]; then
-    chmod 0000 /etc/ssh
-    chmod 0000 /etc/ssh/*_key 2>/dev/null || true
-    chmod 0000 /etc/ssh/*.pub 2>/dev/null || true
-    chmod 0000 /etc/ssh/sshd_config 2>/dev/null || true
+    chmod -R 0000 /etc/ssh
     chown -R root:root /etc/ssh
 fi
 chmod 0700 /etc/cron.d 2>/dev/null || true
@@ -1746,29 +1753,15 @@ if [[ -f /boot/grub/grub.cfg ]]; then
     chown root:root /boot/grub/grub.cfg
 fi
 
-WORLD_WRITABLE=$(find / -xdev -type f -perm -0002 \
-    ! -path "/tmp/*" \
-    ! -path "/var/tmp/*" \
-    ! -path "/proc/*" \
-    ! -path "/sys/*" \
-    2>/dev/null || true)
+find / -xdev \( -path "/tmp" -o -path "/var/tmp" -o -path "/proc" -o -path "/sys" \) -prune \
+    -o -type f -perm -0002 -print0 | xargs -0 -r chmod o-w
 
-if [[ -n "$WORLD_WRITABLE" ]]; then
-    echo "[!] Found world-writable files:"
-    echo "$WORLD_WRITABLE"
-    echo "[*] Removing world-writable bit from these files"
-    echo "$WORLD_WRITABLE" | xargs -r chmod o-w
-fi
+find / -xdev \( -path "/proc" -o -path "/sys" \) -prune \
+    -o -type d -perm -0002 ! -perm -1000 -print0 | xargs -0 -r chmod +t
 
-UNOWNED=$(find / -xdev \( -nouser -o -nogroup \) \
-    ! -path "/proc/*" \
-    ! -path "/sys/*" \
-    2>/dev/null || true)
-
-if [[ -n "$UNOWNED" ]]; then
-    echo "[!] Found unowned files (review manually):"
-    echo "$UNOWNED"
-fi
+find / -xdev \( -path "/proc" -o -path "/sys" -o -path "/dev" \) -prune \
+    -o \( -nouser -o -nogroup \) -printf "Orphan found: %p (UID: %U, GID: %G)\n" 2>/dev/null
+    
 chown root:adm -R /var/log
 chmod -R 0640 /var/log
 chmod 0750 /var/log
@@ -1813,7 +1806,7 @@ cd
 
 # PRIVILEGE ESCALATION HARDENING
 echo "" > /etc/securetty
-chmod 0600 /etc/securetty
+chmod 0400 /etc/securetty
 
 echo "dev" > /etc/cron.allow
 echo "dev" > /etc/at.allow
