@@ -6,6 +6,8 @@ set -euo pipefail
 
 # APT HARDENING
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
 APT::AutoRemove::RecommendsImportant "false";
 APT::AutoRemove::SuggestsImportant "false";
 APT::Periodic::Update-Package-Lists "1";
