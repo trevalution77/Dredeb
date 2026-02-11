@@ -51,12 +51,257 @@ done 2>/dev/null || true
 
 # PACKAGE REMOVAL
 REMOVE=(
-"aircrack*" "anacron*" "ansible*" "apache*" "arping" "arpspoof" "arpwatch" "as86" "at" "autoconf" "automake" "autopsy*" "avahi*" "beef*" "beef-xss" "bettercap" "bettercap*" "bin86" "bind9*" "binutils" "binwalk" "binwalk*" "bison" "blue*" "build*" "build-essential" "burp*" "burpsuite" "bvi" "byacc" "cabal-install" "cargo*" "chef*" "chrpath" "clang" "cmake" "cmake*" "cockpit*" "container*" "courier*" "cowsay*" "cpp" "crack*" "crackmapexec" "cron*" "cup*" "default-jdk" "default-jre" "dhcp*" "dirb*" "dns*" "docker*" "dotnet-sdk-6.0" "dotnet-sdk-7.0" "dotnet-sdk-8.0" "dropbear*" "dsniff" "dsniff*" "dwarfdump" "elfutils" "elixir" "emacs*" "enum4linux" "erlang" "espeak*" "ettercap*" "execstack" "exiftool" "exim*" "expect" "fastfetch*" "flatpak*" "flex" "foremost*" "fortune*" "fpc" "fping*" "fprint*" "*ftp*" "fuzz*" "g++*" "gawk" "gcc*" "gdb*" "gfortran" "ghc*" "ghidra" "ghost*" "gimp*" "gobuster*" "golang*" "hashcat*" "haskell-platform" "hexedit" "hping*" "hydra*" "imagemagick*" "impacket-scripts" "inet*" "iw*" "john*" "julia" "lftp" "libavahi*" "libcup*" "libfprint*" "libsql*" "libssh*" "libtool" "libvirt*" "lighttpd*" "lldb*" "llvm" "ltrace*" "lua*" "lxc*" "lxd*" "m4" "macchanger" "make" "maltego" "masscan*" "mawk" "medusa*" "meson*" "metagoofil" "metasploit-framework" "mitm*" "mobile*" "modem*" "mono-complete" "mosquit*" "nasm*" "nbtscan*" "nc" "ncat*" "ncftp" "ndisasm" "neofetch*" "netcat*" "nfs*" "nginx*" "nikto*" "ninja*" "nmap*" "nodejs*" "npm*" "objdump" "octave" "open-vm*" "openssh*" "opensteg*" "openstego" "openvpn" "outguess*" "patchelf" "perl" "php*" "pip" "pip3" "podman*" "postfix*" "prelink" "proftp*" "proxy*" "puppet*" "pure-ftp*" "qemu*" "r-base" "radar*" "radare2" "rbdmap" "readelf" "recon*" "responder" "rlogin*" "rpc*" "rsh*" "rsync*" "ruby*" "rust*" "samba*" "scalpel*" "scapy" "screen*" "sendmail*" "sleuth*" "smb*" "snap*" "snapd" "sniff*" "snmp*" "socat" "socat*" "spee*" "spice*" "spiderfoot*" "sql*" "ssh*" "steg*" "strace" "strace*" "swig" "tcl" "tclsh" "tcp*" "telnet*" "texlive-base" "texlive-latex-base" "tftp*" "theharvester" "tiger*" "tinyssh*" "tk" "tmux*" "tor*" "traceroute*" "tshark*" "unattended*" "unicornscan*" "upx" "vagrant*" "valgrind*" "vbox*" "vim*" "virt*" "vmw*" "volatil*" "vsftp*" "webmin*" "wfuzz*" "wireless*" "wireshark" "wireshark*" "wish" "wpa*" "x11vnc*" "xen*" "xinetd*" "xrdp*" "xxd" "yarn*" "yasm*" "yersinia" "zenmap*" "zmap"
+aircrack*
+anacron*
+ansible*
+apache*
+arping
+arpspoof
+arpwatch
+as86
+at
+autoconf
+automake
+autopsy*
+avahi*
+beef*
+beef-xss
+bettercap
+bettercap*
+bin86
+bind9*
+binutils
+binwalk
+binwalk*
+bison
+blue*
+build*
+build-essential
+burp*
+burpsuite
+bvi
+byacc
+cabal-install
+cargo*
+chef*
+chrpath
+clang
+cmake
+cmake*
+cockpit*
+container*
+courier*
+cowsay*
+cpp
+crack*
+crackmapexec
+cron*
+cup*
+default-jdk
+default-jre
+dhcp*
+dirb*
+dns*
+docker*
+dotnet-sdk-6.0
+dotnet-sdk-7.0
+dotnet-sdk-8.0
+dropbear*
+dsniff
+dsniff*
+dwarfdump
+elfutils
+elixir
+emacs*
+enum4linux
+erlang
+espeak*
+ettercap*
+execstack
+exiftool
+exim*
+expect
+fastfetch*
+flatpak*
+flex
+foremost*
+fortune*
+fpc
+fping*
+fprint*
+*ftp*
+fuzz*
+g++*
+gawk
+gcc*
+gdb*
+gfortran
+ghc*
+ghidra
+ghost*
+gimp*
+gobuster*
+golang*
+hashcat*
+haskell-platform
+hexedit
+hping*
+hydra*
+imagemagick*
+impacket-scripts
+inet*
+iw*
+john*
+julia
+lftp
+libavahi*
+libcup*
+libfprint*
+libsql*
+libssh*
+libtool
+libvirt*
+lighttpd*
+lldb*
+llvm
+ltrace*
+lua*
+lxc*
+lxd*
+m4
+macchanger
+make
+maltego
+masscan*
+mawk
+medusa*
+meson*
+metagoofil
+metasploit-framework
+mitm*
+mobile*
+modem*
+mono-complete
+mosquit*
+nasm*
+nbtscan*
+nc
+ncat*
+ncftp
+ndisasm
+neofetch*
+netcat*
+nfs*
+nginx*
+nikto*
+ninja*
+nmap*
+nodejs*
+npm*
+objdump
+octave
+open-vm*
+openssh*
+opensteg*
+openstego
+openvpn
+outguess*
+patchelf
+perl
+php*
+pip
+pip3
+podman*
+postfix*
+prelink
+proftp*
+proxy*
+puppet*
+pure-ftp*
+qemu*
+r-base
+radar*
+radare2
+rbdmap
+readelf
+recon*
+responder
+rlogin*
+rpc*
+rsh*
+rsync*
+ruby*
+rust*
+samba*
+scalpel*
+scapy
+screen*
+sendmail*
+sleuth*
+smb*
+snap*
+snapd
+sniff*
+snmp*
+socat
+socat*
+spee*
+spice*
+spiderfoot*
+sql*
+ssh*
+steg*
+strace
+strace*
+swig
+tcl
+tclsh
+tcp*
+telnet*
+texlive-base
+texlive-latex-base
+tftp*
+theharvester
+tiger*
+tinyssh*
+tk
+tmux*
+tor*
+traceroute*
+tshark*
+unattended*
+unicornscan*
+upx
+vagrant*
+valgrind*
+vbox*
+vim*
+virt*
+vmw*
+volatil*
+vsftp*
+webmin*
+wfuzz*
+wireless*
+wireshark
+wireshark*
+wish
+wpa*
+x11vnc*
+xen*
+xinetd*
+xrdp*
+xxd
+yarn*
+yasm*
+yersinia
+zenmap*
+zmap
 )
 
 for pkg in "${REMOVE[@]}"; do
     if dpkg -l "$pkg" &>/dev/null; then
-        apt purge "$pkg" 2>/dev/null || true
+        apt purge -y "$pkg" 2>/dev/null || true
     fi
 done
 
@@ -95,12 +340,9 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog gnome-session swaybg foot gnome-shell gnome-control-center gnome-tweaks gnome-system-monitor gnome-settings-daemon network-manager-gnome dbus-user-session xdg-desktop-portal xdg-desktop-portal-gnome dbus-x11 xdg-utils librewolf gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager labwc mutter wayland-protocols xwayland qt6-wayland qtwayland5 extrepo featherpad rsyslog libpam-tmpdir pipewire-audio wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers linux-firmware firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
+apt install -y rsyslog gnome-session swaybg foot gnome-shell gnome-control-center gnome-tweaks gnome-system-monitor gnome-settings-daemon network-manager-gnome dbus-user-session xdg-desktop-portal xdg-desktop-portal-gnome dbus-x11 xdg-utils gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager labwc mutter wayland-protocols xwayland qt6-wayland qtwayland5 extrepo featherpad rsyslog libpam-tmpdir pipewire-audio wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 mkdir -p ~/.local/bin
-nano ~/.local/bin/gnome-wayland
-chmod +x ~/.local/bin/gnome-wayland
-
 cat > ~/.local/bin/gnome-wayland << 'EOF'
 #!/bin/bash
 export XDG_SESSION_TYPE=wayland
@@ -113,11 +355,11 @@ export MOZ_ENABLE_WAYLAND=2
 exec dbus-run-session -- gnome-session --session=gnome
 EOF
 
+chmod +x ~/.local/bin/gnome-wayland
+
 extrepo enable librewolf
 apt update
 apt install -y librewolf --no-install-recommends
-
-sudo systemctl enable sddm
 
 # ACCOUNTS/GROUPS
 groupdel _ssh --force 2>/dev/null || true
