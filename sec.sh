@@ -504,6 +504,8 @@ EOF
 
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
+passwd -l dev
+passwd -l root
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
