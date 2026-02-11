@@ -1777,22 +1777,8 @@ cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
 polkit.addRule(function(action, subject) {
 if (subject.user == "dev") {
 if (action.id == "org.freedesktop.login1.suspend" ||
-action.id == "org.freedesktop.login1.hibernate" ||
 action.id == "org.freedesktop.login1.reboot" ||
 action.id == "org.freedesktop.login1.power-off" ||
-action.id == "org.freedesktop.NetworkManager.network-control" ||
-action.id == "org.freedesktop.NetworkManager.settings.modify.system" ||
-action.id == "org.freedesktop.NetworkManager.enable-disable-network" ||
-action.id == "org.freedesktop.NetworkManager.enable-disable-wifi" ||
-action.id == "org.freedesktop.ModemManager1.Device.Control" ||
-action.id == "org.freedesktop.timedate1.set-time" ||
-action.id == "org.freedesktop.timedate1.set-timezone" ||
-action.id == "org.freedesktop.locale1.set-locale" ||
-action.id == "org.freedesktop.hostname1.set-static-hostname" ||
-action.id == "org.freedesktop.hostname1.set-hostname" ||
-action.id == "org.freedesktop.Accounts.UserAdministration" ||
-action.id.indexOf("org.gnome.controlcenter") == 0 ||
-action.id.indexOf("org.freedesktop.color") == 0) {
 return polkit.Result.YES;
 }
 }
