@@ -266,7 +266,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog gnome-session swaybg foot gnome-shell gnome-control-center gnome-tweaks gnome-system-monitor gnome-settings-daemon network-manager-gnome dbus-user-session xdg-desktop-portal xdg-desktop-portal-gnome dbus-x11 xdg-utils gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager labwc mutter wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland extrepo featherpad rsyslog libpam-tmpdir pipewire-audio wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends 2>/dev/null || true
+apt install -y rsyslog gnome-session swaybg foot gnome-shell gnome-control-center gnome-tweaks gnome-system-monitor gnome-settings-daemon network-manager-gnome dbus-user-session xdg-desktop-portal xdg-desktop-portal-gnome dbus-x11 xdg-utils gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager labwc mutter wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland extrepo featherpad rsyslog libpam-tmpdir pipewire pipewire-pulse wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends 2>/dev/null || true
 
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/gnome-wayland << 'EOF'
