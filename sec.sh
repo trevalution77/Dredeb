@@ -1118,11 +1118,8 @@ adduser dev video 2>/dev/null || true
 adduser dev audio 2>/dev/null || true
 adduser dev tty 2>/dev/null || true
 
-# BACKUP & PERMISSIONS CHECK
-sudo cp /etc/passwd /etc/passwd.bak
-echo "Permissions (Should be 644):" && ls -l /etc/passwd
-
 # USER AUDIT
+sudo cp /etc/passwd /etc/passwd.bak
 echo "Accounts with UID 0:" && awk -F: '($3 == 0) {print $1}' /etc/passwd
 echo "Duplicate UIDs:" && cut -d: -f3 /etc/passwd | sort | uniq -d
 echo "Missing 'x' placeholders:" && awk -F: '$2 != "x" {print $1}' /etc/passwd
@@ -1339,8 +1336,23 @@ echo "ulimit -c 0" >> /etc/profile
 sed -i 's/^ENCRYPT_METHOD.*/ENCRYPT_METHOD YESCRYPT/' /etc/login.defs
 sed -i 's/^UID_MIN.*/UID_MIN 1000/' /etc/login.defs
 sed -i 's/^UID_MAX.*/UID_MAX 60000/' /etc/login.defs
-sed -i 's/^SHELL=.*/SHELL=\/usr\/sbin\/nologin/' /etc/default/useradd
-sed -i 's/^DSHELL=.*/DSHELL=\/usr\/sbin\/nologin/' /etc/adduser.conf
+sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   15/' /etc/login.defs
+sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   100/' /etc/login.defs
+sed -i 's/^CHFN_RESTRICT.*/CHFN_RESTRICT/' /etc/login.defs
+sed -i 's/^#TTYGROUP.*/TTYGROUP       tty/' /etc/login.defs
+sed -i 's/^#USERDEL_CMD.*/USERDEL_CMD    /usr/sbin/userdel_local/' /etc/login.defs
+sed -i 's/^LOGIN_RETRIES.*/LOGIN_RETRIES 2/' /etc/login.defs
+sed -i 's/^LOG_OK_LOGINS.*/LOG_OK_LOGINS yes/' /etc/login.defs
+sed -i 's/^DEFAULT_HOME.*/DEFAULT_HOME no/' /etc/login.defs
+sed -i 's/^SHELL=.*/SHELL=\/bin\/false/' /etc/default/useradd
+sed -i 's/^# HOME=.*/HOME=/home/' /etc/default/useradd
+sed -i 's/^# SKEL=.*/SKEL=/' /etc/default/useradd
+sed -i 's/^#DSHELL=.*/DSHELL=\/usr\/sbin\/nologin/' /etc/adduser.conf
+sed -i 's/^#DHOME=.*/DHOME=/home/' /etc/adduser.conf
+sed -i 's/^#SKEL=/etc/skel.*/SKEL=/' /etc/adduser.conf
+sed -i 's/^#DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
+sed -i 's/^#SYS_DIR_MODE=.*/SYS_DIR_MODE=0750/' /etc/adduser.conf
+sed -i 's/^#ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=0/' /etc/adduser.conf
 echo "UMASK 077" >> /etc/login.defs
 echo "umask 077" >> /etc/profile
 echo "umask 077" >> /etc/bash.bashrc
@@ -1797,6 +1809,19 @@ chmod 0600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
+rm -r /etc/skel* 2>/dev/null || true
+rm -r /etc/dhcp* 2>/dev/null || true
+rm -r /etc/ssh* 2>/dev/null || true
+rm -r /etc/ppp* 2>/dev/null || true
+rm -r /etc/apparmor* 2>/dev/null || true
+rm -r /etc/cron* 2>/dev/null || true
+rm -r /etc/emacs* 2>/dev/null || true
+rm -r /etc/xemacs* 2>/dev/null || true
+rm -r /etc/gai* 2>/dev/null || true
+rm -r /etc/vim* 2>/dev/null || true
+rm -r /etc/wpa* 2>/dev/null || true
+rm -r /etc/manpath* 2>/dev/null || true
+rm -r /etc/libnl* 2>/dev/null || true
 rm -r /usr/bin/run0 2>/dev/null || true
 rm -r /usr/bin/su 2>/dev/null || true
 rm -r /usr/bin/sudoreplay 2>/dev/null || true
@@ -1831,10 +1856,21 @@ rm -r /dev/tty8 /dev/tty9 /dev/tty10 /dev/tty11 /dev/tty12 /dev/tty13 /dev/tty14
 rm -r /dev/tty19 /dev/tty20 /dev/tty21  /dev/tty22 /dev/tty23 /dev/tty24 /dev/tty25 /dev/tty26 /dev/tty27 /dev/tty28 /dev/tty29 2>/dev/null || true
 rm -r /dev/watchdog* 2>/dev/null || true
 
+# SECURE PATH
+SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+SECURE_PATH="/usr/local/bin:/usr/bin"
+sudo sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
+sudo sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
+sudo sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
+sudo sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\"|PATH=\"$SECURE_PATH\"|g" /etc/profile
+sudo sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
+sudo chmod 0440 /etc/sudoers.d/hardening_path
+
 # SUDO
 cat >/etc/sudoers <<'EOF'
 Defaults env_reset
 Defaults !setenv
+Defaults umask=0077
 Defaults always_set_home
 Defaults timestamp_timeout=0
 Defaults passwd_timeout=0
@@ -1857,14 +1893,14 @@ chmod 0440 /etc/sudoers
 chmod -R 0000 /etc/sudoers.d
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 
 chmod u+s /usr/bin/sudo
 
 apt clean
 apt autopurge -y
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
-apt purge -y $RC_PKGS 2>/dev/null || true
+apt purge -y $RC_PKGS
 fi
 
 # IMMUTABLE FLAGS
