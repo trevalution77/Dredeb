@@ -1305,41 +1305,8 @@ session   optional    pam_systemd.so
 session   required    pam_unix.so
 EOF
 
-cat > /usr/lib/pam.d/polkit << 'EOF'
-#%PAM-1.0
-auth      required    pam_deny.so
-account   required    pam_deny.so
-password  required    pam_deny.so
-session   required    pam_deny.so
-EOF
-
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
-
-# SUDO
-cat >/etc/sudoers <<'EOF'
-Defaults env_reset
-Defaults !setenv
-Defaults always_set_home
-Defaults timestamp_timeout=0
-Defaults passwd_timeout=0
-Defaults passwd_tries=1
-Defaults use_pty
-Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
-Defaults logfile="/var/log/sudo.log"
-Defaults log_input,log_output
-Defaults editor=/bin/false
-Defaults !env_editor
-
-Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/iptables-save
-Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
-Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
-
-dev ALL=(root) FIREWALL, PACKAGES, MAINT
-EOF
-
-chmod 0440 /etc/sudoers
-chmod -R 0000 /etc/sudoers.d
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
@@ -1382,7 +1349,7 @@ chmod 0644 /etc/hosts.deny
 
 cat > /etc/security/access.conf << EOF
 +:dev:LOCAL
--:ALL EXCEPT wheel:console 
+-:ALL EXCEPT dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
 -:ALL:REMOTE
 -:ALL:ALL
@@ -1430,8 +1397,6 @@ fs.protected_symlinks = 1
 fs.protected_regular = 2
 fs.protected_fifos = 2
 net.ipv4.icmp_echo_ignore_all = 1
-net.ipv4.icmp_echo_ignore_broadcasts = 1
-net.ipv4.icmp_ignore_bogus_error_responses = 1
 net.ipv4.conf.all.rp_filter = 1
 net.ipv4.conf.default.rp_filter = 1
 net.ipv4.conf.all.accept_redirects = 0
@@ -1804,6 +1769,35 @@ chmod +x install.sh
 systemctl restart opensnitchd
 cd
 
+# POLKIT
+mkdir -p /etc/polkit-1/rules.d
+cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
+polkit.addRule(function(action, subject) {
+if (subject.user == "dev") {
+if (action.id == "org.freedesktop.login1.suspend" ||
+action.id == "org.freedesktop.login1.hibernate" ||
+action.id == "org.freedesktop.login1.reboot" ||
+action.id == "org.freedesktop.login1.power-off" ||
+action.id == "org.freedesktop.NetworkManager.network-control" ||
+action.id == "org.freedesktop.NetworkManager.settings.modify.system" ||
+action.id == "org.freedesktop.NetworkManager.enable-disable-network" ||
+action.id == "org.freedesktop.NetworkManager.enable-disable-wifi" ||
+action.id == "org.freedesktop.ModemManager1.Device.Control" ||
+action.id == "org.freedesktop.timedate1.set-time" ||
+action.id == "org.freedesktop.timedate1.set-timezone" ||
+action.id == "org.freedesktop.locale1.set-locale" ||
+action.id == "org.freedesktop.hostname1.set-static-hostname" ||
+action.id == "org.freedesktop.hostname1.set-hostname" ||
+action.id == "org.freedesktop.Accounts.UserAdministration" ||
+action.id.indexOf("org.gnome.controlcenter") == 0 ||
+action.id.indexOf("org.freedesktop.color") == 0) {
+return polkit.Result.YES;
+}
+}
+return polkit.Result.NO;
+});
+EOF
+
 # PRIVILEGE ESCALATION HARDENING
 echo "" > /etc/securetty
 chmod 0400 /etc/securetty
@@ -1815,17 +1809,64 @@ chmod 0600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
 
-
 rm -r /usr/bin/run0 2>/dev/null || true
 rm -r /usr/bin/su 2>/dev/null || true
 rm -r /usr/bin/sudoreplay 2>/dev/null || true
 rm -r /usr/bin/sudoedit 2>/dev/null || true
-rm -r /usr/bin/aeehFCc 2>/dev/null || true
+rm -r /usr/lib/emacs* 2>/dev/null || true
+rm -r /usr/lib/gpg* 2>/dev/null || true
+rm -r /usr/lib/gvfs* 2>/dev/null || true
+rm -r /usr/lib/os-probe* 2>/dev/null || true
+rm -r /usr/lib/man-db* 2>/dev/null || true
+rm -r /usr/lib/ppp* 2>/dev/null || true
+rm -r /usr/lib/gnupg* 2>/dev/null || true
+rm -r /usr/lib/systemd/ssh* 2>/dev/null || true
+rm -r /usr/lib/systemd/systemd-ssh* 2>/dev/null || true
+rm -r /usr/lib/systemd/systemd-socket* 2>/dev/null || true
+rm -r /usr/lib/systemd/network/73* 2>/dev/null || true
+rm -r /usr/lib/systemd/network/80-container* 2>/dev/null || true
+rm -r /usr/lib/systemd/network/80-wifi* 2>/dev/null || true
+rm -r /usr/lib/systemd/system-generators/systemd-ssh* 2>/dev/null || true
 rm -r /dev/ng0n1 2>/dev/null || true
 rm -r /dev/vhost* 2>/dev/null || true
 rm -r /dev/vfio 2>/dev/null || true
 rm -r /dev/vhci 2>/dev/null || true
 rm -r /dev/ppp 2>/dev/null || true
+rm -r /dev/usb 2>/dev/null || true
+rm -r /dev/snapshot 2>/dev/null || true
+rm -r /dev/fuse 2>/dev/null || true
+rm -r /dev/tty6* 2>/dev/null || true
+rm -r /dev/tty5* 2>/dev/null || true
+rm -r /dev/tty4* 2>/dev/null || true
+rm -r /dev/tty3* 2>/dev/null || true
+rm -r /dev/tty8 /dev/tty9 /dev/tty10 /dev/tty11 /dev/tty12 /dev/tty13 /dev/tty14 /dev/tty15 /dev/tty16 /dev/tty17 /dev/tty18 2>/dev/null || true
+rm -r /dev/tty19 /dev/tty20 /dev/tty21  /dev/tty22 /dev/tty23 /dev/tty24 /dev/tty25 /dev/tty26 /dev/tty27 /dev/tty28 /dev/tty29 2>/dev/null || true
+rm -r /dev/watchdog* 2>/dev/null || true
+
+# SUDO
+cat >/etc/sudoers <<'EOF'
+Defaults env_reset
+Defaults !setenv
+Defaults always_set_home
+Defaults timestamp_timeout=0
+Defaults passwd_timeout=0
+Defaults passwd_tries=1
+Defaults use_pty
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Defaults logfile="/var/log/sudo.log"
+Defaults log_input,log_output
+Defaults editor=/bin/false
+Defaults !env_editor
+
+Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/iptables-save
+Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
+Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
+
+dev ALL=(root) FIREWALL, PACKAGES, MAINT
+EOF
+
+chmod 0440 /etc/sudoers
+chmod -R 0000 /etc/sudoers.d
 
 # LOCKDOWN
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
