@@ -604,26 +604,36 @@ echo "ProcessSizeMax=0
 Storage=none" >> /etc/systemd/coredump.conf
 echo "ulimit -c 0" >> /etc/profile
 
-sed -i 's/^ENCRYPT_METHOD.*/ENCRYPT_METHOD YESCRYPT/' /etc/login.defs
-sed -i 's/^UID_MIN.*/UID_MIN 1000/' /etc/login.defs
-sed -i 's/^UID_MAX.*/UID_MAX 60000/' /etc/login.defs
-sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   15/' /etc/login.defs
-sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   100/' /etc/login.defs
-sed -i 's/^CHFN_RESTRICT.*/CHFN_RESTRICT/' /etc/login.defs
-sed -i 's/^#TTYGROUP.*/TTYGROUP       tty/' /etc/login.defs
-sed -i 's/^#USERDEL_CMD.*/USERDEL_CMD    /usr/sbin/userdel_local/' /etc/login.defs
-sed -i 's/^LOGIN_RETRIES.*/LOGIN_RETRIES 2/' /etc/login.defs
-sed -i 's/^LOG_OK_LOGINS.*/LOG_OK_LOGINS yes/' /etc/login.defs
-sed -i 's/^DEFAULT_HOME.*/DEFAULT_HOME no/' /etc/login.defs
-sed -i 's/^SHELL=.*/SHELL=\/bin\/false/' /etc/default/useradd
-sed -i 's/^# HOME=.*/HOME=/home/' /etc/default/useradd
-sed -i 's/^# SKEL=.*/SKEL=/' /etc/default/useradd
-sed -i 's/^#DSHELL=.*/DSHELL=\/usr\/sbin\/nologin/' /etc/adduser.conf
-sed -i 's/^#DHOME=.*/DHOME=/home/' /etc/adduser.conf
-sed -i 's/^#SKEL=/etc/skel.*/SKEL=/' /etc/adduser.conf
-sed -i 's/^#DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
-sed -i 's/^#SYS_DIR_MODE=.*/SYS_DIR_MODE=0750/' /etc/adduser.conf
-sed -i 's/^#ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=0/' /etc/adduser.conf
+# CURLY QUOTE EXAMPLES (don't use these):
+# Opening curly: '  (Unicode U+2018)
+# Closing curly: '  (Unicode U+2019)
+
+
+sed -i 's|^ENCRYPT_METHOD.*|ENCRYPT_METHOD YESCRYPT|' /etc/login.defs
+sed -i 's|^UID_MIN.*|UID_MIN 1000|' /etc/login.defs
+sed -i 's|^UID_MAX.*|UID_MAX 60000|' /etc/login.defs
+sed -i 's|^PASS_MAX_DAYS.*|PASS_MAX_DAYS   15|' /etc/login.defs
+sed -i 's|^PASS_MIN_DAYS.*|PASS_MIN_DAYS   100|' /etc/login.defs
+sed -i 's|^CHFN_RESTRICT.*|CHFN_RESTRICT|' /etc/login.defs
+sed -i 's|^#TTYGROUP.*|TTYGROUP       tty|' /etc/login.defs
+sed -i 's|^#USERDEL_CMD.*|USERDEL_CMD    /usr/sbin/userdel_local|' /etc/login.defs
+sed -i 's|^LOGIN_RETRIES.*|LOGIN_RETRIES 2|' /etc/login.defs
+sed -i 's|^LOG_OK_LOGINS.*|LOG_OK_LOGINS yes|' /etc/login.defs
+sed -i 's|^DEFAULT_HOME.*|DEFAULT_HOME no|' /etc/login.defs
+echo "UMASK 077" >> /etc/login.defs
+sed -i 's|^SHELL=.*|SHELL=/bin/false|' /etc/default/useradd
+sed -i 's|^# HOME=.*|HOME=/home|' /etc/default/useradd
+sed -i 's|^# SKEL=.*|SKEL=|' /etc/default/useradd
+sed -i 's|^#DSHELL=.*|DSHELL=/usr/sbin/nologin|' /etc/adduser.conf
+sed -i 's|^#DHOME=.*|DHOME=/home|' /etc/adduser.conf
+sed -i 's|^#SKEL=/etc/skel.*|SKEL=|' /etc/adduser.conf
+sed -i 's|^#DIR_MODE=.*|DIR_MODE=0700|' /etc/adduser.conf
+sed -i 's|^#SYS_DIR_MODE=.*|SYS_DIR_MODE=0750|' /etc/adduser.conf
+sed -i 's|^#ADD_EXTRA_GROUPS=.*|ADD_EXTRA_GROUPS=0|' /etc/adduser.conf
+echo "umask 077" >> /etc/profile
+echo "umask 077" >> /etc/bash.bashrc
+echo "ALL: LOCAL, 127.0.0.1" >> /etc/hosts.allow
+echo "ALL: ALL" > /etc/hosts.deny
 echo "UMASK 077" >> /etc/login.defs
 echo "umask 077" >> /etc/profile
 echo "umask 077" >> /etc/bash.bashrc
