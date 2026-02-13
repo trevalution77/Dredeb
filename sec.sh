@@ -1,17 +1,10 @@
 #!/bin/bash
 
-########----DEBIAN-HARDENING----########
-
-set -euo pipefail
-
-#!/bin/bash
-
 #######-DEBIAN-HARDENING-#########
 
 set -euo pipefail
 
 # PRE-CONFIG
-
 apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
 extrepo enable librewolf 
 apt update
@@ -79,6 +72,152 @@ DISABLE=(
     "samba.service" "samba-ad-dc.service" "smbd.service" "nmbd.service" "winbind.service"
     "rsync.service"
     "webmin.service"
+    "cockpit.service" "cockpit.socket"
+    # VNC / RDP / remote desktop
+    "x11vnc.service" "xrdp.service" "xrdp.socket" "xrdp-sesman.service"
+    "tigervnc.service" "vino-server.service" "gnome-remote-desktop.service"
+    # Display managers / GNOME
+    "gdm3.service" "gnome-software-service.service"
+    # Containers / VMs
+    "containerd.service"
+    "docker.service" "docker.socket"
+    "podman.service" "podman.socket"
+    "lxc.service" "lxc-net.service" "lxd.service" "lxd.socket"
+    "libvirtd.service" "libvirtd.socket" "libvirtd-admin.socket" "libvirtd-ro.socket"
+    "libvirt-guests.service"
+    "virtlockd.service" "virtlockd.socket" "virtlogd.service" "virtlogd.socket"
+    "qemu-guest-agent.service"
+    "machines.target"
+    "systemd-nspawn@.service"
+    # VirtualBox / VMware / Hyper-V / SPICE
+    "vboxadd.service" "vboxadd-service.service" "vboxautostart-service.service"
+    "vboxballoonctrl-service.service" "vboxdrv.service" "vboxweb-service.service"
+    "vmtoolsd.service" "vmware-tools.service" "vmware-vmblock-fuse.service"
+    "open-vm-tools.service"
+    "hv-fcopy-daemon.service" "hv-kvp-daemon.service" "hv-vss-daemon.service"
+    "hyperv-daemons.service"
+    "spice-vdagentd.service" "spice-vdagentd.socket"
+    # Bluetooth / wireless / hardware
+    "bluetooth.service" "bluetooth.target"
+    "ModemManager.service"
+    "wpa_supplicant.service"
+    "bolt.service"
+    "brltty.service"
+    "fprintd.service"
+    "fwupd.service" "fwupd-refresh.timer"
+    "iio-sensor-proxy.service"
+    "pcscd.socket"
+    "usb-gadget.target" "usbip.service" "usbipd.service"
+    "usbmuxd.service" "usbmuxd.socket"
+    # Scheduling / maintenance timers
+    "anacron.service" "anacron.timer"
+    "cron.service"
+    "apt-daily.timer" "apt-daily-upgrade.timer"
+    "e2scrub_all.timer"
+    "man-db.timer"
+    "motd-news.timer"
+    "unattended-upgrades.service"
+    # Cloud / orchestration
+    "cloud-init.service" "cloud-init-local.service"
+    "cloud-config.service" "cloud-final.service" "cloud-init.target"
+    "chef-client.service" "puppet.service" "salt-minion.service"
+    "multipassd.service"
+    # Storage
+    "iscsi.service" "iscsid.service" "iscsid.socket" "open-iscsi.service"
+    "lvm2-lvmpolld.service" "lvm2-lvmpolld.socket"
+    "multipathd.service"
+    "nvmefc-boot-connections.service" "nvmf-autoconnect.service"
+    "rbdmap.service"
+    "remote-cryptsetup.target" "remote-fs-pre.target" "remote-fs.target"
+    # SSSD
+    "sssd.service" "sssd.socket"
+    "sssd-autofs.socket" "sssd-kcm.socket" "sssd-nss.socket"
+    "sssd-pac.socket" "sssd-pam.socket" "sssd-ssh.socket" "sssd-sudo.socket"
+    # Auth services
+    "krb5-admin-server.service" "krb5-kdc.service"
+    "nscd.service" "nslcd.service"
+    # SNMP
+    "snmpd.service" "snmptrapd.service"
+    # Desktop / misc
+    "accounts-daemon.service"
+    "rtkit-daemon.service"
+    "apport.service"
+    "avahi-daemon.service" "avahi-daemon.socket"
+    "colord.service"
+    "cups-browsed.service" "cups.path" "cups.service" "cups.socket"
+    "debug-shell.service"
+    "geoclue.service"
+    "console-getty.service" "getty@ttyS0.service"
+    "serial-getty@.service"
+    "kerneloops.service"
+    "packagekit.service"
+    "power-profiles-daemon.service"
+    "printer.target"
+    "snapd.seeded.service" "snapd.service" "snapd.socket"
+    "speech-dispatcher.service"
+    "switcheroo-control.service"
+    "tracker-extract-3.service" "tracker-miner-fs-3.service"
+    "tracker-miner-rss-3.service" "tracker-writeback-3.service"
+    "udisks2.service"
+    "upower.service"
+    "whoopsie.service"
+    # Systemd hardening
+    "ctrl-alt-del.target"
+    "kexec.target" "systemd-kexec.service"
+    "proc-sys-fs-binfmt_misc.automount" "proc-sys-fs-binfmt_misc.mount"
+    "systemd-binfmt.service"
+    "systemd-coredump.socket"
+    "systemd-journal-gatewayd.socket" "systemd-journal-remote.socket"
+    "systemd-journal-upload.service"
+)
+
+for svc in "${DISABLE[@]}"; do
+    systemctl stop "$svc" 2>/dev/null || true
+    systemctl mask "$svc" 2>/dev/null || true
+done
+
+# PACKAGE REMOVAL
+REMOVE=(
+    # GNOME desktop (replaced by LXQt)
+    "gnome-session" "gnome-shell" "gnome-control-center" "gnome-tweaks"
+    "gnome-system-monitor" "gnome-settings-daemon" "gnome-shell-extensions"
+    "gnome-shell-extension-appindicator" "gnome-shell-extension-caffeine"
+    "gnome-shell-extension-manager" "gnome-software" "gnome-remote-desktop"
+    "mutter" "mutter-common" "network-manager-gnome"
+    "xdg-desktop-portal-gnome" "dbus-x11" "gdm3"
+    # Offensive / pentest tools
+    "aircrack-ng" "autopsy" "beef-xss" "bettercap" "binwalk" "burpsuite"
+    "crackmapexec" "dirb" "dsniff" "enum4linux" "ettercap*" "execstack"
+    "exiftool" "foremost" "fping" "ghidra" "gobuster" "hashcat"
+    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john"
+    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
+    "metasploit-framework" "mitmproxy" "nbtscan" "nikto" "nmap"
+    "openstego" "outguess" "radare2" "recon-ng" "responder"
+    "scalpel" "scapy" "sleuthkit" "smbmap" "spiderfoot" "sqlmap"
+    "steghide" "stegosuite" "theharvester" "tshark" "unicornscan"
+    "wfuzz" "wireshark*" "yersinia" "zenmap" "zmap"
+    # Remote access / network services
+    "openssh-server" "openssh-client" "dropbear*" "tinyssh*" "telnet*"
+    "rsh-client" "rsh-redone-client" "rlogin" "x11vnc" "xrdp*"
+    "tigervnc*" "openvpn" "proftpd*" "vsftpd" "pure-ftpd"
+    "apache2*" "nginx*" "lighttpd*" "postfix*" "sendmail*"
+    "exim4*" "courier*" "xinetd" "webmin"
+    # Dev toolchains
+    "build-essential" "gcc*" "g++*" "gdb*" "binutils" "autoconf"
+    "automake" "bison" "flex" "cmake*" "make" "m4" "libtool"
+    "clang" "llvm" "lldb*" "nasm" "cargo*" "rustc" "golang*"
+    "default-jdk" "default-jre" "nodejs*" "npm*" "ruby*" "perl"
+    "php*" "lua*" "python-is-python3" "pip" "pip3" "cabal-install"
+    "ghc*" "fpc" "erlang" "elixir" "julia" "mono-complete" "dotnet*"
+    "octave" "r-base" "swig" "meson*" "ninja-build"
+    # Containers / VMs
+    "docker*" "podman*" "containerd*" "lxc*" "lxd*" "qemu*"
+    "libvirt*" "vbox*" "snap*" "snapd" "flatpak*" "vagrant*"
+    # Misc unwanted
+    "anacron" "avahi*" "libavahi*" "bind9*" "cockpit*" "cron*"
+    "cups*" "libcup*" "dhcpcd*" "emacs*" "espeak*" "fastfetch*"
+    "fortune*" "cowsay*" "gimp*" "imagemagick*" "mosquitto*"
+    "neofetch*" "nfs-common" "rpcbind" "rsync" "samba*" "smbd"
     "snmpd*" "socat" "strace" "tmux" "tor*" "traceroute"
     "unattended-upgrades" "valgrind*" "vim*" "wpa-supplicant"
     "bluetooth*" "bluez*" "modemmanager" "open-vm-tools"
@@ -91,7 +230,6 @@ apt-get autopurge -y
 apt-get autoclean -y
 
 # APT HARDENING
-
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
 APT::Get::AllowUnauthenticated "false";
 Acquire::AllowInsecureRepositories "false";
@@ -108,7 +246,6 @@ APT::Sandbox::Seccomp "true";
 EOF
 
 # FIREWALL
-
 apt purge -y nftables
 systemctl enable netfilter-persistent
 service netfilter-persistent start
@@ -358,13 +495,9 @@ session   required    pam_unix.so
 EOF
 
 chmod 0644 /etc/pam.d/*
-chown root:root /etc/pam.d/*
-if [[ -s /etc/security/u2f_keys ]]; then
-    passwd -l dev
-    passwd -l root
-else
-    echo "WARNING: U2F keys not registered — skipping password lock to prevent lockout."
-fi
+chown root:root /etc/pam.d/
+passwd -l dev
+passwd -l root
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
@@ -838,15 +971,13 @@ systemctl daemon-reload
 systemctl enable opensnitchd.service
 systemctl start opensnitchd.service
 
-apt install -y git
-(
-    git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git /tmp/Respect-My-Internet
-    chmod +x /tmp/Respect-My-Internet/install.sh
-    /tmp/Respect-My-Internet/install.sh
-)
-rm -rf /tmp/Respect-My-Internet
-apt purge -y git 2>/dev/null || true
+apt install -y gitapt install -y git 
+git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
+cd Respect-My-Internet
+chmod +x install.sh
+./install.sh
 systemctl restart opensnitchd
+cd
 
 # POLKIT
 mkdir -p /etc/polkit-1/rules.d
