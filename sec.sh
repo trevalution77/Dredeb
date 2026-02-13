@@ -43,7 +43,7 @@ EOF
 
 # Containers / VMs / orchestration
 cat > /etc/apt/preferences.d/40-deny-containers.pref << 'EOF'
-Package: docker* docker-ce* docker-ce-cli* docker.io* podman* containerd.io* lxc* lxd* lxd-client* qemu* libvirt* vbox* vagrant* snap* snapd* flatpak* kubernetes* kubectl*
+Package: docker* docker-ce* docker-ce-cli* docker.io* podman* containerd.io* lxc* lxd* lxd-client* qemu* libvirt* vbox* vagrant* snap* snapd* flatpak* kubernetes* kubectl* ansible* chef* puppet* salt-minion* salt-common* terraform*
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -146,6 +146,7 @@ DISABLE=(
     "snmpd.service" "snmptrapd.service"
     # Desktop / misc
     "accounts-daemon.service"
+    "rtkit-daemon.service"
     "apport.service"
     "avahi-daemon.service" "avahi-daemon.socket"
     "colord.service"
@@ -238,7 +239,7 @@ apt-get autoclean -y
 apt purge -y nftables 2>/dev/null || true
 apt install -y iptables iptables-persistent netfilter-persistent
 systemctl enable netfilter-persistent
-service netfilter-persistent start
+systemctl start netfilter-persistent
 iptables -F
 iptables -X
 iptables -Z
@@ -933,15 +934,7 @@ if [[ -d /etc/ssh ]]; then
     chmod -R 0000 /etc/ssh
     chown -R root:root /etc/ssh
 fi
-chmod 0700 /etc/cron.d 2>/dev/null || true
-chmod 0700 /etc/cron.daily 2>/dev/null || true
-chmod 0700 /etc/cron.hourly 2>/dev/null || true
-chmod 0700 /etc/cron.weekly 2>/dev/null || true
-chmod 0700 /etc/cron.monthly 2>/dev/null || true
-chmod 0600 /etc/crontab 2>/dev/null || true
-if [[ -f /etc/at.deny ]]; then
-    chmod 0600 /etc/at.deny
-fi
+# cron dirs are removed later in PRIVILEGE ESCALATION HARDENING; skip chmod here
 chmod 0700 /boot
 chown root:root /boot
 find /boot -type f -name "vmlinuz*" -exec chmod 0600 {} \;
@@ -1063,21 +1056,22 @@ rm -r /usr/lib/systemd/network/73* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-container* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-wifi* 2>/dev/null || true
 rm -r /usr/lib/systemd/system-generators/systemd-ssh* 2>/dev/null || true
-rm -r /dev/ng0n1 2>/dev/null || true
-rm -r /dev/vhost* 2>/dev/null || true
-rm -r /dev/vfio 2>/dev/null || true
-rm -r /dev/vhci 2>/dev/null || true
-rm -r /dev/ppp 2>/dev/null || true
-rm -r /dev/usb 2>/dev/null || true
-rm -r /dev/snapshot 2>/dev/null || true
-rm -r /dev/fuse 2>/dev/null || true
-rm -r /dev/tty6* 2>/dev/null || true
-rm -r /dev/tty5* 2>/dev/null || true
-rm -r /dev/tty4* 2>/dev/null || true
-rm -r /dev/tty3* 2>/dev/null || true
-rm -r /dev/tty8 /dev/tty9 /dev/tty10 /dev/tty11 /dev/tty12 /dev/tty13 /dev/tty14 /dev/tty15 /dev/tty16 /dev/tty17 /dev/tty18 2>/dev/null || true
-rm -r /dev/tty19 /dev/tty20 /dev/tty21  /dev/tty22 /dev/tty23 /dev/tty24 /dev/tty25 /dev/tty26 /dev/tty27 /dev/tty28 /dev/tty29 2>/dev/null || true
-rm -r /dev/watchdog* 2>/dev/null || true
+# Block unwanted device nodes via udev (persistent across reboots)
+cat > /etc/udev/rules.d/99-deny-devices.rules << 'EOF'
+# Block virtualisation / tunnelling device nodes
+KERNEL=="vhost-net",  OPTIONS+="static_node=vhost-net",  ACTION=="add", RUN+="/bin/rm -f /dev/vhost-net"
+KERNEL=="vhost-vsock", OPTIONS+="static_node=vhost-vsock", ACTION=="add", RUN+="/bin/rm -f /dev/vhost-vsock"
+KERNEL=="vfio*",      ACTION=="add", RUN+="/bin/rm -f /dev/%k"
+KERNEL=="ppp",        ACTION=="add", RUN+="/bin/rm -f /dev/ppp"
+KERNEL=="fuse",       ACTION=="add", RUN+="/bin/rm -f /dev/fuse"
+KERNEL=="snapshot",   ACTION=="add", RUN+="/bin/rm -f /dev/snapshot"
+KERNEL=="watchdog*",  ACTION=="add", RUN+="/bin/rm -f /dev/%k"
+# Restrict spare TTYs (keep tty1-tty7 for labwc/login)
+KERNEL=="tty[89]",          ACTION=="add", RUN+="/bin/rm -f /dev/%k"
+KERNEL=="tty[1-6][0-9]",   ACTION=="add", RUN+="/bin/rm -f /dev/%k"
+EOF
+chmod 0644 /etc/udev/rules.d/99-deny-devices.rules
+udevadm control --reload-rules 2>/dev/null || true
 
 # SECURE PATH
 SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
