@@ -1,21 +1,10 @@
-# CLAUDE.md - Dredeb Project Guide
+# Dredeb Project Guide
 
 ## Project Overview
 
 Dredeb is a Debian system hardening and security automation toolkit. It consists of Bash scripts that aggressively harden Debian-based Linux systems by removing dangerous packages, disabling unnecessary services, enforcing strict access controls, and implementing protections against GTFOBins exploitation techniques.
 
 **Target environment:** Fresh Debian installations on security-focused or air-gapped systems.
-
-## Repository Structure
-
-```
-Dredeb/
-├── CLAUDE.md          # This file - AI assistant guide
-├── README.md          # User-facing documentation
-├── sec.sh             # Main system hardening script (~1,222 lines)
-├── gtfobin.sh         # GTFOBins exploitation mitigation script (~1,520 lines)
-└── preseed.cfg        # Debian installer preseed configuration (~208 lines)
-```
 
 There are no subdirectories, build artifacts, or compiled outputs. The project is purely Bash scripts and configuration.
 
@@ -26,7 +15,16 @@ There are no subdirectories, build artifacts, or compiled outputs. The project i
 - **No build system** - scripts are executed directly with `sudo bash <script>.sh`
 - **No test framework** - no automated tests exist
 - **No linter configuration** - no shellcheck or similar tooling configured
-- **No CI/CD** - no GitHub Actions or other pipelines
+- **No CI/CD** - no GitHub Actions or other pipelines## Repository Structure
+
+```
+Dredeb/
+├── CLAUDE.md          # This file - AI assistant guide
+├── README.md          # User-facing documentation
+├── sec.sh             # Main system hardening script (~1,222 lines)
+├── gtfobin.sh         # GTFOBins exploitation mitigation script (~1,520 lines)
+└── preseed.cfg        # Debian installer preseed configuration (~208 lines)
+```
 - **No package manager** - APT is invoked inline within the scripts
 
 ## File Descriptions
