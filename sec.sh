@@ -386,7 +386,7 @@ rm -f /etc/pam.d/remote
 rm -f /etc/pam.d/cron
 
 cat > /etc/security/faillock.conf << 'EOF'
-deny = 3-
+deny = 3
 unlock_time = 900
 fail_interval = 900
 silent
@@ -395,7 +395,7 @@ EOF
 cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=2000000
-auth      required    pam_faillock.so preauth silent deny=5 unlock_time=600 fail_interval=900
+auth      required    pam_faillock.so preauth
 auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
 auth      requisite   pam_deny.so
 auth      optional    pam_faillock.so authsucc
@@ -403,7 +403,7 @@ EOF
 
 cat > /etc/pam.d/common-account << 'EOF'
 #%PAM-1.0
-account   required    pam_access.so accesssfile=/etc/security/access.conf
+account   required    pam_access.so accessfile=/etc/security/access.conf
 account   required    pam_unix.so
 EOF
 
@@ -549,8 +549,12 @@ EOF
 
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
-passwd -l dev
-passwd -l root
+if [[ -s /etc/security/u2f_keys ]]; then
+    passwd -l dev
+    passwd -l root
+else
+    echo "WARNING: U2F keys not registered — skipping password lock to prevent lockout."
+fi
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
