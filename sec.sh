@@ -578,27 +578,24 @@ root         -      maxlogins     1
 root         -      maxsyslogins  1
 EOF
 
-echo "ProcessSizeMax=0
-Storage=none" >> /etc/systemd/coredump.conf
-echo "ulimit -c 0" >> /etc/profile
-
-# CURLY QUOTE EXAMPLES (don't use these):
-# Opening curly: '  (Unicode U+2018)
-# Closing curly: '  (Unicode U+2019)
-
+mkdir -p /etc/systemd/coredump.conf.d
+cat > /etc/systemd/coredump.conf.d/disable.conf << 'EOF'
+[Coredump]
+ProcessSizeMax=0
+Storage=none
+EOF
 
 sed -i 's|^ENCRYPT_METHOD.*|ENCRYPT_METHOD YESCRYPT|' /etc/login.defs
 sed -i 's|^UID_MIN.*|UID_MIN 1000|' /etc/login.defs
 sed -i 's|^UID_MAX.*|UID_MAX 60000|' /etc/login.defs
 sed -i 's|^PASS_MAX_DAYS.*|PASS_MAX_DAYS   15|' /etc/login.defs
-sed -i 's|^PASS_MIN_DAYS.*|PASS_MIN_DAYS   100|' /etc/login.defs
+sed -i 's|^PASS_MIN_DAYS.*|PASS_MIN_DAYS   7|' /etc/login.defs
 sed -i 's|^CHFN_RESTRICT.*|CHFN_RESTRICT|' /etc/login.defs
 sed -i 's|^#TTYGROUP.*|TTYGROUP       tty|' /etc/login.defs
-sed -i 's|^#USERDEL_CMD.*|USERDEL_CMD    /usr/sbin/userdel_local|' /etc/login.defs
 sed -i 's|^LOGIN_RETRIES.*|LOGIN_RETRIES 2|' /etc/login.defs
 sed -i 's|^LOG_OK_LOGINS.*|LOG_OK_LOGINS yes|' /etc/login.defs
 sed -i 's|^DEFAULT_HOME.*|DEFAULT_HOME no|' /etc/login.defs
-echo "UMASK 077" >> /etc/login.defs
+sed -i 's|^UMASK.*|UMASK 077|' /etc/login.defs
 sed -i 's|^SHELL=.*|SHELL=/bin/false|' /etc/default/useradd
 sed -i 's|^# HOME=.*|HOME=/home|' /etc/default/useradd
 sed -i 's|^# SKEL=.*|SKEL=|' /etc/default/useradd
@@ -608,14 +605,12 @@ sed -i 's|^#SKEL=/etc/skel.*|SKEL=|' /etc/adduser.conf
 sed -i 's|^#DIR_MODE=.*|DIR_MODE=0700|' /etc/adduser.conf
 sed -i 's|^#SYS_DIR_MODE=.*|SYS_DIR_MODE=0750|' /etc/adduser.conf
 sed -i 's|^#ADD_EXTRA_GROUPS=.*|ADD_EXTRA_GROUPS=0|' /etc/adduser.conf
-echo "umask 077" >> /etc/profile
-echo "umask 077" >> /etc/bash.bashrc
-echo "ALL: LOCAL, 127.0.0.1" >> /etc/hosts.allow
-echo "ALL: ALL" > /etc/hosts.deny
-echo "UMASK 077" >> /etc/login.defs
-echo "umask 077" >> /etc/profile
-echo "umask 077" >> /etc/bash.bashrc
-echo "ALL: LOCAL, 127.0.0.1" >> /etc/hosts.allow
+
+grep -q "ulimit -c 0" /etc/profile || echo "ulimit -c 0" >> /etc/profile
+grep -q "umask 077" /etc/profile || echo "umask 077" >> /etc/profile
+grep -q "umask 077" /etc/bash.bashrc || echo "umask 077" >> /etc/bash.bashrc
+
+echo "ALL: LOCAL, 127.0.0.1" > /etc/hosts.allow
 echo "ALL: ALL" > /etc/hosts.deny
 chmod 0644 /etc/hosts.allow
 chmod 0644 /etc/hosts.deny
@@ -932,15 +927,19 @@ EOF
 # FSTAB
 cp /etc/fstab /etc/fstab.bak
 
-echo "proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
+if ! grep -q "hidepid=2" /etc/fstab; then
+    cat >> /etc/fstab << 'EOF'
+proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
 tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=2G,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0" >> /etc/fstab
+tmpfs    /dev/shm   tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
+tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000    0 0
+EOF
+fi
 
 groupadd -f proc
 gpasswd -a root proc
+gpasswd -a dev proc
 
 # PERMISSIONS
 chmod 0700 /root
@@ -1037,13 +1036,15 @@ systemctl daemon-reload
 systemctl enable opensnitchd.service
 systemctl start opensnitchd.service
 
-apt install -y git 
-git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
-cd Respect-My-Internet
-chmod +x install.sh
-./install.sh
+apt install -y git
+(
+    git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git /tmp/Respect-My-Internet
+    chmod +x /tmp/Respect-My-Internet/install.sh
+    /tmp/Respect-My-Internet/install.sh
+)
+rm -rf /tmp/Respect-My-Internet
+apt purge -y git 2>/dev/null || true
 systemctl restart opensnitchd
-cd
 
 # POLKIT
 mkdir -p /etc/polkit-1/rules.d
@@ -1064,26 +1065,26 @@ EOF
 echo "" > /etc/securetty
 chmod 0400 /etc/securetty
 
+rm -rf /etc/skel* 2>/dev/null || true
+rm -rf /etc/dhcp* 2>/dev/null || true
+rm -rf /etc/ssh* 2>/dev/null || true
+rm -rf /etc/ppp* 2>/dev/null || true
+rm -rf /etc/apparmor* 2>/dev/null || true
+rm -rf /etc/cron* 2>/dev/null || true
+rm -rf /etc/emacs* 2>/dev/null || true
+rm -rf /etc/xemacs* 2>/dev/null || true
+rm -rf /etc/gai* 2>/dev/null || true
+rm -rf /etc/vim* 2>/dev/null || true
+rm -rf /etc/wpa* 2>/dev/null || true
+rm -rf /etc/manpath* 2>/dev/null || true
+rm -rf /etc/libnl* 2>/dev/null || true
+
 echo "dev" > /etc/cron.allow
 echo "dev" > /etc/at.allow
 chmod 0600 /etc/cron.allow
 chmod 0600 /etc/at.allow
 echo "" > /etc/cron.deny 2>/dev/null || true
 echo "" > /etc/at.deny 2>/dev/null || true
-
-rm -r /etc/skel* 2>/dev/null || true
-rm -r /etc/dhcp* 2>/dev/null || true
-rm -r /etc/ssh* 2>/dev/null || true
-rm -r /etc/ppp* 2>/dev/null || true
-rm -r /etc/apparmor* 2>/dev/null || true
-rm -r /etc/cron* 2>/dev/null || true
-rm -r /etc/emacs* 2>/dev/null || true
-rm -r /etc/xemacs* 2>/dev/null || true
-rm -r /etc/gai* 2>/dev/null || true
-rm -r /etc/vim* 2>/dev/null || true
-rm -r /etc/wpa* 2>/dev/null || true
-rm -r /etc/manpath* 2>/dev/null || true
-rm -r /etc/libnl* 2>/dev/null || true
 rm -r /usr/bin/run0 2>/dev/null || true
 rm -r /usr/bin/su 2>/dev/null || true
 rm -r /usr/bin/sudoreplay 2>/dev/null || true
@@ -1121,11 +1122,11 @@ rm -r /dev/watchdog* 2>/dev/null || true
 # SECURE PATH
 SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 SECURE_PATH="/usr/local/bin:/usr/bin"
-sudo sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
-sudo sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
-sudo sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
-sudo sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\"|PATH=\"$SECURE_PATH\"|g" /etc/profile
-sudo sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
+sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
+sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
+sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
+sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\"|PATH=\"$SECURE_PATH\"|g" /etc/profile
+sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
 
 # SUDO
 cat >/etc/sudoers <<'EOF'
@@ -1194,16 +1195,16 @@ dangerous_paths=(
 "/usr/bin/msfconsole" "/usr/bin/msfvenom" "/usr/bin/hydra" "/usr/bin/medusa"
 "/usr/bin/john" "/usr/bin/hashcat" "/usr/bin/sqlmap" "/usr/bin/nikto"
 "/usr/bin/aircrack-ng" "/usr/bin/ettercap" "/usr/bin/bettercap" "/usr/bin/responder"
-    )
+)
 
-    for binary_path in "${dangerous_paths[@]}"; do
-        if [[ ! -e "$binary_path" ]]; then
-            mkdir -p "$(dirname "$binary_path")"
-            touch "$binary_path"
-            chmod 000 "$binary_path"
-            chattr +i "$binary_path" 2>/dev/null || chmod 000 "$binary_path"
-        fi
-    done
+for binary_path in "${dangerous_paths[@]}"; do
+    if [[ ! -e "$binary_path" ]]; then
+        mkdir -p "$(dirname "$binary_path")"
+        touch "$binary_path"
+        chmod 000 "$binary_path"
+        chattr +i "$binary_path" 2>/dev/null || true
+    fi
+done
 
 # LOCKDOWN
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 
@@ -1213,7 +1214,7 @@ apt clean
 apt autopurge -y
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
-apt purge -y "$RC_PKGS"
+    echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
 fi
 
 # IMMUTABLE FLAGS
@@ -1252,13 +1253,8 @@ chattr -R +i /etc/profile.d 2>/dev/null || true
 chattr +i /etc/bash.bashrc 2>/dev/null || true
 chattr +i /root/.bashrc 2>/dev/null || true
 chattr +i /home/dev/.bashrc 2>/dev/null || true
-chattr -R +i /etc/cron.allow 2>/dev/null || true
-chattr -R +i /etc/at.allow 2>/dev/null || true
-chattr -R +i /etc/cron.d 2>/dev/null || true
-chattr -R +i /etc/cron.daily 2>/dev/null || true
-chattr -R +i /etc/cron.hourly 2>/dev/null || true
-chattr -R +i /etc/cron.monthly 2>/dev/null || true
-chattr -R +i /etc/cron.weekly 2>/dev/null || true
+chattr +i /etc/cron.allow 2>/dev/null || true
+chattr +i /etc/at.allow 2>/dev/null || true
 chattr -R +i /etc/polkit-1 2>/dev/null || true
 chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
