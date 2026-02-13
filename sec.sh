@@ -70,6 +70,7 @@ DISABLE=(
 "fwupd.service"
 "geoclue.service"
 "getty@ttyS0.service"
+"gdm3.service"
 "gnome-remote-desktop.service"
 "gnome-software-service.service"
 "hv-fcopy-daemon.service"
@@ -222,16 +223,55 @@ done 2>/dev/null || true
 
 # PACKAGE REMOVAL
 REMOVE=(
-aircrack* anacron* ansible* apache* arping arpspoof arpwatch as86 at autoconf automake autopsy* avahi* beef* beef-xss bettercap bettercap* bin86 bind9* binutils binwalk binwalk* bison blue* build* build-essential burp* burpsuite bvi byacc cabal-install cargo* chef* chrpath clang cmake cmake* cockpit* container* courier* cowsay* cpp crack* crackmapexec cron* cup* default-jdk default-jre dhcp* dirb* dns* docker* dotnet-sdk-6.0 dotnet-sdk-7.0 dotnet-sdk-8.0 dropbear* dsniff dsniff* dwarfdump elfutils elixir emacs* enum4linux erlang espeak* ettercap* execstack exiftool exim* expect fastfetch* flatpak* flex foremost* fortune* fpc fping* fprint* *ftp* fuzz* g++* gawk gcc* gdb* gfortran ghc* ghidra ghost* gimp* gobuster* golang* hashcat* haskell-platform hexedit hping* hydra* imagemagick* impacket-scripts inet* iw* john* julia lftp libavahi* libcup* libfprint* libsql* libssh* libtool libvirt* lighttpd* lldb* llvm ltrace* lua* lxc* lxd* m4 macchanger make maltego masscan* mawk medusa* meson* metagoofil metasploit-framework mitm* mobile* modem* mono-complete mosquit* nasm* nbtscan* nc ncat* ncftp ndisasm neofetch* netcat* nfs* nginx* nikto* ninja* nmap* nodejs* npm* objdump octave open-vm* openssh* opensteg* openstego openvpn outguess* patchelf perl php* pip pip3 podman* postfix* prelink proftp* proxy* puppet* pure-ftp* qemu* r-base radar* radare2 rbdmap readelf recon* responder rlogin* rpc* rsh* rsync* ruby* rust* samba* scalpel* scapy screen* sendmail* sleuth* smb* snap* snapd sniff* snmp* socat socat* spee* spice* spiderfoot* sql* ssh* steg* strace strace* swig tcl tclsh tcp* telnet* texlive-base texlive-latex-base tftp* theharvester tiger* tinyssh* tk tmux* tor* traceroute* tshark* unattended* unicornscan* upx vagrant* valgrind* vbox* vim* virt* vmw* volatil* vsftp* webmin* wfuzz* wireless* wireshark wireshark* wish wpa* x11vnc* xen* xinetd* xrdp* xxd yarn* yasm* yersinia zenmap* zmap
+    # GNOME desktop (replaced by LXQt)
+    "gnome-session" "gnome-shell" "gnome-control-center" "gnome-tweaks"
+    "gnome-system-monitor" "gnome-settings-daemon" "gnome-shell-extensions"
+    "gnome-shell-extension-appindicator" "gnome-shell-extension-caffeine"
+    "gnome-shell-extension-manager" "gnome-software" "gnome-remote-desktop"
+    "mutter" "mutter-common" "network-manager-gnome"
+    "xdg-desktop-portal-gnome" "dbus-x11" "gdm3"
+    # Offensive / pentest tools
+    "aircrack-ng" "autopsy" "beef-xss" "bettercap" "binwalk" "burpsuite"
+    "crackmapexec" "dirb" "dsniff" "enum4linux" "ettercap*" "execstack"
+    "exiftool" "foremost" "fping" "ghidra" "gobuster" "hashcat"
+    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john"
+    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
+    "metasploit-framework" "mitmproxy" "nbtscan" "nikto" "nmap"
+    "openstego" "outguess" "radare2" "recon-ng" "responder"
+    "scalpel" "scapy" "sleuthkit" "smbmap" "spiderfoot" "sqlmap"
+    "steghide" "stegosuite" "theharvester" "tshark" "unicornscan"
+    "wfuzz" "wireshark*" "yersinia" "zenmap" "zmap"
+    # Remote access / network services
+    "openssh-server" "openssh-client" "dropbear*" "tinyssh*" "telnet*"
+    "rsh-client" "rsh-redone-client" "rlogin" "x11vnc" "xrdp*"
+    "tigervnc*" "openvpn" "proftpd*" "vsftpd" "pure-ftpd"
+    "apache2*" "nginx*" "lighttpd*" "postfix*" "sendmail*"
+    "exim4*" "courier*" "xinetd" "webmin"
+    # Dev toolchains
+    "build-essential" "gcc*" "g++*" "gdb*" "binutils" "autoconf"
+    "automake" "bison" "flex" "cmake*" "make" "m4" "libtool"
+    "clang" "llvm" "lldb*" "nasm" "cargo*" "rustc" "golang*"
+    "default-jdk" "default-jre" "nodejs*" "npm*" "ruby*" "perl"
+    "php*" "lua*" "python-is-python3" "pip" "pip3" "cabal-install"
+    "ghc*" "fpc" "erlang" "elixir" "julia" "mono-complete" "dotnet*"
+    "octave" "r-base" "swig" "meson*" "ninja-build"
+    # Containers / VMs
+    "docker*" "podman*" "containerd*" "lxc*" "lxd*" "qemu*"
+    "libvirt*" "vbox*" "snap*" "snapd" "flatpak*" "vagrant*"
+    # Misc unwanted
+    "anacron" "avahi*" "libavahi*" "bind9*" "cockpit*" "cron*"
+    "cups*" "libcup*" "dhcpcd*" "emacs*" "espeak*" "fastfetch*"
+    "fortune*" "cowsay*" "gimp*" "imagemagick*" "mosquitto*"
+    "neofetch*" "nfs-common" "rpcbind" "rsync" "samba*" "smbd"
+    "snmpd*" "socat" "strace" "tmux" "tor*" "traceroute"
+    "unattended-upgrades" "valgrind*" "vim*" "wpa-supplicant"
+    "bluetooth*" "bluez*" "modemmanager" "open-vm-tools"
+    "patchelf" "prelink" "upx" "texlive-base" "texlive-latex-base"
+    "fprint*" "libfprint*" "puppet*" "chef*" "ansible*" "salt-minion"
 )
 
-for pkg in "${REMOVE[@]}"; do
-    if dpkg -l "$pkg" &>/dev/null; then
-        apt purge -y "$pkg" 2>/dev/null || true
-    fi
-done
-
-apt-get autopurge -y 
+apt purge -y "${REMOVE[@]}" 2>/dev/null || true
+apt-get autopurge -y
 apt-get autoclean -y
 
 # FIREWALL
@@ -266,22 +306,35 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog gnome-session swaybg foot gnome-shell gnome-control-center gnome-tweaks gnome-system-monitor gnome-settings-daemon network-manager-gnome dbus-user-session xdg-desktop-portal xdg-desktop-portal-gnome dbus-x11 xdg-utils gnome-shell-extensions gnome-shell-extension-appindicator gnome-shell-extension-caffeine gnome-shell-extension-manager labwc mutter wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland extrepo featherpad rsyslog libpam-tmpdir pipewire pipewire-pulse wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends 2>/dev/null || true
+apt install -y \
+    rsyslog \
+    labwc swaybg foot \
+    lxqt-core pcmanfm-qt lxqt-archiver \
+    network-manager nm-tray \
+    dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils \
+    layer-shell-qt \
+    wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland \
+    extrepo featherpad libpam-tmpdir \
+    pipewire pipewire-pulse wireplumber \
+    adwaita-icon-theme bibata-cursor-theme \
+    gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics \
+    qt6ct opensnitch python3-opensnitch-ui \
+    --no-install-recommends 2>/dev/null || true
 
 mkdir -p ~/.local/bin
-cat > ~/.local/bin/gnome-wayland << 'EOF'
+cat > ~/.local/bin/start-wayland << 'EOF'
 #!/bin/bash
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=GNOME
-export XDG_SESSION_DESKTOP=gnome
-export GDK_BACKEND=wayland
+export XDG_CURRENT_DESKTOP=LXQt
+export XDG_SESSION_DESKTOP=LXQt
 export QT_QPA_PLATFORM=wayland
-export MOZ_ENABLE_WAYLAND=2
+export QT_QPA_PLATFORMTHEME=lxqt
+export MOZ_ENABLE_WAYLAND=1
 
-exec dbus-run-session -- gnome-session --session=gnome
+exec dbus-run-session -- labwc -s lxqt-session
 EOF
 
-chmod +x ~/.local/bin/gnome-wayland
+chmod +x ~/.local/bin/start-wayland
 
 extrepo enable librewolf
 apt update
@@ -998,16 +1051,16 @@ cd
 
 # POLKIT
 mkdir -p /etc/polkit-1/rules.d
-cat > /etc/polkit-1/rules.d/50-gnome-allow.rules << 'EOF'
+cat > /etc/polkit-1/rules.d/50-lxqt-allow.rules << 'EOF'
 polkit.addRule(function(action, subject) {
-if (subject.user == "dev") {
-if (action.id == "org.freedesktop.login1.suspend" ||
-action.id == "org.freedesktop.login1.reboot" ||
-action.id == "org.freedesktop.login1.power-off" ||
-return polkit.Result.YES;
-}
-}
-return polkit.Result.NO;
+    if (subject.user == "dev") {
+        if (action.id == "org.freedesktop.login1.suspend" ||
+            action.id == "org.freedesktop.login1.reboot" ||
+            action.id == "org.freedesktop.login1.power-off") {
+            return polkit.Result.YES;
+        }
+    }
+    return polkit.Result.NO;
 });
 EOF
 
