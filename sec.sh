@@ -4,18 +4,19 @@
 
 set -euo pipefail
 
-# APT HARDENING
-cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
-APT::AutoRemove::RecommendsImportant "false";
-APT::AutoRemove::SuggestsImportant "false";
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "0";
-APT::Periodic::AutocleanInterval "7";
-APT::Periodic::Unattended-Upgrade "0";
-APT::Sandbox::Seccomp "true";
-EOF
+#!/bin/bash
+
+#######-DEBIAN-HARDENING-#########
+
+set -euo pipefail
+
+# PRE-CONFIG
+
+apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
+extrepo enable librewolf 
+apt update
+apt install -y librewolf --no-install-recommends
+
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
@@ -78,152 +79,6 @@ DISABLE=(
     "samba.service" "samba-ad-dc.service" "smbd.service" "nmbd.service" "winbind.service"
     "rsync.service"
     "webmin.service"
-    "cockpit.service" "cockpit.socket"
-    # VNC / RDP / remote desktop
-    "x11vnc.service" "xrdp.service" "xrdp.socket" "xrdp-sesman.service"
-    "tigervnc.service" "vino-server.service" "gnome-remote-desktop.service"
-    # Display managers / GNOME
-    "gdm3.service" "gnome-software-service.service"
-    # Containers / VMs
-    "containerd.service"
-    "docker.service" "docker.socket"
-    "podman.service" "podman.socket"
-    "lxc.service" "lxc-net.service" "lxd.service" "lxd.socket"
-    "libvirtd.service" "libvirtd.socket" "libvirtd-admin.socket" "libvirtd-ro.socket"
-    "libvirt-guests.service"
-    "virtlockd.service" "virtlockd.socket" "virtlogd.service" "virtlogd.socket"
-    "qemu-guest-agent.service"
-    "machines.target"
-    "systemd-nspawn@.service"
-    # VirtualBox / VMware / Hyper-V / SPICE
-    "vboxadd.service" "vboxadd-service.service" "vboxautostart-service.service"
-    "vboxballoonctrl-service.service" "vboxdrv.service" "vboxweb-service.service"
-    "vmtoolsd.service" "vmware-tools.service" "vmware-vmblock-fuse.service"
-    "open-vm-tools.service"
-    "hv-fcopy-daemon.service" "hv-kvp-daemon.service" "hv-vss-daemon.service"
-    "hyperv-daemons.service"
-    "spice-vdagentd.service" "spice-vdagentd.socket"
-    # Bluetooth / wireless / hardware
-    "bluetooth.service" "bluetooth.target"
-    "ModemManager.service"
-    "wpa_supplicant.service"
-    "bolt.service"
-    "brltty.service"
-    "fprintd.service"
-    "fwupd.service" "fwupd-refresh.timer"
-    "iio-sensor-proxy.service"
-    "pcscd.socket"
-    "usb-gadget.target" "usbip.service" "usbipd.service"
-    "usbmuxd.service" "usbmuxd.socket"
-    # Scheduling / maintenance timers
-    "anacron.service" "anacron.timer"
-    "cron.service"
-    "apt-daily.timer" "apt-daily-upgrade.timer"
-    "e2scrub_all.timer"
-    "man-db.timer"
-    "motd-news.timer"
-    "unattended-upgrades.service"
-    # Cloud / orchestration
-    "cloud-init.service" "cloud-init-local.service"
-    "cloud-config.service" "cloud-final.service" "cloud-init.target"
-    "chef-client.service" "puppet.service" "salt-minion.service"
-    "multipassd.service"
-    # Storage
-    "iscsi.service" "iscsid.service" "iscsid.socket" "open-iscsi.service"
-    "lvm2-lvmpolld.service" "lvm2-lvmpolld.socket"
-    "multipathd.service"
-    "nvmefc-boot-connections.service" "nvmf-autoconnect.service"
-    "rbdmap.service"
-    "remote-cryptsetup.target" "remote-fs-pre.target" "remote-fs.target"
-    # SSSD
-    "sssd.service" "sssd.socket"
-    "sssd-autofs.socket" "sssd-kcm.socket" "sssd-nss.socket"
-    "sssd-pac.socket" "sssd-pam.socket" "sssd-ssh.socket" "sssd-sudo.socket"
-    # Auth services
-    "krb5-admin-server.service" "krb5-kdc.service"
-    "nscd.service" "nslcd.service"
-    # SNMP
-    "snmpd.service" "snmptrapd.service"
-    # Desktop / misc
-    "accounts-daemon.service"
-    "rtkit-daemon.service"
-    "apport.service"
-    "avahi-daemon.service" "avahi-daemon.socket"
-    "colord.service"
-    "cups-browsed.service" "cups.path" "cups.service" "cups.socket"
-    "debug-shell.service"
-    "geoclue.service"
-    "console-getty.service" "getty@ttyS0.service"
-    "serial-getty@.service"
-    "kerneloops.service"
-    "packagekit.service"
-    "power-profiles-daemon.service"
-    "printer.target"
-    "snapd.seeded.service" "snapd.service" "snapd.socket"
-    "speech-dispatcher.service"
-    "switcheroo-control.service"
-    "tracker-extract-3.service" "tracker-miner-fs-3.service"
-    "tracker-miner-rss-3.service" "tracker-writeback-3.service"
-    "udisks2.service"
-    "upower.service"
-    "whoopsie.service"
-    # Systemd hardening
-    "ctrl-alt-del.target"
-    "kexec.target" "systemd-kexec.service"
-    "proc-sys-fs-binfmt_misc.automount" "proc-sys-fs-binfmt_misc.mount"
-    "systemd-binfmt.service"
-    "systemd-coredump.socket"
-    "systemd-journal-gatewayd.socket" "systemd-journal-remote.socket"
-    "systemd-journal-upload.service"
-)
-
-for svc in "${DISABLE[@]}"; do
-    systemctl stop "$svc" 2>/dev/null || true
-    systemctl mask "$svc" 2>/dev/null || true
-done
-
-# PACKAGE REMOVAL
-REMOVE=(
-    # GNOME desktop (replaced by LXQt)
-    "gnome-session" "gnome-shell" "gnome-control-center" "gnome-tweaks"
-    "gnome-system-monitor" "gnome-settings-daemon" "gnome-shell-extensions"
-    "gnome-shell-extension-appindicator" "gnome-shell-extension-caffeine"
-    "gnome-shell-extension-manager" "gnome-software" "gnome-remote-desktop"
-    "mutter" "mutter-common" "network-manager-gnome"
-    "xdg-desktop-portal-gnome" "dbus-x11" "gdm3"
-    # Offensive / pentest tools
-    "aircrack-ng" "autopsy" "beef-xss" "bettercap" "binwalk" "burpsuite"
-    "crackmapexec" "dirb" "dsniff" "enum4linux" "ettercap*" "execstack"
-    "exiftool" "foremost" "fping" "ghidra" "gobuster" "hashcat"
-    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john"
-    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
-    "metasploit-framework" "mitmproxy" "nbtscan" "nikto" "nmap"
-    "openstego" "outguess" "radare2" "recon-ng" "responder"
-    "scalpel" "scapy" "sleuthkit" "smbmap" "spiderfoot" "sqlmap"
-    "steghide" "stegosuite" "theharvester" "tshark" "unicornscan"
-    "wfuzz" "wireshark*" "yersinia" "zenmap" "zmap"
-    # Remote access / network services
-    "openssh-server" "openssh-client" "dropbear*" "tinyssh*" "telnet*"
-    "rsh-client" "rsh-redone-client" "rlogin" "x11vnc" "xrdp*"
-    "tigervnc*" "openvpn" "proftpd*" "vsftpd" "pure-ftpd"
-    "apache2*" "nginx*" "lighttpd*" "postfix*" "sendmail*"
-    "exim4*" "courier*" "xinetd" "webmin"
-    # Dev toolchains
-    "build-essential" "gcc*" "g++*" "gdb*" "binutils" "autoconf"
-    "automake" "bison" "flex" "cmake*" "make" "m4" "libtool"
-    "clang" "llvm" "lldb*" "nasm" "cargo*" "rustc" "golang*"
-    "default-jdk" "default-jre" "nodejs*" "npm*" "ruby*" "perl"
-    "php*" "lua*" "python-is-python3" "pip" "pip3" "cabal-install"
-    "ghc*" "fpc" "erlang" "elixir" "julia" "mono-complete" "dotnet*"
-    "octave" "r-base" "swig" "meson*" "ninja-build"
-    # Containers / VMs
-    "docker*" "podman*" "containerd*" "lxc*" "lxd*" "qemu*"
-    "libvirt*" "vbox*" "snap*" "snapd" "flatpak*" "vagrant*"
-    # Misc unwanted
-    "anacron" "avahi*" "libavahi*" "bind9*" "cockpit*" "cron*"
-    "cups*" "libcup*" "dhcpcd*" "emacs*" "espeak*" "fastfetch*"
-    "fortune*" "cowsay*" "gimp*" "imagemagick*" "mosquitto*"
-    "neofetch*" "nfs-common" "rpcbind" "rsync" "samba*" "smbd"
     "snmpd*" "socat" "strace" "tmux" "tor*" "traceroute"
     "unattended-upgrades" "valgrind*" "vim*" "wpa-supplicant"
     "bluetooth*" "bluez*" "modemmanager" "open-vm-tools"
@@ -235,11 +90,28 @@ apt purge -y "${REMOVE[@]}" 2>/dev/null || true
 apt-get autopurge -y
 apt-get autoclean -y
 
+# APT HARDENING
+
+cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
+APT::Get::AllowUnauthenticated "false";
+Acquire::AllowInsecureRepositories "false";
+Acquire::AllowDowngradeToInsecureRepositories "false";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+APT::AutoRemove::RecommendsImportant "false";
+APT::AutoRemove::SuggestsImportant "false";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "7";
+APT::Periodic::Unattended-Upgrade "0";
+APT::Sandbox::Seccomp "true";
+EOF
+
 # FIREWALL
-apt purge -y nftables 2>/dev/null || true
-apt install -y iptables iptables-persistent netfilter-persistent
+
+apt purge -y nftables
 systemctl enable netfilter-persistent
-systemctl start netfilter-persistent
+service netfilter-persistent start
 iptables -F
 iptables -X
 iptables -Z
@@ -252,9 +124,9 @@ iptables -t mangle -Z
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -j DROP
 ip6tables -F
 ip6tables -X
@@ -264,23 +136,10 @@ ip6tables -P FORWARD DROP
 ip6tables -P OUTPUT DROP
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
-netfilter-persistent save
+netfilter-persistent savesave
 
 # PACKAGE INSTALLATION
-apt install -y \
-    rsyslog \
-    labwc swaybg foot \
-    lxqt-core pcmanfm-qt lxqt-archiver \
-    network-manager nm-tray \
-    dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils \
-    layer-shell-qt \
-    wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland \
-    extrepo featherpad libpam-tmpdir \
-    pipewire pipewire-pulse wireplumber \
-    adwaita-icon-theme bibata-cursor-theme \
-    gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics \
-    qt6ct opensnitch python3-opensnitch-ui \
-    --no-install-recommends 2>/dev/null || true
+apt install -y rsyslog labwc swaybg foot lxqt-core pcmanfm-qt lxqt-archiver network-manager nm-tray dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 featherpad libpam-tmpdir pipewire pipewire-pulse wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/start-wayland << 'EOF'
@@ -297,6 +156,7 @@ EOF
 
 chmod +x ~/.local/bin/start-wayland
 
+apt install extrepo
 extrepo enable librewolf
 apt update
 apt install -y librewolf --no-install-recommends
@@ -326,21 +186,10 @@ while IFS= read -r user; do
     usermod -s /usr/sbin/nologin "$user"
 done < <(awk -F: -v current_user="dev" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd)
 
-# USER SHELL VERIFICATION
-echo "Shell status for dev:" && grep "^dev:" /etc/passwd
-echo "Remaining active shells (should be only dev and root):"
-grep -vE "(/usr/sbin/nologin|/bin/false|^dev:|#)" /etc/passwd
-
 # PAM/U2F
-if lsusb 2>/dev/null | grep -qi "yubico\|fido"; then
-    echo "U2F device detected — registering key..."
-    pamu2fcfg -u dev > /etc/security/u2f_keys
-    chmod 0400 /etc/security/u2f_keys
-    chown root:root /etc/security/u2f_keys
-else
-    echo "WARNING: No U2F device detected — skipping key registration."
-    echo "Run 'pamu2fcfg -u dev > /etc/security/u2f_keys' manually when a key is available."
-fi
+pamu2fcfg -u dev > /etc/security/u2f_keys
+chmod 0400 /etc/security/u2f_keys
+chown root:root /etc/security/u2f_keys
 mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
@@ -1102,7 +951,8 @@ Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/ip
 Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
 Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
 
-dev ALL=(root) FIREWALL, PACKAGES, MAINT
+dev  ALL=(ALL) ALL
+#dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
 
 chmod 0440 /etc/sudoers
