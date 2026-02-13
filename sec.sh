@@ -341,53 +341,45 @@ apt update
 apt install -y librewolf --no-install-recommends
 
 # ACCOUNTS/GROUPS
-groupdel _ssh --force 2>/dev/null || true
-groupdel bluetooth --force 2>/dev/null || true
-groupdel nogroup --force 2>/dev/null || true
-groupdel fax --force 2>/dev/null || true
-groupdel floppy --force 2>/dev/null || true
-groupdel irc --force 2>/dev/null || true
-groupdel kvm --force 2>/dev/null || true
-groupdel voice --force 2>/dev/null || true
-groupdel games --force 2>/dev/null || true
-userdel nobody 2>/dev/null || true
-userdel games 2>/dev/null || true
-userdel irc 2>/dev/null || true
-userdel uucp 2>/dev/null || true
-userdel proxy 2>/dev/null || true
-userdel dhcpcd 2>/dev/null || true
-userdel list 2>/dev/null || true
-userdel news 2>/dev/null || true
-userdel sync 2>/dev/null || true
-userdel man 2>/dev/null || true
-userdel mail 2>/dev/null || true
-userdel lp 2>/dev/null || true
-userdel www-data 2>/dev/null || true
-adduser dev render 2>/dev/null || true
-adduser dev input 2>/dev/null || true
-adduser dev video 2>/dev/null || true
-adduser dev audio 2>/dev/null || true
-adduser dev tty 2>/dev/null || true
+for grp in _ssh bluetooth fax floppy irc kvm voice games; do
+    groupdel "$grp" --force 2>/dev/null || true
+done
+
+for usr in nobody games irc uucp proxy dhcpcd list news sync man mail lp www-data; do
+    userdel "$usr" 2>/dev/null || true
+done
+
+for grp in render input video audio tty; do
+    adduser dev "$grp" 2>/dev/null || true
+done
 
 # USER AUDIT
-sudo cp /etc/passwd /etc/passwd.bak
 echo "Accounts with UID 0:" && awk -F: '($3 == 0) {print $1}' /etc/passwd
 echo "Duplicate UIDs:" && cut -d: -f3 /etc/passwd | sort | uniq -d
 echo "Missing 'x' placeholders:" && awk -F: '$2 != "x" {print $1}' /etc/passwd
-sudo awk -F: '($2 == "" ) {print "CRITICAL: Empty password for " $1}' /etc/shadow
-sudo awk -F: '($2 ~ /^\$/ && length($2) < 20) {print "WARNING: Weak hash for " $1}' /etc/shadow
-sudo find /home -name "authorized_keys" -exec echo "Found keys for: " {} \; -exec cat {} \;
-awk -F: -v current_user="dev" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd | xargs -I {} sudo usermod -s /usr/sbin/nologin {}
+awk -F: '($2 == "" ) {print "CRITICAL: Empty password for " $1}' /etc/shadow
+awk -F: '($2 ~ /^\$/ && length($2) < 20) {print "WARNING: Weak hash for " $1}' /etc/shadow
+find /home -name "authorized_keys" -print -delete 2>/dev/null || true
+
+while IFS= read -r user; do
+    usermod -s /usr/sbin/nologin "$user"
+done < <(awk -F: -v current_user="dev" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd)
 
 # USER SHELL VERIFICATION
-echo "Your shell status:" && grep "^$USER:" /etc/passwd
-echo "Remaining active shells (should be only you and root):"
-grep -vE "(/usr/sbin/nologin|/bin/false|^$USER:|#)" /etc/passwd
+echo "Shell status for dev:" && grep "^dev:" /etc/passwd
+echo "Remaining active shells (should be only dev and root):"
+grep -vE "(/usr/sbin/nologin|/bin/false|^dev:|#)" /etc/passwd
 
 # PAM/U2F
-pamu2fcfg -u dev > /etc/security/u2f_keys
-chmod 0400 /etc/security/u2f_keys
-chown root:root /etc/security/u2f_keys
+if lsusb 2>/dev/null | grep -qi "yubico\|fido"; then
+    echo "U2F device detected — registering key..."
+    pamu2fcfg -u dev > /etc/security/u2f_keys
+    chmod 0400 /etc/security/u2f_keys
+    chown root:root /etc/security/u2f_keys
+else
+    echo "WARNING: No U2F device detected — skipping key registration."
+    echo "Run 'pamu2fcfg -u dev > /etc/security/u2f_keys' manually when a key is available."
+fi
 mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
