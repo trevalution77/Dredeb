@@ -19,207 +19,167 @@ EOF
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
-cat > /etc/apt/preferences.d/deny.pref << 'EOF'
-Package: aircrack* aircrack-ng* alpine* anacron* ansible* aoss* apache* ar* aria2c* arj* arp* arping* arpspoof* arpwatch* as* as86* ascii* ash* aspell* at* atobm* autoconf* automake* autopsy* avahi* aws* base32* base58* base64* basenc* basez* batcat* bc* bconsole* beef* beef-xss* bettercap* bin86* bind* bind9* binutils* binwalk* bison* blue* bluetooth* bluez* bochs* bpf* bridge* build* build-essential* bundle* burp* busctl* bvi* byacc* byebug* bz* c89* c99* cabal* cabal-install* cancel* capsh* cargo* cdist* certbot* check_by_ssh* check_cups* check_log* check_memory* check_raid* check_ssl_cert* check_statusfile* chef* choom* chroot* chrpath* clam* clang* cmake* cmp* cobc* cockpit* column* comm* composer* container* containerd.io* courier* cow* cowsay* cpan* cpio* cpp* cpulimit* crack* crackmapexec* cron* crontab* csh* csplit* csv* cup* curl* cut* dash* date* dc* dd* debug* default-jdk* default-jre* dhcp* dialog* diff* dig* dirb* distcc* dm* dma* dnf* dns* docker* docker-ce* docker-ce-cli* docker.io* dos2unix* dosbox* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* dropbear* dsniff* dstat* dvips* dwarfdump* easy_install* eb* ed* efax* elf* elfutils* elixir* elvish* emacs* enscript* enum* enum4linux* env* eqn* erlang* espeak* ettercap* ettercap-common* ettercap-graphical* ex* execstack* exif* exiftool* exim* expect* facter* fastfetch* finger* fish* flatpak* flex* flock* fmt* fold* fonts-noto* foremost* fortune* fpc* fping* fprint* ftp* fuzz* g++* gawk* gcc* gcloud* gcore* gdb* gem* genie* geniso* gfortran* ghc* ghidra* ghost* gimp* ginsh* gnustep* gobuster* golang* golang-go* grc* gtester* gzip* hash* hashcat* hd* head* hex* hexedit* highlight* hping* hping3* hydra* hydra-gtk* iconv* iftop* image* imagemagick* impacket* impacket-scripts* inet* ionice* irb* ispell* iw* joe* john* join* jrunscript* jtag* julia* knife* ksh* ksshell* ksu* kube* latex* ld.* ldconfig* lftp* libfprint* libsql* libssh* libtool* libvirt* lighttpd* links* lldb* llvm* ln* loginctl* logsave* look* lp* ltrace* lua* luajit* lwp* lxc* lxd* lxd-client* m4* macchanger* mail* make* maltego* man* masscan* mawk* medusa* meson* metagoofil* metasploit* metasploit-framework* minicom* mitm* mitmproxy* mobile* mono-complete* more* mosquit* msg* msguniq* mtr* multitime* mysql* nasm* nautilus* nawk* nbtscan* nc* ncat* ncdu* ncftp* nct* ndisasm* neofetch* netcat* netcat-openbsd* netcat-traditional* nfs* nft* nftables* nginx* nice* nikto* ninja* ninja-build* nl* nmap* node* nodejs* nohup* npm* nroff* nsenter* ntpdate* objdump* octave* od* open-vm* openssh* openssl* opensteg* openstego* openvpn* openvt* opkg* os-prober* outguess* pandoc* paste* patchelf* pax* pdb* pdf* perf* perl* perlbug* pexec* pk* pg* php* php-cli* php-common* pic pico* pip* pkexec* pkg* pmount* podman* posh* postfix* pp* pr prelink* print* proftp* proftpd* proftpd-basic* proxy* proxychains* proxychains4* pry* psftp* psql* ptx* puppet* pure* pure-ftp* pure-ftpd* pwsh* python-is-python3* qemu* r-base* radar* radare2* rake* rbdmap* rc* readelf* recon* recon-ng* red* redcarpet* redis* responder* restic* rev* rl* rlogin* rpc* rpm* rsh* rsh-client* rsh-redone-client* rsync* rtorrent* ruby* ruby-full* run-mailcap* run-parts* runscript* rust* rustc* rview* rvim* sane* sash* scalpel* scan* scapy* scp* screen* screenfetch* script* scrot* sendmail* service* set setarch* setfacl* setlock* sftp* sg* shuf* sleuth* sleuthkit* slsh* smbclient* smbmap* snap* snapd* sniff* snmp* so socat* social-engineer* social-engineer-toolkit* socket* soelim* softlimit* sort* spee* spice* spiderfoot* split* sql* sqlmap* ss ssh* ssl* sslstrip* stdb* steg* steghide* stegosuite* strace* strings* swig* systemd-resolve* tac* tail* task* tasksel* taskset* tasksh* tbl* tcl* tcp* tcpdump* tdbtool* tee* telnet* telnetd* terraform* tex* tftp* tftp-hpa* theharvester* tic* tiger* timedatectl* timeout* tinyssh* tk* tmate* tmux* top* tor* torsocks* traceroute* tripwire* troff* tshark* ul uml* unattended* unexpand* unicornscan* uniq* unshare* unsquashfs* update-alternatives* upx* util-linux-locales* uuen* vagrant* valgrind* varnish* vbox* vigr* vim* vipw* virsh* virt* vmw* volatil* volatility* vsftp* vsftpd* w3m* wall* watch* wc* webmin* wfuzz* wget* whois* winbind* wireless* wireshark* wireshark-gtk* wireshark-qt* wish* wpa* wpasupplicant* x11vnc* xargs* xdotool* xelatex* xen* xetex* xinetd* xmod* xmore* xpad* xrdp* xxd* xz* yarn* yash* yasm* yersinia* yum* zathura* zenmap* zip* zmap* zram* zsh* zsoelim* zypper*
+
+# Offensive / pentest tools
+cat > /etc/apt/preferences.d/10-deny-offensive.pref << 'EOF'
+Package: aircrack-ng* autopsy* beef-xss* bettercap* binwalk* burpsuite* crackmapexec* dirb* dsniff* enum4linux* ettercap* ettercap-common* ettercap-graphical* foremost* fping* gobuster* hashcat* hping3* hydra* hydra-gtk* impacket* impacket-scripts* john* macchanger* maltego* masscan* medusa* metagoofil* metasploit* metasploit-framework* mitmproxy* nbtscan* nikto* nmap* opensteg* openstego* outguess* radare2* recon-ng* responder* scalpel* scapy* sleuthkit* smbclient* smbmap* social-engineer* social-engineer-toolkit* spiderfoot* sqlmap* sslstrip* steghide* stegosuite* theharvester* tshark* unicornscan* volatility* wfuzz* wireshark* wireshark-gtk* wireshark-qt* yersinia* zenmap* zmap*
 Pin: release *
 Pin-Priority: -1
 EOF
 
-chmod 644 /etc/apt/preferences.d/deny.pref
+# Remote access / network services
+cat > /etc/apt/preferences.d/20-deny-remote.pref << 'EOF'
+Package: openssh* dropbear* tinyssh* telnet* telnetd* rsh* rsh-client* rsh-redone-client* rlogin* x11vnc* xrdp* tigervnc* openvpn* proxychains* proxychains4* apache2* nginx* lighttpd* proftpd* proftpd-basic* vsftpd* pure-ftpd* postfix* sendmail* exim4* courier* xinetd* webmin* cockpit* mosquitto*
+Pin: release *
+Pin-Priority: -1
+EOF
+
+# Dev toolchains / compilers / interpreters
+cat > /etc/apt/preferences.d/30-deny-dev.pref << 'EOF'
+Package: build-essential* gcc* g++* gfortran* gdb* binutils* autoconf* automake* bison* flex* cmake* make* m4* libtool* clang* llvm* lldb* nasm* cargo* rustc* golang* golang-go* default-jdk* default-jre* nodejs* npm* ruby* ruby-full* perl* php* php-cli* php-common* lua* luajit* python-is-python3* pip* cabal* cabal-install* ghc* fpc* erlang* elixir* julia* mono-complete* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* r-base* octave* meson* ninja-build* swig* cpan* composer*
+Pin: release *
+Pin-Priority: -1
+EOF
+
+# Containers / VMs / orchestration
+cat > /etc/apt/preferences.d/40-deny-containers.pref << 'EOF'
+Package: docker* docker-ce* docker-ce-cli* docker.io* podman* containerd.io* lxc* lxd* lxd-client* qemu* libvirt* vbox* vagrant* snap* snapd* flatpak* kubernetes* kubectl*
+Pin: release *
+Pin-Priority: -1
+EOF
+
+# Unwanted network/system tools
+cat > /etc/apt/preferences.d/50-deny-network.pref << 'EOF'
+Package: avahi* bind9* bluetooth* bluez* cups* dhcpcd* fprint* libfprint* nfs-common* nfs-kernel-server* nftables* rpcbind* rsync* samba* smbd* snmpd* snmptrapd* socat* strace* tcpdump* tftp* tftp-hpa* traceroute* tor* torsocks* wpa-supplicant* wpasupplicant* iw*
+Pin: release *
+Pin-Priority: -1
+EOF
+
+# Unwanted desktop / misc
+cat > /etc/apt/preferences.d/60-deny-misc.pref << 'EOF'
+Package: anacron* alpine* emacs* espeak* fastfetch* fortune* cowsay* gimp* imagemagick* neofetch* screen* tmux* vim* open-vm-tools* unattended-upgrades* valgrind* bochs* dosbox* spice-vdagent*
+Pin: release *
+Pin-Priority: -1
+EOF
+
+chmod 644 /etc/apt/preferences.d/*.pref
 
 # SERVICES
 DISABLE=(
-"accounts-daemon.service"
-"anacron.service"
-"anacron.timer"
-"apport.service"
-"apt-daily-upgrade.timer"
-"apt-daily.timer"
-"avahi-daemon.service"
-"avahi-daemon.socket"
-"bluetooth.service"
-"bluetooth.target"
-"bluez"
-"bolt.service"
-"brltty.service"
-"chef-client.service"
-"cloud-config.service"
-"cloud-final.service"
-"cloud-init-local.service"
-"cloud-init.service"
-"cloud-init.target"
-"cockpit.service"
-"cockpit.socket"
-"colord.service"
-"console-getty.service"
-"containerd.service"
-"cron.service"
-"ctrl-alt-del.target"
-"cups-browsed"
-"cups-browsed.service"
-"cups.path"
-"cups.service"
-"cups.socket"
-"debug-shell.service"
-"docker.service"
-"docker.socket"
-"e2scrub_all.timer"
-"exim4.service"
-"fprintd.service"
-"fwupd-refresh.timer"
-"fwupd.service"
-"geoclue.service"
-"getty@ttyS0.service"
-"gdm3.service"
-"gnome-remote-desktop.service"
-"gnome-software-service.service"
-"hv-fcopy-daemon.service"
-"hv-kvp-daemon.service"
-"hv-vss-daemon.service"
-"hyperv-daemons.service"
-"iio-sensor-proxy.service"
-"inetd.service"
-"iscsi.service"
-"iscsid.service"
-"iscsid.socket"
-"kerneloops.service"
-"kexec.target"
-"krb5-admin-server.service"
-"krb5-kdc.service"
-"libvirt-guests.service"
-"libvirtd-admin.socket"
-"libvirtd-ro.socket"
-"libvirtd.service"
-"libvirtd.socket"
-"lvm2-lvmpolld.service"
-"lvm2-lvmpolld.socket"
-"lxc-net.service"
-"lxc.service"
-"lxd.service"
-"lxd.socket"
-"machines.target"
-"man-db.timer"
-"ModemManager.service"
-"motd-news.timer"
-"multipassd.service"
-"multipathd.service"
-"nfs-blkmap.service"
-"nfs-client.target"
-"nfs-common.service"
-"nfs-idmapd.service"
-"nfs-mountd.service"
-"nfs-server.service"
-"nmbd.service"
-"nscd.service"
-"nslcd.service"
-"nvmefc-boot-connections.service"
-"nvmf-autoconnect.service"
-"open-iscsi.service"
-"open-vm-tools.service"
-"packagekit.service"
-"pcscd.socket"
-"podman.service"
-"podman.socket"
-"postfix.service"
-"power-profiles-daemon.service"
-"printer.target"
-"proc-sys-fs-binfmt_misc.automount"
-"proc-sys-fs-binfmt_misc.mount"
-"proftpd.service"
-"puppet.service"
-"pure-ftpd.service"
-"qemu-guest-agent.service"
-"rbdmap.service"
-"remote-cryptsetup.target"
-"remote-fs-pre.target"
-"remote-fs.target"
-"rpcbind.service"
-"rpcbind.socket"
-"rpcbind.target"
-"rsync.service"
-"rtkit-daemon.service"
-"salt-minion.service"
-"samba-ad-dc.service"
-"samba.service"
-"sendmail.service"
-"serial-getty@*.service"
-"serial-getty@.service"
-"smbd.service"
-"snapd.seeded.service"
-"snapd.service"
-"snapd.socket"
-"snmpd.service"
-"snmptrapd.service"
-"speech-dispatcher"
-"speech-dispatcher.service"
-"spice-vdagentd.service"
-"spice-vdagentd.socket"
-"ssh.service"
-"ssh.socket"
-"sshd.service"
-"sssd-autofs.socket"
-"sssd-kcm.socket"
-"sssd-nss.socket"
-"sssd-pac.socket"
-"sssd-pam.socket"
-"sssd-ssh.socket"
-"sssd-sudo.socket"
-"sssd.service"
-"sssd.socket"
-"switcheroo-control.service"
-"systemd-binfmt.service"
-"systemd-coredump.socket"
-"systemd-journal-gatewayd.socket"
-"systemd-journal-remote.socket"
-"systemd-journal-upload.service"
-"systemd-kexec.service"
-"systemd-nspawn@.service"
-"telnet.socket"
-"tigervnc.service"
-"tracker-extract-3.service"
-"tracker-miner-fs-3.service"
-"tracker-miner-rss-3.service"
-"tracker-writeback-3.service"
-"udisks2.service"
-"unattended-upgrades"
-"unattended-upgrades.service"
-"upower.service"
-"usb-gadget.target"
-"usbip.service"
-"usbipd.service"
-"usbmuxd.service"
-"usbmuxd.socket"
-"vboxadd-service.service"
-"vboxadd.service"
-"vboxautostart-service.service"
-"vboxballoonctrl-service.service"
-"vboxdrv.service"
-"vboxweb-service.service"
-"vino-server.service"
-"virtlockd.service"
-"virtlockd.socket"
-"virtlogd.service"
-"virtlogd.socket"
-"vmtoolsd.service"
-"vmware-tools.service"
-"vmware-vmblock-fuse.service"
-"vsftpd.service"
-"webmin.service"
-"whoopsie.service"
-"winbind.service"
-"wpa_supplicant"
-"x11vnc.service"
-"xinetd.service"
-"xrdp-sesman.service"
-"xrdp.service"
-"xrdp.socket"
+    # Remote access / network services
+    "ssh.service" "ssh.socket" "sshd.service"
+    "telnet.socket"
+    "inetd.service" "xinetd.service"
+    "rpcbind.service" "rpcbind.socket" "rpcbind.target"
+    "nfs-blkmap.service" "nfs-client.target" "nfs-common.service"
+    "nfs-idmapd.service" "nfs-mountd.service" "nfs-server.service"
+    "postfix.service" "sendmail.service" "exim4.service"
+    "proftpd.service" "vsftpd.service" "pure-ftpd.service"
+    "samba.service" "samba-ad-dc.service" "smbd.service" "nmbd.service" "winbind.service"
+    "rsync.service"
+    "webmin.service"
+    "cockpit.service" "cockpit.socket"
+    # VNC / RDP / remote desktop
+    "x11vnc.service" "xrdp.service" "xrdp.socket" "xrdp-sesman.service"
+    "tigervnc.service" "vino-server.service" "gnome-remote-desktop.service"
+    # Display managers / GNOME
+    "gdm3.service" "gnome-software-service.service"
+    # Containers / VMs
+    "containerd.service"
+    "docker.service" "docker.socket"
+    "podman.service" "podman.socket"
+    "lxc.service" "lxc-net.service" "lxd.service" "lxd.socket"
+    "libvirtd.service" "libvirtd.socket" "libvirtd-admin.socket" "libvirtd-ro.socket"
+    "libvirt-guests.service"
+    "virtlockd.service" "virtlockd.socket" "virtlogd.service" "virtlogd.socket"
+    "qemu-guest-agent.service"
+    "machines.target"
+    "systemd-nspawn@.service"
+    # VirtualBox / VMware / Hyper-V / SPICE
+    "vboxadd.service" "vboxadd-service.service" "vboxautostart-service.service"
+    "vboxballoonctrl-service.service" "vboxdrv.service" "vboxweb-service.service"
+    "vmtoolsd.service" "vmware-tools.service" "vmware-vmblock-fuse.service"
+    "open-vm-tools.service"
+    "hv-fcopy-daemon.service" "hv-kvp-daemon.service" "hv-vss-daemon.service"
+    "hyperv-daemons.service"
+    "spice-vdagentd.service" "spice-vdagentd.socket"
+    # Bluetooth / wireless / hardware
+    "bluetooth.service" "bluetooth.target"
+    "ModemManager.service"
+    "wpa_supplicant.service"
+    "bolt.service"
+    "brltty.service"
+    "fprintd.service"
+    "fwupd.service" "fwupd-refresh.timer"
+    "iio-sensor-proxy.service"
+    "pcscd.socket"
+    "usb-gadget.target" "usbip.service" "usbipd.service"
+    "usbmuxd.service" "usbmuxd.socket"
+    # Scheduling / maintenance timers
+    "anacron.service" "anacron.timer"
+    "cron.service"
+    "apt-daily.timer" "apt-daily-upgrade.timer"
+    "e2scrub_all.timer"
+    "man-db.timer"
+    "motd-news.timer"
+    "unattended-upgrades.service"
+    # Cloud / orchestration
+    "cloud-init.service" "cloud-init-local.service"
+    "cloud-config.service" "cloud-final.service" "cloud-init.target"
+    "chef-client.service" "puppet.service" "salt-minion.service"
+    "multipassd.service"
+    # Storage
+    "iscsi.service" "iscsid.service" "iscsid.socket" "open-iscsi.service"
+    "lvm2-lvmpolld.service" "lvm2-lvmpolld.socket"
+    "multipathd.service"
+    "nvmefc-boot-connections.service" "nvmf-autoconnect.service"
+    "rbdmap.service"
+    "remote-cryptsetup.target" "remote-fs-pre.target" "remote-fs.target"
+    # SSSD
+    "sssd.service" "sssd.socket"
+    "sssd-autofs.socket" "sssd-kcm.socket" "sssd-nss.socket"
+    "sssd-pac.socket" "sssd-pam.socket" "sssd-ssh.socket" "sssd-sudo.socket"
+    # Auth services
+    "krb5-admin-server.service" "krb5-kdc.service"
+    "nscd.service" "nslcd.service"
+    # SNMP
+    "snmpd.service" "snmptrapd.service"
+    # Desktop / misc
+    "accounts-daemon.service"
+    "apport.service"
+    "avahi-daemon.service" "avahi-daemon.socket"
+    "colord.service"
+    "cups-browsed.service" "cups.path" "cups.service" "cups.socket"
+    "debug-shell.service"
+    "geoclue.service"
+    "console-getty.service" "getty@ttyS0.service"
+    "serial-getty@.service"
+    "kerneloops.service"
+    "packagekit.service"
+    "power-profiles-daemon.service"
+    "printer.target"
+    "snapd.seeded.service" "snapd.service" "snapd.socket"
+    "speech-dispatcher.service"
+    "switcheroo-control.service"
+    "tracker-extract-3.service" "tracker-miner-fs-3.service"
+    "tracker-miner-rss-3.service" "tracker-writeback-3.service"
+    "udisks2.service"
+    "upower.service"
+    "whoopsie.service"
+    # Systemd hardening
+    "ctrl-alt-del.target"
+    "kexec.target" "systemd-kexec.service"
+    "proc-sys-fs-binfmt_misc.automount" "proc-sys-fs-binfmt_misc.mount"
+    "systemd-binfmt.service"
+    "systemd-coredump.socket"
+    "systemd-journal-gatewayd.socket" "systemd-journal-remote.socket"
+    "systemd-journal-upload.service"
 )
 
 for svc in "${DISABLE[@]}"; do
     systemctl stop "$svc" 2>/dev/null || true
-    systemctl disable "$svc" 2>/dev/null || true
     systemctl mask "$svc" 2>/dev/null || true
-done 2>/dev/null || true
+done
 
 # PACKAGE REMOVAL
 REMOVE=(
