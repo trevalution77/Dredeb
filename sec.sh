@@ -1,21 +1,15 @@
 #!/bin/bash
 
-########----DEBIAN-HARDENING----########
+#######-DEBIAN-HARDENING-#########
 
 set -euo pipefail
 
-# APT HARDENING
-cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
-APT::AutoRemove::RecommendsImportant "false";
-APT::AutoRemove::SuggestsImportant "false";
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "0";
-APT::Periodic::AutocleanInterval "7";
-APT::Periodic::Unattended-Upgrade "0";
-APT::Sandbox::Seccomp "true";
-EOF
+# PRE-CONFIG
+apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
+extrepo enable librewolf 
+apt update
+apt install -y librewolf --no-install-recommends
+
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
@@ -235,11 +229,26 @@ apt purge -y "${REMOVE[@]}" 2>/dev/null || true
 apt-get autopurge -y
 apt-get autoclean -y
 
+# APT HARDENING
+cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
+APT::Get::AllowUnauthenticated "false";
+Acquire::AllowInsecureRepositories "false";
+Acquire::AllowDowngradeToInsecureRepositories "false";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+APT::AutoRemove::RecommendsImportant "false";
+APT::AutoRemove::SuggestsImportant "false";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "7";
+APT::Periodic::Unattended-Upgrade "0";
+APT::Sandbox::Seccomp "true";
+EOF
+
 # FIREWALL
-apt purge -y nftables 2>/dev/null || true
-apt install -y iptables iptables-persistent netfilter-persistent
+apt purge -y nftables
 systemctl enable netfilter-persistent
-systemctl start netfilter-persistent
+service netfilter-persistent start
 iptables -F
 iptables -X
 iptables -Z
@@ -252,9 +261,9 @@ iptables -t mangle -Z
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -j DROP
 ip6tables -F
 ip6tables -X
@@ -264,23 +273,10 @@ ip6tables -P FORWARD DROP
 ip6tables -P OUTPUT DROP
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
-netfilter-persistent save
+netfilter-persistent savesave
 
 # PACKAGE INSTALLATION
-apt install -y \
-    rsyslog \
-    labwc swaybg foot \
-    lxqt-core pcmanfm-qt lxqt-archiver \
-    network-manager nm-tray \
-    dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils \
-    layer-shell-qt \
-    wayland-protocols xwayland qt6-wayland qtwayland5 qt5-wayland \
-    extrepo featherpad libpam-tmpdir \
-    pipewire pipewire-pulse wireplumber \
-    adwaita-icon-theme bibata-cursor-theme \
-    gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics \
-    qt6ct opensnitch python3-opensnitch-ui \
-    --no-install-recommends 2>/dev/null || true
+apt install -y rsyslog labwc swaybg foot lxqt-core pcmanfm-qt lxqt-archiver network-manager nm-tray dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 featherpad libpam-tmpdir pipewire pipewire-pulse wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/start-wayland << 'EOF'
@@ -297,6 +293,7 @@ EOF
 
 chmod +x ~/.local/bin/start-wayland
 
+apt install extrepo
 extrepo enable librewolf
 apt update
 apt install -y librewolf --no-install-recommends
@@ -326,21 +323,10 @@ while IFS= read -r user; do
     usermod -s /usr/sbin/nologin "$user"
 done < <(awk -F: -v current_user="dev" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd)
 
-# USER SHELL VERIFICATION
-echo "Shell status for dev:" && grep "^dev:" /etc/passwd
-echo "Remaining active shells (should be only dev and root):"
-grep -vE "(/usr/sbin/nologin|/bin/false|^dev:|#)" /etc/passwd
-
 # PAM/U2F
-if lsusb 2>/dev/null | grep -qi "yubico\|fido"; then
-    echo "U2F device detected — registering key..."
-    pamu2fcfg -u dev > /etc/security/u2f_keys
-    chmod 0400 /etc/security/u2f_keys
-    chown root:root /etc/security/u2f_keys
-else
-    echo "WARNING: No U2F device detected — skipping key registration."
-    echo "Run 'pamu2fcfg -u dev > /etc/security/u2f_keys' manually when a key is available."
-fi
+pamu2fcfg -u dev > /etc/security/u2f_keys
+chmod 0400 /etc/security/u2f_keys
+chown root:root /etc/security/u2f_keys
 mkdir -p /var/log/faillock
 chmod 0700 /var/log/faillock
 rm -f /etc/pam.d/remote
@@ -509,13 +495,9 @@ session   required    pam_unix.so
 EOF
 
 chmod 0644 /etc/pam.d/*
-chown root:root /etc/pam.d/*
-if [[ -s /etc/security/u2f_keys ]]; then
-    passwd -l dev
-    passwd -l root
-else
-    echo "WARNING: U2F keys not registered — skipping password lock to prevent lockout."
-fi
+chown root:root /etc/pam.d/
+passwd -l dev
+passwd -l root
 
 # MISC HARDENING
 cat >/etc/shells <<'EOF'
@@ -989,15 +971,13 @@ systemctl daemon-reload
 systemctl enable opensnitchd.service
 systemctl start opensnitchd.service 2>/dev/null || true
 
-apt install -y git 2>/dev/null || true
-(
-    git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git /tmp/Respect-My-Internet
-    chmod +x /tmp/Respect-My-Internet/install.sh
-    /tmp/Respect-My-Internet/install.sh
-) || echo "WARNING: Respect-My-Internet install failed — continuing"
-rm -rf /tmp/Respect-My-Internet
-apt purge -y git 2>/dev/null || true
-systemctl restart opensnitchd 2>/dev/null || true
+apt install -y git 
+git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
+cd Respect-My-Internet
+chmod +x install.sh
+./install.sh
+systemctl restart opensnitchd
+cd
 
 # POLKIT
 mkdir -p /etc/polkit-1/rules.d
@@ -1102,7 +1082,8 @@ Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/ip
 Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
 Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
 
-dev ALL=(root) FIREWALL, PACKAGES, MAINT
+dev  ALL=(ALL) ALL
+#dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
 
 chmod 0440 /etc/sudoers
