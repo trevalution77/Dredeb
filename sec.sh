@@ -3,6 +3,7 @@
 #######-DEBIAN-HARDENING-#########
 
 set -euo pipefail
+trap 'echo "FATAL: line $LINENO failed (exit $?)" >&2' ERR
 
 # PRE-CONFIG
 apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
@@ -30,7 +31,7 @@ EOF
 
 # Dev toolchains / compilers / interpreters
 cat > /etc/apt/preferences.d/30-deny-dev.pref << 'EOF'
-Package: build-essential* gcc* g++* gfortran* gdb* binutils* autoconf* automake* bison* flex* cmake* make* m4* libtool* clang* llvm* lldb* nasm* cargo* rustc* golang* golang-go* default-jdk* default-jre* nodejs* npm* ruby* ruby-full* perl* php* php-cli* php-common* lua* luajit* python-is-python3* pip* cabal* cabal-install* ghc* fpc* erlang* elixir* julia* mono-complete* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* r-base* octave* meson* ninja-build* swig* cpan* composer*
+Package: build-essential* gcc* g++* gfortran* gdb* binutils* autoconf* automake* bison* flex* cmake* make* m4* libtool* clang* llvm* lldb* nasm* cargo* rustc* golang* golang-go* default-jdk* default-jre* nodejs* npm* ruby* ruby-full* perl* php* php-cli* php-common* lua* luajit* python-is-python3* python3-pip* python-pip* pipx* cabal* cabal-install* ghc* fpc* erlang* elixir* julia* mono-complete* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* r-base* octave* meson* ninja-build* swig* cpan* composer*
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -968,7 +969,7 @@ touch /var/log/opensnitchd.log
 chmod 0640 /var/log/opensnitchd.log
 
 systemctl daemon-reload
-systemctl enable opensnitchd.service
+systemctl enable opensnitchd.service || true
 systemctl start opensnitchd.service 2>/dev/null || true
 
 apt install -y git 
@@ -1087,7 +1088,7 @@ dev  ALL=(ALL) ALL
 EOF
 
 chmod 0440 /etc/sudoers
-chmod -R 0000 /etc/sudoers.d
+chmod -R 0000 /etc/sudoers.d 2>/dev/null || true
 
 # STRIP CAPABILITIES
 STRIP_CAPS=(
@@ -1099,7 +1100,7 @@ ALL_GTFOBINS=(
 )
 
 for interp in "${STRIP_CAPS[@]}"; do
-    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null
+    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null || true
 done
 
 cap_output=$(getcap -r /usr 2>/dev/null | awk '{print $1}' || true)
@@ -1145,8 +1146,8 @@ done
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
 chmod u+s /usr/bin/sudo 2>/dev/null || true
 
-apt clean
-apt autopurge -y
+apt clean || true
+apt autopurge -y 2>/dev/null || true
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
     echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
