@@ -277,22 +277,7 @@ ip6tables-save > /etc/iptables/rules.v6
 netfilter-persistent savesave
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog labwc swaybg foot lxqt-core pcmanfm-qt lxqt-archiver network-manager nm-tray dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 featherpad libpam-tmpdir pipewire pipewire-pulse wireplumber adwaita-icon-theme bibata-cursor-theme gdebi-core mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
-
-mkdir -p ~/.local/bin
-cat > ~/.local/bin/start-wayland << 'EOF'
-#!/bin/bash
-export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=LXQt
-export XDG_SESSION_DESKTOP=LXQt
-export QT_QPA_PLATFORM=wayland
-export QT_QPA_PLATFORMTHEME=lxqt
-export MOZ_ENABLE_WAYLAND=1
-
-exec dbus-run-session -- labwc -s lxqt-session
-EOF
-
-chmod +x ~/.local/bin/start-wayland
+apt install -y rsyslog labwc swaybg foot apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra libpam-tmpdir needrestart acct rkhunter chkrootkit debsum pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils wayland-protocols xwayland qt6-wayland qtwayland5 featherpad lightdm pipewire pipewire-pulse wireplumber mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 apt install extrepo
 extrepo enable librewolf
@@ -493,6 +478,14 @@ account   include     common-account
 session   required    pam_env.so user_readenv=0
 session   optional    pam_systemd.so
 session   required    pam_unix.so
+EOF
+
+cat > /usr/lib/pam.d/polkit << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
 EOF
 
 chmod 0644 /etc/pam.d/*
@@ -917,7 +910,7 @@ if [[ -d /etc/ssh ]]; then
     chmod -R 0000 /etc/ssh
     chown -R root:root /etc/ssh
 fi
-# cron dirs are removed later in PRIVILEGE ESCALATION HARDENING; skip chmod here
+
 chmod 0700 /boot
 chown root:root /boot
 find /boot -type f -name "vmlinuz*" -exec chmod 0600 {} \; 2>/dev/null || true
