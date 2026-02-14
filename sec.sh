@@ -1119,7 +1119,7 @@ ALL_GTFOBINS=(
 )
 
 for interp in "${STRIP_CAPS[@]}"; do
-    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null
+    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null || true
 done
 
 cap_output=$(getcap -r /usr 2>/dev/null | awk '{print $1}' || true)
