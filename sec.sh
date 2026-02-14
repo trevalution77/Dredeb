@@ -3,6 +3,7 @@
 ########----DEBIAN-HARDENING----########
 
 set -euo pipefail
+trap 'echo "FATAL: line $LINENO failed (exit $?)" >&2' ERR
 
 # APT HARDENING
 cat > /etc/apt/apt.conf.d/99-hardening << 'EOF'
@@ -986,7 +987,7 @@ touch /var/log/opensnitchd.log
 chmod 0640 /var/log/opensnitchd.log
 
 systemctl daemon-reload
-systemctl enable opensnitchd.service
+systemctl enable opensnitchd.service || true
 systemctl start opensnitchd.service 2>/dev/null || true
 
 apt install -y git 2>/dev/null || true
@@ -1106,7 +1107,7 @@ dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
 
 chmod 0440 /etc/sudoers
-chmod -R 0000 /etc/sudoers.d
+chmod -R 0000 /etc/sudoers.d 2>/dev/null || true
 
 # STRIP CAPABILITIES
 STRIP_CAPS=(
@@ -1164,8 +1165,8 @@ done
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
 chmod u+s /usr/bin/sudo 2>/dev/null || true
 
-apt clean
-apt autopurge -y
+apt clean || true
+apt autopurge -y 2>/dev/null || true
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
     echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
