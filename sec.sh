@@ -590,7 +590,7 @@ sed -i 's/^#GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=true/' /etc/default
 sed -i 's/^#GRUB_DISABLE_LINUX_UUID=.*/GRUB_DISABLE_LINUX_UUID=true/' /etc/default/grub
 sed -i 's/^#GRUB_DISABLE_RECOVERY=.*/GRUB_DISABLE_RECOVERY=true/' /etc/default/grub
 sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations=auto spectre_v2=on spec_store_bypass_disable=on amd_iommu=on iommu=pt init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on slab_nomerge vsyscall=none debugfs=off oops=panic ipv6.disable=1 amdgpu.dcdebugmask=0x10 amdgpu.sg_display=0 amdgpu.gfx_off=0"|' /etc/default/grub
-update-grub
+update-grub 2>/dev/null || true
 chown root:root /etc/default/grub
 chmod 640 /etc/default/grub
 
@@ -663,7 +663,7 @@ kernel.unprivileged_userns_clone = 0
 dev.tty.legacy_tiocsti = 0
 dev.tty.ldisc_autoload = 0
 EOF
-sysctl --system
+sysctl --system 2>/dev/null || true
 
 # MODULES
 cat > /etc/modprobe.d/harden.conf << 'EOF'
@@ -923,7 +923,7 @@ chmod 0440 /etc/sudoers
 chown root:root /etc/sudoers
 chmod 0000 /etc/sudoers.d
 chown root:root /etc/sudoers.d
-find /etc/sudoers.d -type f -exec chmod 0000 {} \;
+find /etc/sudoers.d -type f -exec chmod 0000 {} \; 2>/dev/null || true
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 chmod 0600 /etc/security/access.conf
@@ -937,23 +937,23 @@ fi
 # cron dirs are removed later in PRIVILEGE ESCALATION HARDENING; skip chmod here
 chmod 0700 /boot
 chown root:root /boot
-find /boot -type f -name "vmlinuz*" -exec chmod 0600 {} \;
-find /boot -type f -name "initrd*" -exec chmod 0600 {} \;
-find /boot -type f -name "System.map*" -exec chmod 0600 {} \;
-find /boot -type f -name "config-*" -exec chmod 0600 {} \;
+find /boot -type f -name "vmlinuz*" -exec chmod 0600 {} \; 2>/dev/null || true
+find /boot -type f -name "initrd*" -exec chmod 0600 {} \; 2>/dev/null || true
+find /boot -type f -name "System.map*" -exec chmod 0600 {} \; 2>/dev/null || true
+find /boot -type f -name "config-*" -exec chmod 0600 {} \; 2>/dev/null || true
 if [[ -f /boot/grub/grub.cfg ]]; then
     chmod 0600 /boot/grub/grub.cfg
     chown root:root /boot/grub/grub.cfg
 fi
 
 find / -xdev \( -path "/tmp" -o -path "/var/tmp" -o -path "/proc" -o -path "/sys" \) -prune \
-    -o -type f -perm -0002 -print0 | xargs -0 -r chmod o-w
+    -o -type f -perm -0002 -print0 2>/dev/null | xargs -0 -r chmod o-w 2>/dev/null || true
 
 find / -xdev \( -path "/proc" -o -path "/sys" \) -prune \
-    -o -type d -perm -0002 ! -perm -1000 -print0 | xargs -0 -r chmod +t
+    -o -type d -perm -0002 ! -perm -1000 -print0 2>/dev/null | xargs -0 -r chmod +t 2>/dev/null || true
 
 find / -xdev \( -path "/proc" -o -path "/sys" -o -path "/dev" \) -prune \
-    -o \( -nouser -o -nogroup \) -printf "Orphan found: %p (UID: %U, GID: %G)\n" 2>/dev/null
+    -o \( -nouser -o -nogroup \) -printf "Orphan found: %p (UID: %U, GID: %G)\n" 2>/dev/null || true
     
 chown root:adm -R /var/log
 chmod -R 0640 /var/log
@@ -987,17 +987,17 @@ chmod 0640 /var/log/opensnitchd.log
 
 systemctl daemon-reload
 systemctl enable opensnitchd.service
-systemctl start opensnitchd.service
+systemctl start opensnitchd.service 2>/dev/null || true
 
-apt install -y git
+apt install -y git 2>/dev/null || true
 (
     git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git /tmp/Respect-My-Internet
     chmod +x /tmp/Respect-My-Internet/install.sh
     /tmp/Respect-My-Internet/install.sh
-)
+) || echo "WARNING: Respect-My-Internet install failed — continuing"
 rm -rf /tmp/Respect-My-Internet
 apt purge -y git 2>/dev/null || true
-systemctl restart opensnitchd
+systemctl restart opensnitchd 2>/dev/null || true
 
 # POLKIT
 mkdir -p /etc/polkit-1/rules.d
@@ -1121,12 +1121,12 @@ for interp in "${STRIP_CAPS[@]}"; do
     [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null
 done
 
-cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | awk '{print $1}')
+cap_output=$(getcap -r /usr 2>/dev/null | awk '{print $1}' || true)
 for binary in $cap_output; do
-    basename=$(basename "$binary")
+    cap_basename=$(basename "$binary")
     for gtfo in "${ALL_GTFOBINS[@]}"; do
-        if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
-            setcap -r "$binary" 2>/dev/null
+        if [[ "$cap_basename" == "$gtfo" ]] || [[ "$cap_basename" == "${gtfo}."* ]]; then
+            setcap -r "$binary" 2>/dev/null || true
             break
         fi
     done
@@ -1161,8 +1161,8 @@ for binary_path in "${dangerous_paths[@]}"; do
 done
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 
-chmod u+s /usr/bin/sudo
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
+chmod u+s /usr/bin/sudo 2>/dev/null || true
 
 apt clean
 apt autopurge -y
