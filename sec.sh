@@ -1,16 +1,14 @@
 #!/bin/bash
 
-#######-DEBIAN-HARDENING-#########
-
+#########-DEBIAN-HARDENING-#########
 set -euo pipefail
 trap 'echo "FATAL: line $LINENO failed (exit $?)" >&2' ERR
 
 # PRE-CONFIG
 apt install -y extrepo iptables iptables-persistent netfilter-persistent --no-install-recommends
-extrepo enable librewolf 
+extrepo enable librewolf
 apt update
 apt install -y librewolf --no-install-recommends
-
 
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
@@ -61,169 +59,211 @@ chmod 644 /etc/apt/preferences.d/*.pref
 
 # SERVICES
 DISABLE=(
-    # Remote access / network services
-    "ssh.service" "ssh.socket" "sshd.service"
-    "telnet.socket"
-    "inetd.service" "xinetd.service"
-    "rpcbind.service" "rpcbind.socket" "rpcbind.target"
-    "nfs-blkmap.service" "nfs-client.target" "nfs-common.service"
-    "nfs-idmapd.service" "nfs-mountd.service" "nfs-server.service"
-    "postfix.service" "sendmail.service" "exim4.service"
-    "proftpd.service" "vsftpd.service" "pure-ftpd.service"
-    "samba.service" "samba-ad-dc.service" "smbd.service" "nmbd.service" "winbind.service"
-    "rsync.service"
-    "webmin.service"
-    "cockpit.service" "cockpit.socket"
-    # VNC / RDP / remote desktop
-    "x11vnc.service" "xrdp.service" "xrdp.socket" "xrdp-sesman.service"
-    "tigervnc.service" "vino-server.service" "gnome-remote-desktop.service"
-    # Display managers / GNOME
-    "gdm3.service" "gnome-software-service.service"
-    # Containers / VMs
-    "containerd.service"
-    "docker.service" "docker.socket"
-    "podman.service" "podman.socket"
-    "lxc.service" "lxc-net.service" "lxd.service" "lxd.socket"
-    "libvirtd.service" "libvirtd.socket" "libvirtd-admin.socket" "libvirtd-ro.socket"
-    "libvirt-guests.service"
-    "virtlockd.service" "virtlockd.socket" "virtlogd.service" "virtlogd.socket"
-    "qemu-guest-agent.service"
-    "machines.target"
-    "systemd-nspawn@.service"
-    # VirtualBox / VMware / Hyper-V / SPICE
-    "vboxadd.service" "vboxadd-service.service" "vboxautostart-service.service"
-    "vboxballoonctrl-service.service" "vboxdrv.service" "vboxweb-service.service"
-    "vmtoolsd.service" "vmware-tools.service" "vmware-vmblock-fuse.service"
-    "open-vm-tools.service"
-    "hv-fcopy-daemon.service" "hv-kvp-daemon.service" "hv-vss-daemon.service"
-    "hyperv-daemons.service"
-    "spice-vdagentd.service" "spice-vdagentd.socket"
-    # Bluetooth / wireless / hardware
-    "bluetooth.service" "bluetooth.target"
-    "ModemManager.service"
-    "wpa_supplicant.service"
-    "bolt.service"
-    "brltty.service"
-    "fprintd.service"
-    "fwupd.service" "fwupd-refresh.timer"
-    "iio-sensor-proxy.service"
-    "pcscd.socket"
-    "usb-gadget.target" "usbip.service" "usbipd.service"
-    "usbmuxd.service" "usbmuxd.socket"
-    # Scheduling / maintenance timers
-    "anacron.service" "anacron.timer"
-    "cron.service"
-    "apt-daily.timer" "apt-daily-upgrade.timer"
-    "e2scrub_all.timer"
-    "man-db.timer"
-    "motd-news.timer"
-    "unattended-upgrades.service"
-    # Cloud / orchestration
-    "cloud-init.service" "cloud-init-local.service"
-    "cloud-config.service" "cloud-final.service" "cloud-init.target"
-    "chef-client.service" "puppet.service" "salt-minion.service"
-    "multipassd.service"
-    # Storage
-    "iscsi.service" "iscsid.service" "iscsid.socket" "open-iscsi.service"
-    "lvm2-lvmpolld.service" "lvm2-lvmpolld.socket"
-    "multipathd.service"
-    "nvmefc-boot-connections.service" "nvmf-autoconnect.service"
-    "rbdmap.service"
-    "remote-cryptsetup.target" "remote-fs-pre.target" "remote-fs.target"
-    # SSSD
-    "sssd.service" "sssd.socket"
-    "sssd-autofs.socket" "sssd-kcm.socket" "sssd-nss.socket"
-    "sssd-pac.socket" "sssd-pam.socket" "sssd-ssh.socket" "sssd-sudo.socket"
-    # Auth services
-    "krb5-admin-server.service" "krb5-kdc.service"
-    "nscd.service" "nslcd.service"
-    # SNMP
-    "snmpd.service" "snmptrapd.service"
-    # Desktop / misc
-    "accounts-daemon.service"
-    "rtkit-daemon.service"
-    "apport.service"
-    "avahi-daemon.service" "avahi-daemon.socket"
-    "colord.service"
-    "cups-browsed.service" "cups.path" "cups.service" "cups.socket"
-    "debug-shell.service"
-    "geoclue.service"
-    "console-getty.service" "getty@ttyS0.service"
-    "serial-getty@.service"
-    "kerneloops.service"
-    "packagekit.service"
-    "power-profiles-daemon.service"
-    "printer.target"
-    "snapd.seeded.service" "snapd.service" "snapd.socket"
-    "speech-dispatcher.service"
-    "switcheroo-control.service"
-    "tracker-extract-3.service" "tracker-miner-fs-3.service"
-    "tracker-miner-rss-3.service" "tracker-writeback-3.service"
-    "udisks2.service"
-    "upower.service"
-    "whoopsie.service"
-    # Systemd hardening
-    "ctrl-alt-del.target"
-    "kexec.target" "systemd-kexec.service"
-    "proc-sys-fs-binfmt_misc.automount" "proc-sys-fs-binfmt_misc.mount"
-    "systemd-binfmt.service"
-    "systemd-coredump.socket"
-    "systemd-journal-gatewayd.socket" "systemd-journal-remote.socket"
-    "systemd-journal-upload.service"
+# Remote access / network services
+"ssh.service" "ssh.socket" "sshd.service"
+"telnet.socket"
+"inetd.service" "xinetd.service"
+"rpcbind.service" "rpcbind.socket" "rpcbind.target"
+"nfs-blkmap.service" "nfs-client.target" "nfs-common.service"
+"nfs-idmapd.service" "nfs-mountd.service" "nfs-server.service"
+"postfix.service" "sendmail.service" "exim4.service"
+"proftpd.service" "vsftpd.service" "pure-ftpd.service"
+"samba.service" "samba-ad-dc.service" "smbd.service" "nmbd.service" "winbind.service"
+"rsync.service"
+"webmin.service"
+"cockpit.service" "cockpit.socket"
+# VNC / RDP / remote desktop
+"x11vnc.service" "xrdp.service" "xrdp.socket" "xrdp-sesman.service"
+"tigervnc.service" "vino-server.service" "gnome-remote-desktop.service"
+# Display managers / GNOME
+"gdm3.service" "gnome-software-service.service"
+# Containers / VMs
+"containerd.service"
+"docker.service" "docker.socket"
+"podman.service" "podman.socket"
+"lxc.service" "lxc-net.service" "lxd.service" "lxd.socket"
+"libvirtd.service" "libvirtd.socket" "libvirtd-admin.socket" "libvirtd-ro.socket"
+"libvirt-guests.service"
+"virtlockd.service" "virtlockd.socket" "virtlogd.service" "virtlogd.socket"
+"qemu-guest-agent.service"
+"machines.target"
+"systemd-nspawn@.service"
+# VirtualBox / VMware / Hyper-V / SPICE
+"vboxadd.service" "vboxadd-service.service" "vboxautostart-service.service"
+"vboxballoonctrl-service.service" "vboxdrv.service" "vboxweb-service.service"
+"vmtoolsd.service" "vmware-tools.service" "vmware-vmblock-fuse.service"
+"open-vm-tools.service"
+"hv-fcopy-daemon.service" "hv-kvp-daemon.service" "hv-vss-daemon.service"
+"hyperv-daemons.service"
+"spice-vdagentd.service" "spice-vdagentd.socket"
+# Bluetooth / wireless / hardware
+"bluetooth.service" "bluetooth.target"
+"ModemManager.service"
+"wpa_supplicant.service"
+"bolt.service"
+"brltty.service"
+"fprintd.service"
+"fwupd.service" "fwupd-refresh.timer"
+"iio-sensor-proxy.service"
+"pcscd.socket"
+"usb-gadget.target" "usbip.service" "usbipd.service"
+"usbmuxd.service" "usbmuxd.socket"
+# Scheduling / maintenance timers
+"anacron.service" "anacron.timer"
+"cron.service"
+"apt-daily.timer" "apt-daily-upgrade.timer"
+"e2scrub_all.timer"
+"man-db.timer"
+"motd-news.timer"
+"unattended-upgrades.service"
+# Cloud / orchestration
+"cloud-init.service" "cloud-init-local.service"
+"cloud-config.service" "cloud-final.service" "cloud-init.target"
+"chef-client.service" "puppet.service" "salt-minion.service"
+"multipassd.service"
+# Storage
+"iscsi.service" "iscsid.service" "iscsid.socket" "open-iscsi.service"
+"lvm2-lvmpolld.service" "lvm2-lvmpolld.socket"
+"multipathd.service"
+"nvmefc-boot-connections.service" "nvmf-autoconnect.service"
+"rbdmap.service"
+"remote-cryptsetup.target" "remote-fs-pre.target" "remote-fs.target"
+# SSSD
+"sssd.service" "sssd.socket"
+"sssd-autofs.socket" "sssd-kcm.socket" "sssd-nss.socket"
+"sssd-pac.socket" "sssd-pam.socket" "sssd-ssh.socket" "sssd-sudo.socket"
+# Auth services
+"krb5-admin-server.service" "krb5-kdc.service"
+"nscd.service" "nslcd.service"
+# SNMP
+"snmpd.service" "snmptrapd.service"
+# Desktop / misc
+"accounts-daemon.service"
+"rtkit-daemon.service"
+"apport.service"
+"avahi-daemon.service" "avahi-daemon.socket"
+"colord.service"
+"cups-browsed.service" "cups.path" "cups.service" "cups.socket"
+"debug-shell.service"
+"geoclue.service"
+"console-getty.service" "getty@ttyS0.service"
+"serial-getty@.service"
+"kerneloops.service"
+"packagekit.service"
+"power-profiles-daemon.service"
+"printer.target"
+"snapd.seeded.service" "snapd.service" "snapd.socket"
+"speech-dispatcher.service"
+"switcheroo-control.service"
+"tracker-extract-3.service" "tracker-miner-fs-3.service"
+"tracker-miner-rss-3.service" "tracker-writeback-3.service"
+"udisks2.service"
+"upower.service"
+"whoopsie.service"
+# Systemd hardening
+"ctrl-alt-del.target"
+"kexec.target" "systemd-kexec.service"
+"proc-sys-fs-binfmt_misc.automount" "proc-sys-fs-binfmt_misc.mount"
+"systemd-binfmt.service"
+"systemd-coredump.socket"
+"systemd-journal-gatewayd.socket" "systemd-journal-remote.socket"
+"systemd-journal-upload.service"
+"rc-local.service"
+"remote-veritysetup.target"
+"remote-integritysetup.target"
+"factory-reset.target"
+"systemd-factory-reset-complete.service"
+"systemd-factory-reset-reboot.service"
+"systemd-factory-reset-request.service"
+"systemd-firstboot.service"
+"systemd-networkd.service"
+"systemd-networkd.socket"
+"systemd-networkd-wait-online.service"
+"systemd-network-generator.service"
+"hibernate.target"
+"hybrid-sleep.target"
+"suspend-then-hibernate.target"
+"systemd-hibernate-resume.service"
+"systemd-hibernate-clear.service"
+"systemd-hybrid-sleep.service"
+"systemd-suspend-then-hibernate.service"
+"quotaon-root.service"
+"quotaon.service"
+"systemd-quotacheck-root.service"
+"systemd-quotacheck@.service"
+"e2scrub_all.service"
+"e2scrub_reap.service"
+"e2scrub@.service"
+"powertop.service"
+"systemd-rfkill.service"
+"systemd-rfkill.socket"
+"systemd-backlight@.service"
+"systemd-pstore.service"
+"systemd-homed.service"
+"systemd-homed-activate.service"
+"systemd-userdbd.service"
+"systemd-userdbd.socket"
+"systemd-hostnamed.service"
+"systemd-localed.service"
+"systemd-timedated.service"
+"sudo.service"
 )
 
 for svc in "${DISABLE[@]}"; do
-    systemctl stop "$svc" 2>/dev/null || true
-    systemctl mask "$svc" 2>/dev/null || true
+service "$svc" 2>/dev/null stop  || true
+systemctl disable --now "$svc" 2>/dev/null || true
+systemctl mask "$svc" 2>/dev/null || true
 done
 
 # PACKAGE REMOVAL
 REMOVE=(
-    # GNOME desktop (replaced by LXQt)
-    "gnome-session" "gnome-shell" "gnome-control-center" "gnome-tweaks"
-    "gnome-system-monitor" "gnome-settings-daemon" "gnome-shell-extensions"
-    "gnome-shell-extension-appindicator" "gnome-shell-extension-caffeine"
-    "gnome-shell-extension-manager" "gnome-software" "gnome-remote-desktop"
-    "mutter" "mutter-common" "network-manager-gnome"
-    "xdg-desktop-portal-gnome" "dbus-x11" "gdm3"
-    # Offensive / pentest tools
-    "aircrack-ng" "autopsy" "beef-xss" "bettercap" "binwalk" "burpsuite"
-    "crackmapexec" "dirb" "dsniff" "enum4linux" "ettercap*" "execstack"
-    "exiftool" "foremost" "fping" "ghidra" "gobuster" "hashcat"
-    "hping3" "hydra" "hydra-gtk" "impacket-scripts" "john"
-    "macchanger" "maltego" "masscan" "medusa" "metagoofil"
-    "metasploit-framework" "mitmproxy" "nbtscan" "nikto" "nmap"
-    "openstego" "outguess" "radare2" "recon-ng" "responder"
-    "scalpel" "scapy" "sleuthkit" "smbmap" "spiderfoot" "sqlmap"
-    "steghide" "stegosuite" "theharvester" "tshark" "unicornscan"
-    "wfuzz" "wireshark*" "yersinia" "zenmap" "zmap"
-    # Remote access / network services
-    "openssh-server" "openssh-client" "dropbear*" "tinyssh*" "telnet*"
-    "rsh-client" "rsh-redone-client" "rlogin" "x11vnc" "xrdp*"
-    "tigervnc*" "openvpn" "proftpd*" "vsftpd" "pure-ftpd"
-    "apache2*" "nginx*" "lighttpd*" "postfix*" "sendmail*"
-    "exim4*" "courier*" "xinetd" "webmin"
-    # Dev toolchains
-    "build-essential" "gcc*" "g++*" "gdb*" "binutils" "autoconf"
-    "automake" "bison" "flex" "cmake*" "make" "m4" "libtool"
-    "clang" "llvm" "lldb*" "nasm" "cargo*" "rustc" "golang*"
-    "default-jdk" "default-jre" "nodejs*" "npm*" "ruby*" "perl"
-    "php*" "lua*" "python-is-python3" "pip" "pip3" "cabal-install"
-    "ghc*" "fpc" "erlang" "elixir" "julia" "mono-complete" "dotnet*"
-    "octave" "r-base" "swig" "meson*" "ninja-build"
-    # Containers / VMs
-    "docker*" "podman*" "containerd*" "lxc*" "lxd*" "qemu*"
-    "libvirt*" "vbox*" "snap*" "snapd" "flatpak*" "vagrant*"
-    # Misc unwanted
-    "anacron" "avahi*" "libavahi*" "bind9*" "cockpit*" "cron*"
-    "cups*" "libcup*" "dhcpcd*" "emacs*" "espeak*" "fastfetch*"
-    "fortune*" "cowsay*" "gimp*" "imagemagick*" "mosquitto*"
-    "neofetch*" "nfs-common" "rpcbind" "rsync" "samba*" "smbd"
-    "snmpd*" "socat" "strace" "tmux" "tor*" "traceroute"
-    "unattended-upgrades" "valgrind*" "vim*" "wpa-supplicant"
-    "bluetooth*" "bluez*" "modemmanager" "open-vm-tools"
-    "patchelf" "prelink" "upx" "texlive-base" "texlive-latex-base"
-    "fprint*" "libfprint*" "puppet*" "chef*" "ansible*" "salt-minion"
+# GNOME desktop
+"gnome-session" "gnome-shell" "gnome-control-center" "gnome-tweaks"
+"gnome-system-monitor" "gnome-settings-daemon" "gnome-shell-extensions"
+"gnome-shell-extension-appindicator" "gnome-shell-extension-caffeine"
+"gnome-shell-extension-manager" "gnome-software" "gnome-remote-desktop"
+"mutter" "mutter-common" "network-manager-gnome"
+"xdg-desktop-portal-gnome" "dbus-x11" "gdm3"
+# Offensive / pentest tools
+"aircrack-ng" "autopsy" "beef-xss" "bettercap" "binwalk" "burpsuite"
+"crackmapexec" "dirb" "dsniff" "enum4linux" "ettercap*" "execstack"
+"exiftool" "foremost" "fping" "ghidra" "gobuster" "hashcat"
+"hping3" "hydra" "hydra-gtk" "impacket-scripts" "john"
+"macchanger" "maltego" "masscan" "medusa" "metagoofil"
+"metasploit-framework" "mitmproxy" "nbtscan" "nikto" "nmap"
+"openstego" "outguess" "radare2" "recon-ng" "responder"
+"scalpel" "scapy" "sleuthkit" "smbmap" "spiderfoot" "sqlmap"
+"steghide" "stegosuite" "theharvester" "tshark" "unicornscan"
+"wfuzz" "wireshark*" "yersinia" "zenmap" "zmap"
+# Remote access / network services
+"openssh-server" "openssh-client" "dropbear*" "tinyssh*" "telnet*"
+"rsh-client" "rsh-redone-client" "rlogin" "x11vnc" "xrdp*"
+"tigervnc*" "openvpn" "proftpd*" "vsftpd" "pure-ftpd"
+"apache2*" "nginx*" "lighttpd*" "postfix*" "sendmail*"
+"exim4*" "courier*" "xinetd" "webmin"
+# Dev toolchains
+"build-essential" "gcc*" "g++*" "gdb*" "binutils" "autoconf"
+"automake" "bison" "flex" "cmake*" "make" "m4" "libtool"
+"clang" "llvm" "lldb*" "nasm" "cargo*" "rustc" "golang*"
+"default-jdk" "default-jre" "nodejs*" "npm*" "ruby*" "perl"
+"php*" "lua*" "python-is-python3" "pip" "pip3" "cabal-install"
+"ghc*" "fpc" "erlang" "elixir" "julia" "mono-complete" "dotnet*"
+"octave" "r-base" "swig" "meson*" "ninja-build"
+# Containers / VMs
+"docker*" "podman*" "containerd*" "lxc*" "lxd*" "qemu*"
+"libvirt*" "vbox*" "snap*" "snapd" "flatpak*" "vagrant*"
+# Misc unwanted
+"anacron" "avahi*" "libavahi*" "bind9*" "cockpit*" "cron*"
+"cups*" "libcup*" "dhcpcd*" "emacs*" "espeak*" "fastfetch*"
+"fortune*" "cowsay*" "gimp*" "imagemagick*" "mosquitto*"
+"neofetch*" "nfs-common" "rpcbind" "rsync" "samba*" "smbd"
+"snmpd*" "socat" "strace" "tmux" "tor*" "traceroute"
+"unattended-upgrades" "valgrind*" "vim*" "wpa-supplicant"
+"bluetooth*" "bluez*" "modemmanager" "open-vm-tools"
+"patchelf" "prelink" "upx" "texlive-base" "texlive-latex-base"
+"fprint*" "libfprint*" "puppet*" "chef*" "ansible*" "salt-minion"
+# NEW: powertop (not security-relevant, reduces attack surface)
+"powertop"
 )
 
 apt purge -y "${REMOVE[@]}" 2>/dev/null || true
@@ -274,27 +314,22 @@ ip6tables -P FORWARD DROP
 ip6tables -P OUTPUT DROP
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
-netfilter-persistent savesave
+netfilter-persistent save
 
 # PACKAGE INSTALLATION
-apt install -y rsyslog labwc swaybg foot apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra libpam-tmpdir needrestart acct rkhunter chkrootkit debsum pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils wayland-protocols xwayland qt6-wayland qtwayland5 featherpad lightdm pipewire pipewire-pulse wireplumber mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
-
-apt install extrepo
-extrepo enable librewolf
-apt update
-apt install -y librewolf --no-install-recommends
+apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra libpam-tmpdir rsyslog needrestart acct rkhunter chkrootkit debsums pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session featherpad lightdm pipewire pipewire-pulse wireplumber qt5ct opensnitch python3-opensnitch-ui librewolf gstreamer1.0-libav gstreamer1.0-plugins-bad --no-install-recommends
 
 # ACCOUNTS/GROUPS
-for grp in _ssh bluetooth fax floppy irc kvm voice games; do
-    groupdel "$grp" --force 2>/dev/null || true
+for grp in _ssh bluetooth nogroup fax floppy irc kvm voice games; do
+groupdel "$grp" --force 2>/dev/null || true
 done
 
 for usr in nobody games irc uucp proxy dhcpcd list news sync man mail lp www-data; do
-    userdel "$usr" 2>/dev/null || true
+userdel "$usr" 2>/dev/null || true
 done
 
 for grp in render input video audio tty; do
-    adduser dev "$grp" 2>/dev/null || true
+adduser dev "$grp" 2>/dev/null || true
 done
 
 # USER AUDIT
@@ -302,11 +337,11 @@ echo "Accounts with UID 0:" && awk -F: '($3 == 0) {print $1}' /etc/passwd
 echo "Duplicate UIDs:" && cut -d: -f3 /etc/passwd | sort | uniq -d
 echo "Missing 'x' placeholders:" && awk -F: '$2 != "x" {print $1}' /etc/passwd
 awk -F: '($2 == "" ) {print "CRITICAL: Empty password for " $1}' /etc/shadow
-awk -F: '($2 ~ /^\$/ && length($2) < 20) {print "WARNING: Weak hash for " $1}' /etc/shadow
+awk -F: '($2 ~ /^$/ && length($2) < 20) {print "WARNING: Weak hash for " $1}' /etc/shadow
 find /home -name "authorized_keys" -print -delete 2>/dev/null || true
 
 while IFS= read -r user; do
-    usermod -s /usr/sbin/nologin "$user"
+usermod -s /usr/sbin/nologin "$user"
 done < <(awk -F: -v current_user="dev" '($3 >= 1000 && $1 != current_user && $7 != "/usr/sbin/nologin" && $7 != "/bin/false") {print $1}' /etc/passwd)
 
 # PAM/U2F
@@ -863,9 +898,8 @@ EOF
 
 # FSTAB
 cp /etc/fstab /etc/fstab.bak
-
 if ! grep -q "hidepid=2" /etc/fstab; then
-    cat >> /etc/fstab << 'EOF'
+cat >> /etc/fstab << 'EOF'
 proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
 tmpfs    /tmp       tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777     0 0
 tmpfs    /var/tmp   tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777     0 0
@@ -883,10 +917,8 @@ chmod 0700 /root
 chown root:root /root
 chmod 0700 /home/dev
 chown dev:dev /home/dev
-
-find /home/dev -type f -exec chmod o-rwx {} \; 2>/dev/null || true
-find /home/dev -type d -exec chmod o-rwx {} \; 2>/dev/null || true
-
+find /home/dev -type f --exec chmod o-rwx {} ; 2>/dev/null || true
+find /home/dev -type d --exec chmod o-rwx {} ; 2>/dev/null || true
 chmod 0600 /etc/shadow
 chmod 0600 /etc/gshadow
 chown root:root /etc/shadow
@@ -899,7 +931,7 @@ chmod 0440 /etc/sudoers
 chown root:root /etc/sudoers
 chmod 0000 /etc/sudoers.d
 chown root:root /etc/sudoers.d
-find /etc/sudoers.d -type f -exec chmod 0000 {} \; 2>/dev/null || true
+find /etc/sudoers.d -type f --exec chmod 0000 {} ; 2>/dev/null || true
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 chmod 0600 /etc/security/access.conf
@@ -907,35 +939,30 @@ chmod 0600 /etc/security/limits.conf
 chmod 0600 /etc/security/namespace.conf
 chown root:root /etc/security/*
 if [[ -d /etc/ssh ]]; then
-    chmod -R 0000 /etc/ssh
-    chown -R root:root /etc/ssh
+chmod -R 0000 /etc/ssh
+chown -R root:root /etc/ssh
 fi
-
 chmod 0700 /boot
 chown root:root /boot
-find /boot -type f -name "vmlinuz*" -exec chmod 0600 {} \; 2>/dev/null || true
-find /boot -type f -name "initrd*" -exec chmod 0600 {} \; 2>/dev/null || true
-find /boot -type f -name "System.map*" -exec chmod 0600 {} \; 2>/dev/null || true
-find /boot -type f -name "config-*" -exec chmod 0600 {} \; 2>/dev/null || true
+find /boot -type f -name "vmlinuz*" --exec chmod 0600 {} ; 2>/dev/null || true
+find /boot -type f -name "initrd*" --exec chmod 0600 {} ; 2>/dev/null || true
+find /boot -type f -name "System.map*" --exec chmod 0600 {} ; 2>/dev/null || true
+find /boot -type f -name "config-*" --exec chmod 0600 {} ; 2>/dev/null || true
 if [[ -f /boot/grub/grub.cfg ]]; then
-    chmod 0600 /boot/grub/grub.cfg
-    chown root:root /boot/grub/grub.cfg
+chmod 0600 /boot/grub/grub.cfg
+chown root:root /boot/grub/grub.cfg
 fi
-
-find / -xdev \( -path "/tmp" -o -path "/var/tmp" -o -path "/proc" -o -path "/sys" \) -prune \
-    -o -type f -perm -0002 -print0 2>/dev/null | xargs -0 -r chmod o-w 2>/dev/null || true
-
-find / -xdev \( -path "/proc" -o -path "/sys" \) -prune \
-    -o -type d -perm -0002 ! -perm -1000 -print0 2>/dev/null | xargs -0 -r chmod +t 2>/dev/null || true
-
-find / -xdev \( -path "/proc" -o -path "/sys" -o -path "/dev" \) -prune \
-    -o \( -nouser -o -nogroup \) -printf "Orphan found: %p (UID: %U, GID: %G)\n" 2>/dev/null || true
-    
+find / -xdev ( -path "/tmp" -o -path "/var/tmp" -o -path "/proc" -o -path "/sys" ) -prune   
+-o -type f -perm -0002 -print0 2>/dev/null | xargs -0 -r chmod o-w 2>/dev/null || true
+find / -xdev ( -path "/proc" -o -path "/sys" ) -prune   
+-o -type d -perm -0002 ! -perm -1000 -print0 2>/dev/null | xargs -0 -r chmod +t 2>/dev/null || true
+find / -xdev ( -path "/proc" -o -path "/sys" -o -path "/dev" ) -prune   
+-o ( -nouser -o -nogroup ) -printf "Orphan found: %p (UID: %U, GID: %G)\n" 2>/dev/null || true
 chown root:adm -R /var/log
 chmod -R 0640 /var/log
 chmod 0750 /var/log
 
-# OPENSNITCH 
+# OPENSNITCH
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
@@ -960,12 +987,10 @@ chmod 0750 /etc/opensnitchd
 chmod 0750 /etc/opensnitchd/rules
 touch /var/log/opensnitchd.log
 chmod 0640 /var/log/opensnitchd.log
-
 systemctl daemon-reload
 systemctl enable opensnitchd.service || true
 systemctl start opensnitchd.service 2>/dev/null || true
-
-apt install -y git 
+apt install -y git
 git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
 cd Respect-My-Internet
 chmod +x install.sh
@@ -977,26 +1002,24 @@ cd
 mkdir -p /etc/polkit-1/rules.d
 cat > /etc/polkit-1/rules.d/50-lxqt-allow.rules << 'EOF'
 polkit.addRule(function(action, subject) {
-    if (subject.user == "dev") {
-        if (action.id == "org.freedesktop.login1.suspend" ||
-            action.id == "org.freedesktop.login1.reboot" ||
-            action.id == "org.freedesktop.login1.power-off") {
-            return polkit.Result.YES;
-        }
-    }
-    return polkit.Result.NO;
+if (subject.user == "dev") {
+if (action.id == "org.freedesktop.login1.suspend" ||
+action.id == "org.freedesktop.login1.reboot" ||
+action.id == "org.freedesktop.login1.power-off") {
+return polkit.Result.YES;
+}
+}
+return polkit.Result.NO;
 });
 EOF
 
 # PRIVILEGE ESCALATION HARDENING
 echo "" > /etc/securetty
 chmod 0400 /etc/securetty
-
 rm -rf /etc/skel* 2>/dev/null || true
 rm -rf /etc/dhcp* 2>/dev/null || true
 rm -rf /etc/ssh* 2>/dev/null || true
 rm -rf /etc/ppp* 2>/dev/null || true
-rm -rf /etc/apparmor* 2>/dev/null || true
 rm -rf /etc/cron* 2>/dev/null || true
 rm -rf /etc/emacs* 2>/dev/null || true
 rm -rf /etc/xemacs* 2>/dev/null || true
@@ -1005,7 +1028,6 @@ rm -rf /etc/vim* 2>/dev/null || true
 rm -rf /etc/wpa* 2>/dev/null || true
 rm -rf /etc/manpath* 2>/dev/null || true
 rm -rf /etc/libnl* 2>/dev/null || true
-
 echo "dev" > /etc/cron.allow
 echo "dev" > /etc/at.allow
 chmod 0600 /etc/cron.allow
@@ -1030,9 +1052,11 @@ rm -r /usr/lib/systemd/network/73* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-container* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-wifi* 2>/dev/null || true
 rm -r /usr/lib/systemd/system-generators/systemd-ssh* 2>/dev/null || true
-# Block unwanted device nodes via udev (persistent across reboots)
+
 cat > /etc/udev/rules.d/99-deny-devices.rules << 'EOF'
+
 # Block virtualisation / tunnelling device nodes
+
 KERNEL=="vhost-net",  OPTIONS+="static_node=vhost-net",  ACTION=="add", RUN+="/bin/rm -f /dev/vhost-net"
 KERNEL=="vhost-vsock", OPTIONS+="static_node=vhost-vsock", ACTION=="add", RUN+="/bin/rm -f /dev/vhost-vsock"
 KERNEL=="vfio*",      ACTION=="add", RUN+="/bin/rm -f /dev/%k"
@@ -1040,7 +1064,9 @@ KERNEL=="ppp",        ACTION=="add", RUN+="/bin/rm -f /dev/ppp"
 KERNEL=="fuse",       ACTION=="add", RUN+="/bin/rm -f /dev/fuse"
 KERNEL=="snapshot",   ACTION=="add", RUN+="/bin/rm -f /dev/snapshot"
 KERNEL=="watchdog*",  ACTION=="add", RUN+="/bin/rm -f /dev/%k"
+
 # Restrict spare TTYs (keep tty1-tty7 for labwc/login)
+
 KERNEL=="tty[89]",          ACTION=="add", RUN+="/bin/rm -f /dev/%k"
 KERNEL=="tty[1-6][0-9]",   ACTION=="add", RUN+="/bin/rm -f /dev/%k"
 EOF
@@ -1052,9 +1078,9 @@ SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 SECURE_PATH="/usr/local/bin:/usr/bin"
 sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
 sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
-sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
-sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\"|PATH=\"$SECURE_PATH\"|g" /etc/profile
-sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
+sed -i "s|PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"|PATH="$SECURE_SUPATH"|g" /etc/profile
+sed -i "s|PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"|PATH="$SECURE_PATH"|g" /etc/profile
+sed -i "s|^PATH=.*|PATH="$SECURE_SUPATH"|" /etc/environment
 
 # SUDO
 cat >/etc/sudoers <<'EOF'
@@ -1076,7 +1102,7 @@ Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/ip
 Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
 Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
 
-dev  ALL=(ALL) ALL
+dev  ALL=(ALL) /usr/sbin/, /usr/bin
 #dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
 
@@ -1089,22 +1115,22 @@ STRIP_CAPS=(
 )
 
 ALL_GTFOBINS=(
-"7z" "aa-exec" "ab" "agetty" "alpine" "ansible-playbook" "ansible-test" "aoss" "apache2ctl" "apt" "apt-get" "ar" "aria2c" "arj" "arp" "as" "ascii-xfr" "ascii85" "ash" "aspell" "at" "atobm" "awk" "aws" "base32" "base58" "base64" "basenc" "basez" "bash" "batcat" "bc" "bconsole" "bpftrace" "bridge" "bundle" "bundler" "busctl" "busybox" "byebug" "bzip2" "c89" "c99" "cabal" "cancel" "capsh" "cat" "cdist" "certbot" "check_by_ssh" "check_cups" "check_log" "check_memory" "check_raid" "check_ssl_cert" "check_statusfile" "chmod" "choom" "chown" "chroot" "clamscan" "cmp" "cobc" "column" "comm" "composer" "cowsay" "cowthink" "cp" "cpan" "cpio" "cpulimit" "crash" "crontab" "csh" "csplit" "csvtool" "cupsfilter" "curl" "cut" "dash" "date" "dc" "dd" "debugfs" "dialog" "diff" "dig" "distcc" "dmesg" "dmidecode" "dmsetup" "dnf" "docker" "dos2unix" "dosbox" "dotnet" "dpkg" "dstat" "dvips" "easy_install" "eb" "ed" "efax" "elvish" "emacs" "enscript" "env" "eqn" "espeak" "ex" "exiftool" "expand" "expect" "facter" "file" "find" "finger" "fish" "flock" "fmt" "fold" "fping" "ftp" "gawk" "gcc" "gcloud" "gcore" "gdb" "gem" "genie" "genisoimage" "ghc" "ghci" "gimp" "ginsh" "git" "grc" "grep" "gtester" "gzip" "hd" "head" "hexdump" "highlight" "hping3" "iconv" "iftop" "install" "ionice" "ip" "irb" "ispell" "jjs" "joe" "join" "journalctl" "jq" "jrunscript" "jtag" "julia" "knife" "ksh" "ksshell" "ksu" "kubectl" "latex" "latexmk" "ld.so" "ldconfig" "less" "lftp" "links" "ln" "loginctl" "logsave" "look" "lp" "ltrace" "lua" "lualatex" "luatex" "lwp-download" "lwp-request" "mail" "make" "man" "mawk" "minicom" "more" "mosquitto" "mount" "msfconsole" "msgattrib" "msgcat" "msgconv" "msgfilter" "msgmerge" "msguniq" "mtr" "multitime" "mv" "mysql" "nano" "nasm" "nawk" "nc" "ncdu" "ncftp" "neofetch" "nft" "nice" "nl" "nm" "nmap" "node" "nohup" "npm" "nroff" "nsenter" "ntpdate" "octave" "od" "openssl" "openvpn" "openvt" "opkg" "pandoc" "paste" "pax" "pdb" "pdflatex" "pdftex" "perf" "perl" "perlbug" "pexec" "pg" "php" "pic" "pico" "pidstat" "pip" "pkexec" "pkg" "posh" "pr" "pry" "psftp" "psql" "ptx" "puppet" "pwsh" "python" "rake" "rc" "readelf" "red" "redcarpet" "redis" "restic" "rev" "rlogin" "rlwrap" "rpm" "rpmdb" "rpmquery" "rpmverify" "rsync" "rtorrent" "ruby" "run-mailcap" "run-parts" "runscript" "rview" "rvim" "sash" "scanmem" "scp" "screen" "script" "scrot" "sed" "service" "setarch" "setfacl" "setlock" "sftp" "sg" "shuf" "slsh" "smbclient" "snap" "socat" "socket" "soelim" "softlimit" "sort" "split" "sqlite3" "sqlmap" "ss" "ssh" "ssh-agent" "ssh-keygen" "ssh-keyscan" "sshpass" "start-stop-daemon" "stdbuf" "strace" "strings" "su" "sudo" "sysctl" "systemctl" "systemd-resolve" "tac" "tail" "tar" "task" "taskset" "tasksh" "tbl" "tclsh" "tcpdump" "tdbtool" "tee" "telnet" "terraform" "tex" "tftp" "tic" "time" "timedatectl" "timeout" "tmate" "tmux" "top" "torify" "torsocks" "troff" "tshark" "ul" "unexpand" "uniq" "unshare" "unsquashfs" "unzip" "update-alternatives" "uudecode" "uuencode" "vagrant" "valgrind" "varnishncsa" "vi" "view" "vigr" "vim" "vimdiff" "vipw" "virsh" "volatility" "w3m" "wall" "watch" "wc" "wget" "whiptail" "whois" "wireshark" "wish" "xargs" "xdg-user-dir" "xdotool" "xelatex" "xetex" "xmodmap" "xmore" "xpad" "xxd" "xz" "yarn" "yash" "yelp" "yum" "zathura" "zip" "zsh" "zsoelim" "zypper"
+"7z" "aa--exec" "ab" "agetty" "alpine" "ansible-playbook" "ansible-test" "aoss" "apache2ctl" "apt" "apt-get" "ar" "aria2c" "arj" "arp" "as" "ascii-xfr" "ascii85" "ash" "aspell" "at" "atobm" "awk" "aws" "base32" "base58" "base64" "basenc" "basez" "bash" "batcat" "bc" "bconsole" "bpftrace" "bridge" "bundle" "bundler" "busctl" "busybox" "byebug" "bzip2" "c89" "c99" "cabal" "cancel" "capsh" "cat" "cdist" "certbot" "check_by_ssh" "check_cups" "check_log" "check_memory" "check_raid" "check_ssl_cert" "check_statusfile" "chmod" "choom" "chown" "chroot" "clamscan" "cmp" "cobc" "column" "comm" "composer" "cowsay" "cowthink" "cp" "cpan" "cpio" "cpulimit" "crash" "crontab" "csh" "csplit" "csvtool" "cupsfilter" "curl" "cut" "dash" "date" "dc" "dd" "debugfs" "dialog" "diff" "dig" "distcc" "dmesg" "dmidecode" "dmsetup" "dnf" "docker" "dos2unix" "dosbox" "dotnet" "dpkg" "dstat" "dvips" "easy_install" "eb" "ed" "efax" "elvish" "emacs" "enscript" "env" "eqn" "espeak" "ex" "exiftool" "expand" "expect" "facter" "file" "find" "finger" "fish" "flock" "fmt" "fold" "fping" "ftp" "gawk" "gcc" "gcloud" "gcore" "gdb" "gem" "genie" "genisoimage" "ghc" "ghci" "gimp" "ginsh" "git" "grc" "grep" "gtester" "gzip" "hd" "head" "hexdump" "highlight" "hping3" "iconv" "iftop" "install" "ionice" "ip" "irb" "ispell" "jjs" "joe" "join" "journalctl" "jq" "jrunscript" "jtag" "julia" "knife" "ksh" "ksshell" "ksu" "kubectl" "latex" "latexmk" "ld.so" "ldconfig" "less" "lftp" "links" "ln" "loginctl" "logsave" "look" "lp" "ltrace" "lua" "lualatex" "luatex" "lwp-download" "lwp-request" "mail" "make" "man" "mawk" "minicom" "more" "mosquitto" "mount" "msfconsole" "msgattrib" "msgcat" "msgconv" "msgfilter" "msgmerge" "msguniq" "mtr" "multitime" "mv" "mysql" "nano" "nasm" "nawk" "nc" "ncdu" "ncftp" "neofetch" "nft" "nice" "nl" "nm" "nmap" "node" "nohup" "npm" "nroff" "nsenter" "ntpdate" "octave" "od" "openssl" "openvpn" "openvt" "opkg" "pandoc" "paste" "pax" "pdb" "pdflatex" "pdftex" "perf" "perl" "perlbug" "pexec" "pg" "php" "pic" "pico" "pidstat" "pip" "pkexec" "pkg" "posh" "pr" "pry" "psftp" "psql" "ptx" "puppet" "pwsh" "python" "rake" "rc" "readelf" "red" "redcarpet" "redis" "restic" "rev" "rlogin" "rlwrap" "rpm" "rpmdb" "rpmquery" "rpmverify" "rsync" "rtorrent" "ruby" "run-mailcap" "run-parts" "runscript" "rview" "rvim" "sash" "scanmem" "scp" "screen" "script" "scrot" "sed" "service" "setarch" "setfacl" "setlock" "sftp" "sg" "shuf" "slsh" "smbclient" "snap" "socat" "socket" "soelim" "softlimit" "sort" "split" "sqlite3" "sqlmap" "ss" "ssh" "ssh-agent" "ssh-keygen" "ssh-keyscan" "sshpass" "start-stop-daemon" "stdbuf" "strace" "strings" "su" "sudo" "sysctl" "systemctl" "systemd-resolve" "tac" "tail" "tar" "task" "taskset" "tasksh" "tbl" "tclsh" "tcpdump" "tdbtool" "tee" "telnet" "terraform" "tex" "tftp" "tic" "time" "timedatectl" "timeout" "tmate" "tmux" "top" "torify" "torsocks" "troff" "tshark" "ul" "unexpand" "uniq" "unshare" "unsquashfs" "unzip" "update-alternatives" "uudecode" "uuencode" "vagrant" "valgrind" "varnishncsa" "vi" "view" "vigr" "vim" "vimdiff" "vipw" "virsh" "volatility" "w3m" "wall" "watch" "wc" "wget" "whiptail" "whois" "wireshark" "wish" "xargs" "xdg-user-dir" "xdotool" "xelatex" "xetex" "xmodmap" "xmore" "xpad" "xxd" "xz" "yarn" "yash" "yelp" "yum" "zathura" "zip" "zsh" "zsoelim" "zypper"
 )
 
 for interp in "${STRIP_CAPS[@]}"; do
-    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null || true
+[[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null || true
 done
 
 cap_output=$(getcap -r /usr 2>/dev/null | awk '{print $1}' || true)
 for binary in $cap_output; do
-    cap_basename=$(basename "$binary")
-    for gtfo in "${ALL_GTFOBINS[@]}"; do
-        if [[ "$cap_basename" == "$gtfo" ]] || [[ "$cap_basename" == "${gtfo}."* ]]; then
-            setcap -r "$binary" 2>/dev/null || true
-            break
-        fi
-    done
+cap_basename=$(basename "$binary")
+for gtfo in "${ALL_GTFOBINS[@]}"; do
+if [[ "$cap_basename" == "$gtfo" ]] || [[ "$cap_basename" == "${gtfo}."* ]]; then
+setcap -r "$binary" 2>/dev/null || true
+break
+fi
+done
 done
 
 # CREATE PLACEHOLDER BLOCKERS
@@ -1127,23 +1153,22 @@ dangerous_paths=(
 )
 
 for binary_path in "${dangerous_paths[@]}"; do
-    if [[ ! -e "$binary_path" ]]; then
-        mkdir -p "$(dirname "$binary_path")"
-        touch "$binary_path"
-        chmod 000 "$binary_path"
-        chattr +i "$binary_path" 2>/dev/null || true
-    fi
+if [[ ! -e "$binary_path" ]]; then
+mkdir -p "$(dirname "$binary_path")"
+touch "$binary_path"
+chmod 000 "$binary_path"
+chattr +i "$binary_path" 2>/dev/null || true
+fi
 done
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
+find / -xdev ( -perm -4000 -o -perm -2000 ) -type f --exec chmod a-s {} ; 2>/dev/null || true
 chmod u+s /usr/bin/sudo 2>/dev/null || true
-
 apt clean || true
 apt autopurge -y 2>/dev/null || true
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
-    echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
+echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
 fi
 
 # IMMUTABLE FLAGS
