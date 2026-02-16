@@ -357,7 +357,7 @@ netfilter-persistent save
 
 # PACKAGE INSTALLATION  [FIX: split into separate apt calls]
 apt install -y rsyslog labwc swaybg foot --no-install-recommends
-apt install -y apparmor apparmor-utils apparmor-profiles apparmor-profiles-extra libpam-tmpdir needrestart acct rkhunter chkrootkit debsum pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils wayland-protocols xwayland qt6-wayland qtwayland5 featherpad lightdm pipewire pipewire-pulse wireplumber mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct opensnitch python3-opensnitch-ui --no-install-recommends
+apt install -y apparmor apparmor-utils apparmor-profiles* libpam-tmpdir pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal papirus-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session xwayland featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad qt5ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 # librewolf already installed in PRE-CONFIG, skip duplicate
 
