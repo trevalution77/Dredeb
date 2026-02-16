@@ -84,6 +84,7 @@ APT::Sandbox::Seccomp "true";
 EOF
 
 # CIS OVH
+apt install -y git
 git clone https://github.com/ovh/debian-cis.git && cd debian-cis
 cp debian/default /etc/default/cis-hardening
 sed -i "s#CIS_LIB_DIR=.*#CIS_LIB_DIR='$(pwd)'/lib#" /etc/default/cis-hardening
