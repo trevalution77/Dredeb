@@ -60,7 +60,7 @@ done
 # PACKAGE DENY LIST
 install -d /etc/apt/preferences.d
 cat > /etc/apt/preferences.d/10-deny.pref << 'EOF'
-Package: aircrack-ng* aircrack* alpine* anacron* ansible* aoss* apache* apache2* ar aria2c* arj* arp* as ascii* ash aspell* at atobm* autoconf* automake* autopsy* avahi* awk* aws* base32* base58* base64* basenc* basez* batcat* bc* bconsole* beef-xss* beef* bettercap* bind* bind9* binutils* binwalk* bison* blue* bluetooth* bluez* bochs* bpf* bridge* build-essential* build* bundle* burp* burpsuite* busctl* byebug* bz* c89* c99* cabal-install* cabal* cancel capsh* cargo* cdist* certbot* check_by_ssh* check_cups* check_log* check_memory* check_raid* check_ssl_cert* check_statusfile* chef* choom* chroot* clam* clang* cmake* cmp* cobc* cockpit* column comm composer* container* containerd.io* courier* cow* cowsay* cpan* cpio* cpulimit* crack* crackmapexec* cron* csh* csplit* csv* cup* cups* curl* cut dash* date dc* dd* debug* default-jdk* default-jre* dhcp* dialog* diff dig* dirb* distcc* dm* dma* dnf* dns* docker-ce-cli* docker-ce* docker.io* docker* dos2unix* dosbox* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* dotnet* dropbear* dsniff* dstat* dvips* easy_install* eb ed efax* elf* elixir* elvish* emacs* enscript* enum* enum4linux* env eqn* erlang* espeak* ettercap-common* ettercap-graphical* ettercap* ex exif* exim* exim4* expect* facter* fastfetch* finger* fish* flatpak* flex* flock* fmt* fold fonts-noto* foremost* fortune* fpc* fping* fprint* ftp* fuzz* g++* gcc* gcloud* gcore* gdb* gdebi* gem* genie* geniso* gfortran* ghc* ghost* gimp* ginsh* gnustep* gobuster* golang-go* golang* grc grep gtester gzip* hash* hashcat* hd* head hex* highlight* hping* hping3* hydra* iconv* iftop* image* impacket-scripts* impacket* inet* ionice* irb* ispell* iw* jjs*joe* john* join* jrunscript* jtag* julia* knife* ksh* ksshell* ksu* kube* latex* ld. ldconfig* lftp* libfprint* libsql* libssh* libtool* libvirt* lighttpd* links* lldb* llvm* ln* loginctl* logsave* look lp* ltrace* lua* lwp* lxc* lxd-client* lxd* m4* macchanger* mail* make* maltego* man* masscan* medusa* meson* metagoofil* metasploit* minicom* mitm* mobile* modem* mono-complete* more mosquit* mosquitto* msg* msguniq* mtr* multitime* mysql* nasm* nawk* nbtscan* nc ncat* ncdu* nct* neofetch* netcat* nfs* nft* nftables* nginx* nice* nikto* ninja* nl nm nmap* node nodejs* nohup* npm* nroff* nsenter* ntpdate* octave* od open-vm* openssh* openssl* opensteg* openvpn* openvt* opkg* os-prober* outguess* pandoc* paste pax* pdb* pdf* perf perl* perlbug pexec* pg php-cli* php* pic pico* pip pipx* pk* pkg* pmount* podman* posh* postfix* pp* pr print* proftp* proxy* pry* psftp* psql* ptx* puppet* pure-ftp* pure* pwsh* python-is-python3* python-pip* python3-pip* qemu* r-base* radar* rake* rbdmap* rc* readelf* recon-ng* recon* red redcarpet* redis* responder* restic* rev rl* rlogin* rpc* rpm* rsh-client* rsh-redone-client* rsh* rsync* rtorrent* ruby-full* ruby* run-mailcap* run-parts* runscript* rust* rustc* rview* rvim* salt-common* salt-minion* samba* sane* sash* scalpel* scan* scapy* scp* screen* script* scrot* sed sendmail* service set setarch* setfacl* setlock* sftp* sg* shuf* sleuth* sleuthkit* slsh* smb* smbclient* smbd* smbmap* snap* snapd* sniff* snmp* snmpd* snmptrapd* so* socat socat* social-engineer-toolkit* social-engineer* socket* soelim* softlimit* sort spee* spice-vdagent* spice* spiderfoot* split sql* sqlmap* ss* ssh* ssl* sslstrip* stdb* steg* steghide* stegosuite* strace* strings* swig* systemd-resolve* tac tail* tar task tasksel* taskset* tasksh* tbl* tcl* tcp* tcpdump* tdbtool* tee telnet* telnetd* terraform* tex tftp-hpa* tftp* theharvester* tic tiger* tigervnc* timedatectl* timeout* tinyssh* tk* tmate* tmux* top tor* torsocks* traceroute* tripwire* troff* tshark* ul uml* unattended-upgrades* unattended* unexpand* unicornscan* uniq* unshare* unsquashfs* update-alternatives* util-linux-locales uuen* vagrant* valgrind* varnish* vbox* vigr* vim* vipw* virsh* virt* vmw* volatil* volatility* vsftp* vsftpd* w3m* wall watch* wc webmin* wfuzz* wget* whois* winbind* wireless* wireshark-gtk* wireshark-qt* wireshark* wish* wpa-supplicant* wpa* wpasupplicant* x11vnc* xargs* xdg-user-dir* xdotool* xelatex* xen* xetex* xinetd* xmod* xmore* xpad* xrdp* xxd* xz* yarn* yash* yasm* yersinia* yum* zathura* zenmap* zip* zmap* zram* zsh* zsoelim* zypper*
+Package: aircrack-ng* aircrack* alpine* anacron* ansible* aoss* apache* apache2* ar aria2c* arj* arp* as ascii* ash aspell* at atobm* autoconf* automake* autopsy* avahi* awk* aws* base32* base58* base64* basenc* basez* batcat* bc* bconsole* beef-xss* beef* bettercap* bind* bind9* binutils* binwalk* bison* blue* bluetooth* bluez* bochs* bpf* bridge* build-essential* build* bundle* burp* burpsuite* busctl* byebug* bz* c89* c99* cabal-install* cabal* cancel capsh* cargo* cdist* certbot* check_by_ssh* check_cups* check_log* check_memory* check_raid* check_ssl_cert* check_statusfile* chef* choom* chroot* clam* clang* cmake* cmp* cobc* cockpit* column comm composer* container* containerd.io* courier* cow* cowsay* cpan* cpio* cpulimit* crack* crackmapexec* cron* csh* csplit* csv* cup* cups* curl* cut dash* date dc* dd* debug* default-jdk* default-jre* dhcp* dialog* diff dig* dirb* distcc* dm* dma* dnf* dns* docker-ce-cli* docker-ce* docker.io* docker* dos2unix* dosbox* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* dotnet* dropbear* dsniff* dstat* dvips* easy_install* eb ed efax* elf* elixir* elvish* emacs* enscript* enum* enum4linux* env eqn* erlang* espeak* ettercap-common* ettercap-graphical* ettercap* ex exif* exim* exim4* expect* facter* fastfetch* finger* fish* flatpak* flex* flock* fmt* fold fonts-noto* foremost* fortune* fpc* fping* fprint* ftp* fuzz* g++* gcc* gcloud* gcore* gdb* gdebi* gem* genie* geniso* gfortran* ghc* ghost* gimp* ginsh* gnustep* gobuster* golang-go* golang* grc grep gtester gzip* hash* hashcat* hd* head hex* highlight* hping* hping3* hydra* iconv* iftop* image* impacket-scripts* impacket* inet* ionice* irb* ispell* iw* jjs*joe* john* join* jrunscript* jtag* julia* knife* ksh* ksshell* ksu* kube* latex* ld. ldconfig* lftp* libfprint* libsql* libtool* libvirt* lighttpd* links* lldb* llvm* ln* loginctl* logsave* look lp* ltrace* lua* lwp* lxc* lxd-client* lxd* m4* macchanger* mail* make* maltego* man* masscan* medusa* meson* metagoofil* metasploit* minicom* mitm* mobile* modem* mono-complete* more mosquit* mosquitto* msg* msguniq* mtr* multitime* mysql* nasm* nawk* nbtscan* nc ncat* ncdu* nct* neofetch* netcat* nfs* nft* nftables* nginx* nice* nikto* ninja* nl nm nmap* node nodejs* nohup* npm* nroff* nsenter* ntpdate* octave* od open-vm* openssh* openssl* opensteg* openvpn* openvt* opkg* os-prober* outguess* pandoc* paste pax* pdb* pdf* perf perl* perlbug pexec* pg php-cli* php* pic pico* pip pipx* pk* pkg* pmount* podman* posh* postfix* pp* pr print* proftp* proxy* pry* psftp* psql* ptx* puppet* pure-ftp* pure* pwsh* python-is-python3* python-pip* python3-pip* qemu* r-base* radar* rake* rbdmap* rc* readelf* recon-ng* recon* red redcarpet* redis* responder* restic* rev rl* rlogin* rpc* rpm* rsh-client* rsh-redone-client* rsh* rsync* rtorrent* ruby-full* ruby* run-mailcap* run-parts* runscript* rust* rustc* rview* rvim* salt-common* salt-minion* samba* sane* sash* scalpel* scan* scapy* scp* screen* script* scrot* sed sendmail* service set setarch* setfacl* setlock* sftp* sg* shuf* sleuth* sleuthkit* slsh* smb* smbclient* smbd* smbmap* snap* snapd* sniff* snmp* snmpd* snmptrapd* so* socat socat* social-engineer-toolkit* social-engineer* socket* soelim* softlimit* sort spee* spice-vdagent* spice* spiderfoot* split sql* sqlmap* ss* ssh* ssl* sslstrip* stdb* steg* steghide* stegosuite* strace* strings* swig* systemd-resolve* tac tail* tar task tasksel* taskset* tasksh* tbl* tcl* tcp* tcpdump* tdbtool* tee telnet* telnetd* terraform* tex tftp-hpa* tftp* theharvester* tic tiger* tigervnc* timedatectl* timeout* tinyssh* tk* tmate* tmux* top tor* torsocks* traceroute* tripwire* troff* tshark* ul uml* unattended-upgrades* unattended* unexpand* unicornscan* uniq* unshare* unsquashfs* update-alternatives* util-linux-locales uuen* vagrant* valgrind* varnish* vbox* vigr* vim* vipw* virsh* virt* vmw* volatil* volatility* vsftp* vsftpd* w3m* wall watch* wc webmin* wfuzz* wget* whois* winbind* wireless* wireshark-gtk* wireshark-qt* wireshark* wish* wpa-supplicant* wpa* wpasupplicant* x11vnc* xargs* xdg-user-dir* xdotool* xelatex* xen* xetex* xinetd* xmod* xmore* xpad* xrdp* xxd* xz* yarn* yash* yasm* yersinia* yum* zathura* zenmap* zip* zmap* zram* zsh* zsoelim* zypper*
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -83,26 +83,8 @@ APT::Periodic::Unattended-Upgrade "0";
 APT::Sandbox::Seccomp "true";
 EOF
 
-# CIS OVH
-apt install -y git
-git clone https://github.com/ovh/debian-cis.git && cd debian-cis
-cp debian/default /etc/default/cis-hardening
-sed -i "s#CIS_LIB_DIR=.*#CIS_LIB_DIR='$(pwd)'/lib#" /etc/default/cis-hardening
-sed -i "s#CIS_CHECKS_DIR=.*#CIS_CHECKS_DIR='$(pwd)'/bin/hardening#" /etc/default/cis-hardening
-sed -i "s#CIS_CONF_DIR=.*#https://chatgpt.com/c/683003bb-bfb0-8006-8c3c-be07a7c157d2CIS_CONF_DIR='$(pwd)'/etc#" /etc/default/cis-hardening
-sed -i "s#CIS_TMP_DIR=.*#CIS_TMP_DIR='$(pwd)'/tmp#" /etc/default/cis-hardening
-sed -i "s#CIS_VERSIONS_DIR=.*#CIS_VERSIONS_DIR='$(pwd)'/versions#" /etc/default/cis-hardening
-./bin/hardening/1.1.1.1_disable_freevxfs.sh --audit
-bin/hardening.sh --audit-all --allow-unsupported-distribution
-
-bin/hardening.sh --set-hardening-level 5 --allow-unsupported-distribution
-bin/hardening.sh --apply --allow-unsupported-distribution
-bin/hardening.sh --apply --allow-unsupported-distribution
-bin/hardening.sh --apply --allow-unsupported-distribution
-bin/hardening.sh --apply --allow-unsupported-distribution
-
 # PACKAGE INSTALLATION 
-apt install -y apparmor apparmor-utils apparmor-profiles* rsyslog libpam-tmpdir pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal papirus-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session xwayland featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad qt5ct opensnitch python3-opensnitch-ui --no-install-recommends
+apt install -y rsyslog libpam-tmpdir pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal adwaita-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad librewolf qt5ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 # ACCOUNTS/GROUPS
 for grp in _ssh bluetooth nogroup fax floppy irc kvm voice games; do
@@ -689,13 +671,7 @@ proc     /proc             proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=p
 tmpfs    /tmp              tmpfs     size=8G,noatime,nodev,nosuid,noexec,mode=1777 0 0
 tmpfs    /var/tmp          tmpfs     size=4G,noatime,nodev,nosuid,noexec,mode=1777 0 0
 tmpfs    /dev/shm          tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777 0 0
-tmpfs    /home/dev/.cache  tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000 0 0
-tmpfs    /run              tmpfs     nosuid,nodev,noexec,mode=0755 0 0
-udev     /dev              devtmpfs  nosuid,noexec,noatime 0 0
-devpts   /dev/pts          devpts    nosuid,noexec,noatime,newinstance,ptmxmode=0666 0 0
-cgroup2  /sys/fs/cgroup2   tmpfs     nosuid,nodev,noexec 0 0
-efivarfs /sys/firmware/efi/efivars   efivarfs nosuid,nodev,noexec 0 0
-net_cls  /sys/fs/cgroup/net_cls      cgroup nosuid,nodev,noexec 0 0   
+tmpfs    /home/dev/.cache  tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000 0 0  
 EOF
 fi
 
@@ -942,10 +918,11 @@ done
 
 # LOCKDOWN
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
-find / -perm -4000 -exec sudo chmod u-s {} \;
-find / -perm -4000 -exec sudo chmod g-s {} \;
-find / -perm -2000 -exec sudo chmod u-s {} \;
-find / -perm -2000 -exec sudo chmod g-s {} \;
+find / -perm -4000 -exec chmod u-s {} \;
+find / -perm -4000 -exec chmod g-s {} \;
+find / -perm -2000 -exec chmod u-s {} \;
+find / -perm -2000 -exec chmod g-s {} \;
+chmod u+s /usr/bin/sudo
 
 apt purge -y  zram* pci* pmount* acpi* anacron* avahi* atmel* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
