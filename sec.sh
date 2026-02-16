@@ -1073,14 +1073,15 @@ EOF
 chmod 0644 /etc/udev/rules.d/99-deny-devices.rules
 udevadm control --reload-rules 2>/dev/null || true
 
+
 # SECURE PATH
 SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 SECURE_PATH="/usr/local/bin:/usr/bin"
-sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
-sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
-sed -i "s|PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"|PATH="$SECURE_SUPATH"|g" /etc/profile
-sed -i "s|PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"|PATH="$SECURE_PATH"|g" /etc/profile
-sed -i "s|^PATH=.*|PATH="$SECURE_SUPATH"|" /etc/environment
+sudo sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
+sudo sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
+sudo sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
+sudo sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games\"|PATH=\"$SECURE_PATH\"|g" /etc/profile
+sudo sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
 
 # SUDO
 cat >/etc/sudoers <<'EOF'
@@ -1102,12 +1103,12 @@ Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/ip
 Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
 Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
 
-dev  ALL=(ALL) /usr/sbin/, /usr/bin
 #dev ALL=(root) FIREWALL, PACKAGES, MAINT
+dev  ALL=(ALL) ALL
 EOF
 
 chmod 0440 /etc/sudoers
-chmod -R 0000 /etc/sudoers.d 2>/dev/null || true
+chmod -R 0000 /etc/sudoers.d
 
 # STRIP CAPABILITIES
 STRIP_CAPS=(
@@ -1115,22 +1116,22 @@ STRIP_CAPS=(
 )
 
 ALL_GTFOBINS=(
-"7z" "aa--exec" "ab" "agetty" "alpine" "ansible-playbook" "ansible-test" "aoss" "apache2ctl" "apt" "apt-get" "ar" "aria2c" "arj" "arp" "as" "ascii-xfr" "ascii85" "ash" "aspell" "at" "atobm" "awk" "aws" "base32" "base58" "base64" "basenc" "basez" "bash" "batcat" "bc" "bconsole" "bpftrace" "bridge" "bundle" "bundler" "busctl" "busybox" "byebug" "bzip2" "c89" "c99" "cabal" "cancel" "capsh" "cat" "cdist" "certbot" "check_by_ssh" "check_cups" "check_log" "check_memory" "check_raid" "check_ssl_cert" "check_statusfile" "chmod" "choom" "chown" "chroot" "clamscan" "cmp" "cobc" "column" "comm" "composer" "cowsay" "cowthink" "cp" "cpan" "cpio" "cpulimit" "crash" "crontab" "csh" "csplit" "csvtool" "cupsfilter" "curl" "cut" "dash" "date" "dc" "dd" "debugfs" "dialog" "diff" "dig" "distcc" "dmesg" "dmidecode" "dmsetup" "dnf" "docker" "dos2unix" "dosbox" "dotnet" "dpkg" "dstat" "dvips" "easy_install" "eb" "ed" "efax" "elvish" "emacs" "enscript" "env" "eqn" "espeak" "ex" "exiftool" "expand" "expect" "facter" "file" "find" "finger" "fish" "flock" "fmt" "fold" "fping" "ftp" "gawk" "gcc" "gcloud" "gcore" "gdb" "gem" "genie" "genisoimage" "ghc" "ghci" "gimp" "ginsh" "git" "grc" "grep" "gtester" "gzip" "hd" "head" "hexdump" "highlight" "hping3" "iconv" "iftop" "install" "ionice" "ip" "irb" "ispell" "jjs" "joe" "join" "journalctl" "jq" "jrunscript" "jtag" "julia" "knife" "ksh" "ksshell" "ksu" "kubectl" "latex" "latexmk" "ld.so" "ldconfig" "less" "lftp" "links" "ln" "loginctl" "logsave" "look" "lp" "ltrace" "lua" "lualatex" "luatex" "lwp-download" "lwp-request" "mail" "make" "man" "mawk" "minicom" "more" "mosquitto" "mount" "msfconsole" "msgattrib" "msgcat" "msgconv" "msgfilter" "msgmerge" "msguniq" "mtr" "multitime" "mv" "mysql" "nano" "nasm" "nawk" "nc" "ncdu" "ncftp" "neofetch" "nft" "nice" "nl" "nm" "nmap" "node" "nohup" "npm" "nroff" "nsenter" "ntpdate" "octave" "od" "openssl" "openvpn" "openvt" "opkg" "pandoc" "paste" "pax" "pdb" "pdflatex" "pdftex" "perf" "perl" "perlbug" "pexec" "pg" "php" "pic" "pico" "pidstat" "pip" "pkexec" "pkg" "posh" "pr" "pry" "psftp" "psql" "ptx" "puppet" "pwsh" "python" "rake" "rc" "readelf" "red" "redcarpet" "redis" "restic" "rev" "rlogin" "rlwrap" "rpm" "rpmdb" "rpmquery" "rpmverify" "rsync" "rtorrent" "ruby" "run-mailcap" "run-parts" "runscript" "rview" "rvim" "sash" "scanmem" "scp" "screen" "script" "scrot" "sed" "service" "setarch" "setfacl" "setlock" "sftp" "sg" "shuf" "slsh" "smbclient" "snap" "socat" "socket" "soelim" "softlimit" "sort" "split" "sqlite3" "sqlmap" "ss" "ssh" "ssh-agent" "ssh-keygen" "ssh-keyscan" "sshpass" "start-stop-daemon" "stdbuf" "strace" "strings" "su" "sudo" "sysctl" "systemctl" "systemd-resolve" "tac" "tail" "tar" "task" "taskset" "tasksh" "tbl" "tclsh" "tcpdump" "tdbtool" "tee" "telnet" "terraform" "tex" "tftp" "tic" "time" "timedatectl" "timeout" "tmate" "tmux" "top" "torify" "torsocks" "troff" "tshark" "ul" "unexpand" "uniq" "unshare" "unsquashfs" "unzip" "update-alternatives" "uudecode" "uuencode" "vagrant" "valgrind" "varnishncsa" "vi" "view" "vigr" "vim" "vimdiff" "vipw" "virsh" "volatility" "w3m" "wall" "watch" "wc" "wget" "whiptail" "whois" "wireshark" "wish" "xargs" "xdg-user-dir" "xdotool" "xelatex" "xetex" "xmodmap" "xmore" "xpad" "xxd" "xz" "yarn" "yash" "yelp" "yum" "zathura" "zip" "zsh" "zsoelim" "zypper"
+"7z" "aa-exec" "ab" "agetty" "alpine" "ansible-playbook" "ansible-test" "aoss" "apache2ctl" "apt" "apt-get" "ar" "aria2c" "arj" "arp" "as" "ascii-xfr" "ascii85" "ash" "aspell" "at" "atobm" "awk" "aws" "base32" "base58" "base64" "basenc" "basez" "bash" "batcat" "bc" "bconsole" "bpftrace" "bridge" "bundle" "bundler" "busctl" "busybox" "byebug" "bzip2" "c89" "c99" "cabal" "cancel" "capsh" "cat" "cdist" "certbot" "check_by_ssh" "check_cups" "check_log" "check_memory" "check_raid" "check_ssl_cert" "check_statusfile" "chmod" "choom" "chown" "chroot" "clamscan" "cmp" "cobc" "column" "comm" "composer" "cowsay" "cowthink" "cp" "cpan" "cpio" "cpulimit" "crash" "crontab" "csh" "csplit" "csvtool" "cupsfilter" "curl" "cut" "dash" "date" "dc" "dd" "debugfs" "dialog" "diff" "dig" "distcc" "dmesg" "dmidecode" "dmsetup" "dnf" "docker" "dos2unix" "dosbox" "dotnet" "dpkg" "dstat" "dvips" "easy_install" "eb" "ed" "efax" "elvish" "emacs" "enscript" "env" "eqn" "espeak" "ex" "exiftool" "expand" "expect" "facter" "file" "find" "finger" "fish" "flock" "fmt" "fold" "fping" "ftp" "gawk" "gcc" "gcloud" "gcore" "gdb" "gem" "genie" "genisoimage" "ghc" "ghci" "gimp" "ginsh" "git" "grc" "grep" "gtester" "gzip" "hd" "head" "hexdump" "highlight" "hping3" "iconv" "iftop" "install" "ionice" "ip" "irb" "ispell" "jjs" "joe" "join" "journalctl" "jq" "jrunscript" "jtag" "julia" "knife" "ksh" "ksshell" "ksu" "kubectl" "latex" "latexmk" "ld.so" "ldconfig" "less" "lftp" "links" "ln" "loginctl" "logsave" "look" "lp" "ltrace" "lua" "lualatex" "luatex" "lwp-download" "lwp-request" "mail" "make" "man" "mawk" "minicom" "more" "mosquitto" "mount" "msfconsole" "msgattrib" "msgcat" "msgconv" "msgfilter" "msgmerge" "msguniq" "mtr" "multitime" "mv" "mysql" "nano" "nasm" "nawk" "nc" "ncdu" "ncftp" "neofetch" "nft" "nice" "nl" "nm" "nmap" "node" "nohup" "npm" "nroff" "nsenter" "ntpdate" "octave" "od" "openssl" "openvpn" "openvt" "opkg" "pandoc" "paste" "pax" "pdb" "pdflatex" "pdftex" "perf" "perl" "perlbug" "pexec" "pg" "php" "pic" "pico" "pidstat" "pip" "pkexec" "pkg" "posh" "pr" "pry" "psftp" "psql" "ptx" "puppet" "pwsh" "python" "rake" "rc" "readelf" "red" "redcarpet" "redis" "restic" "rev" "rlogin" "rlwrap" "rpm" "rpmdb" "rpmquery" "rpmverify" "rsync" "rtorrent" "ruby" "run-mailcap" "run-parts" "runscript" "rview" "rvim" "sash" "scanmem" "scp" "screen" "script" "scrot" "sed" "service" "setarch" "setfacl" "setlock" "sftp" "sg" "shuf" "slsh" "smbclient" "snap" "socat" "socket" "soelim" "softlimit" "sort" "split" "sqlite3" "sqlmap" "ss" "ssh" "ssh-agent" "ssh-keygen" "ssh-keyscan" "sshpass" "start-stop-daemon" "stdbuf" "strace" "strings" "su" "sudo" "sysctl" "systemctl" "systemd-resolve" "tac" "tail" "tar" "task" "taskset" "tasksh" "tbl" "tclsh" "tcpdump" "tdbtool" "tee" "telnet" "terraform" "tex" "tftp" "tic" "time" "timedatectl" "timeout" "tmate" "tmux" "top" "torify" "torsocks" "troff" "tshark" "ul" "unexpand" "uniq" "unshare" "unsquashfs" "unzip" "update-alternatives" "uudecode" "uuencode" "vagrant" "valgrind" "varnishncsa" "vi" "view" "vigr" "vim" "vimdiff" "vipw" "virsh" "volatility" "w3m" "wall" "watch" "wc" "wget" "whiptail" "whois" "wireshark" "wish" "xargs" "xdg-user-dir" "xdotool" "xelatex" "xetex" "xmodmap" "xmore" "xpad" "xxd" "xz" "yarn" "yash" "yelp" "yum" "zathura" "zip" "zsh" "zsoelim" "zypper"
 )
 
 for interp in "${STRIP_CAPS[@]}"; do
-[[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null || true
+    [[ -f "$interp" ]] && getcap "$interp" &>/dev/null && setcap -r "$interp" 2>/dev/null
 done
 
-cap_output=$(getcap -r /usr 2>/dev/null | awk '{print $1}' || true)
+cap_output=$(getcap -r /usr /bin /sbin 2>/dev/null | awk '{print $1}')
 for binary in $cap_output; do
-cap_basename=$(basename "$binary")
-for gtfo in "${ALL_GTFOBINS[@]}"; do
-if [[ "$cap_basename" == "$gtfo" ]] || [[ "$cap_basename" == "${gtfo}."* ]]; then
-setcap -r "$binary" 2>/dev/null || true
-break
-fi
-done
+    basename=$(basename "$binary")
+    for gtfo in "${ALL_GTFOBINS[@]}"; do
+        if [[ "$basename" == "$gtfo" ]] || [[ "$basename" == "${gtfo}."* ]]; then
+            setcap -r "$binary" 2>/dev/null
+            break
+        fi
+    done
 done
 
 # CREATE PLACEHOLDER BLOCKERS
@@ -1152,24 +1153,26 @@ dangerous_paths=(
 "/usr/bin/aircrack-ng" "/usr/bin/ettercap" "/usr/bin/bettercap" "/usr/bin/responder"
 )
 
-for binary_path in "${dangerous_paths[@]}"; do
-if [[ ! -e "$binary_path" ]]; then
-mkdir -p "$(dirname "$binary_path")"
-touch "$binary_path"
-chmod 000 "$binary_path"
-chattr +i "$binary_path" 2>/dev/null || true
-fi
-done
+    for binary_path in "${dangerous_paths[@]}"; do
+        if [[ ! -e "$binary_path" ]]; then
+            mkdir -p "$(dirname "$binary_path")"
+            touch "$binary_path"
+            chmod 000 "$binary_path"
+            chattr +i "$binary_path" 2>/dev/null || chmod 000 "$binary_path"
+        fi
+    done
 
 # LOCKDOWN
-find / -xdev ( -perm -4000 -o -perm -2000 ) -type f --exec chmod a-s {} ; 2>/dev/null || true
-chmod u+s /usr/bin/sudo 2>/dev/null || true
-apt clean || true
-apt autopurge -y 2>/dev/null || true
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 
+chmod u+s /usr/bin/sudo
+
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
-echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
+apt purge -y "$RC_PKGS"
 fi
+
+apt clean
+apt autopurge -y
 
 # IMMUTABLE FLAGS
 chattr +i /etc/passwd 2>/dev/null || true
@@ -1207,8 +1210,13 @@ chattr -R +i /etc/profile.d 2>/dev/null || true
 chattr +i /etc/bash.bashrc 2>/dev/null || true
 chattr +i /root/.bashrc 2>/dev/null || true
 chattr +i /home/dev/.bashrc 2>/dev/null || true
-chattr +i /etc/cron.allow 2>/dev/null || true
-chattr +i /etc/at.allow 2>/dev/null || true
+chattr -R +i /etc/cron.allow 2>/dev/null || true
+chattr -R +i /etc/at.allow 2>/dev/null || true
+chattr -R +i /etc/cron.d 2>/dev/null || true
+chattr -R +i /etc/cron.daily 2>/dev/null || true
+chattr -R +i /etc/cron.hourly 2>/dev/null || true
+chattr -R +i /etc/cron.monthly 2>/dev/null || true
+chattr -R +i /etc/cron.weekly 2>/dev/null || true
 chattr -R +i /etc/polkit-1 2>/dev/null || true
 chattr +i /etc/nsswitch.conf 2>/dev/null || true
 chattr +i /etc/ld.so.conf 2>/dev/null || true
