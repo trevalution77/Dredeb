@@ -794,7 +794,19 @@ rm -r /etc/wpa* 2>/dev/null || true
 rm -r /etc/manpath* 2>/dev/null || true
 rm -r /etc/libnl* 2>/dev/null || true
 rm -r /usr/bin/run0 2>/dev/null || true
-rm -r /usr/bin/su 2>/dev/null || true
+rm -r /usr/sbin/arp* 2>/dev/null || true
+rm -r /usr/sbin/add* 2>/dev/null || true
+rm -r /usr/sbin/user* 2>/dev/null || true
+rm -r /usr/sbin/group* 2>/dev/null || true
+rm -r /usr/sbin/tcp* 2>/dev/null || true
+rm -r /usr/bin/z* 2>/dev/null || true
+rm -r /usr/sbin/tar* 2>/dev/null || true
+rm -r /usr/sbin/arp* 2>/dev/null || true
+rm -r /usr/sbin/arp* 2>/dev/null || true
+rm -r /usr/bin/passwd* 2>/dev/null || true
+rm -r /usr/bin/gpasswd* 2>/dev/null || true
+rm -r /usr/sbin/ebtables* 2>/dev/null || true
+rm -r /usr/sbin/xtables* 2>/dev/null || true
 rm -r /usr/bin/sudoreplay 2>/dev/null || true
 rm -r /usr/bin/sudoedit 2>/dev/null || true
 rm -r /usr/lib/emacs* 2>/dev/null || true
@@ -807,6 +819,7 @@ rm -r /usr/lib/gnupg* 2>/dev/null || true
 rm -r /usr/lib/systemd/ssh* 2>/dev/null || true
 rm -r /usr/lib/systemd/systemd-ssh* 2>/dev/null || true
 rm -r /usr/lib/systemd/systemd-socket* 2>/dev/null || true
+rm -r /usr/lib/systemd/systemd-sulogin* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/73* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-container* 2>/dev/null || true
 rm -r /usr/lib/systemd/network/80-wifi* 2>/dev/null || true
@@ -855,11 +868,11 @@ Defaults log_input,log_output
 Defaults editor=/bin/false
 Defaults !env_editor
 
-Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/iptables -S, /usr/sbin/iptables-save
+Cmnd_Alias FIREWALL = /usr/sbin/iptables -L, /usr/sbin/nft list *
 Cmnd_Alias PACKAGES = /usr/bin/apt update, /usr/bin/apt list --upgradable, /usr/bin/apt upgrade
 Cmnd_Alias MAINT = /usr/bin/systemctl status *, /usr/bin/journalctl -xe
 
-dev  ALL=(ALL) /usr/sbin/, /usr/bin/
+dev  ALL=(ALL) ALL
 #dev ALL=(root) FIREWALL, PACKAGES, MAINT
 EOF
 
