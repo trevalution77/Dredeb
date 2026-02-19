@@ -84,7 +84,7 @@ APT::Sandbox::Seccomp "true";
 EOF
 
 # PACKAGE INSTALLATION 
-apt install -y rsyslog libpam-tmpdir pavucontrol lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal adwaita-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad librewolf qt5ct opensnitch python3-opensnitch-ui --no-install-recommends
+apt install -y rsyslog libpam-tmpdir lynis unhide libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal adwaita-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad librewolf qt5ct opensnitch python3-opensnitch-ui --no-install-recommends
 
 # ACCOUNTS/GROUPS
 for grp in _ssh bluetooth nogroup fax floppy irc kvm voice games; do
@@ -130,10 +130,12 @@ EOF
 cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=2000000
-auth      required    pam_faillock.so preauth
-auth      [success=1 default=ignore] pam_u2f.so authfile=/etc/security/u2f_keys
+# U2F preauth lockout tracking
+auth      required pam_faillock.so preauth silent audit deny=5 unlock_time=900
+auth      required pam_u2f.so authfile=/etc/u2f_mappings cue origin=pam://$(dev) appid=pam://$(dev)
+auth     [default=die] pam_faillock.so authfail audit deny=5 unlock_time=900
+auth      requisite pam_deny.so
 auth      requisite   pam_deny.so
-auth      optional    pam_faillock.so authsucc
 EOF
 
 cat > /etc/pam.d/common-account << 'EOF'
@@ -917,11 +919,9 @@ for binary_path in "${dangerous_paths[@]}"; do
 done
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \; 2>/dev/null || true
-find / -perm -4000 -exec chmod u-s {} \;
-find / -perm -4000 -exec chmod g-s {} \;
-find / -perm -2000 -exec chmod u-s {} \;
-find / -perm -2000 -exec chmod g-s {} \;
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \;
+find / \( -perm -4000 -o -perm -2000 \) -exec chmod u-s {} \;
+find / \( -perm -4000 -o -perm -2000 \) -exec chmod g-s {} \;
 chmod u+s /usr/bin/sudo
 
 apt purge -y  zram* pci* pmount* acpi* anacron* avahi* atmel* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
