@@ -124,7 +124,7 @@ done
 
 # PAM
 log_info "Configuring U2F authentication..."
-pamu2fcfg -u dev > /etc/security/u2f_keys
+pamu2fcfg -u dev -o pam://local -i pam://local > /etc/u2f_mappings
 chmod 0400 /etc/security/u2f_keys
 chown root:root /etc/security/u2f_keys
 
@@ -146,7 +146,7 @@ cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
 auth      required    pam_faildelay.so delay=3000000
 auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      required    pam_u2f.so authfile=/etc/security/u2f_keys
+auth      required    pam_u2f.so authfile=/etc/u2f_mappings origin=pam://local appid=pam://local nouserok
 auth    [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
 auth      requisite	  pam_deny.so
 EOF
@@ -155,7 +155,7 @@ cat > /etc/pam.d/common-account << 'EOF'
 #%PAM-1.0
 account   required    pam_faillock.so
 account   required    pam_access.so accessfile=/etc/security/access.conf
-account   required    pam_unix.so
+account   required    pam_unix.soh
 EOF
 
 cat > /etc/pam.d/common-password << 'EOF'
@@ -217,7 +217,7 @@ EOF
 cat > /etc/pam.d/login << 'EOF'
 #%PAM-1.0
 auth      required    pam_securetty.so
-auth	  inclde	  common-auth
+auth	  include	  common-auth
 account   required    pam_faillock.so
 account   required    pam_access.so accessfile=/etc/security/access.conf
 account   include     common-account
@@ -309,7 +309,6 @@ chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 passwd -l dev
 passwd -l root
-
 
 # MISC HARDENING
 log_info "Applying miscellaneous hardening..."
@@ -969,19 +968,15 @@ for binary in $cap_output; do
 done
 
 DANGEROUS_BINARY_PATTERNS=(
-'/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++''/usr/bin/as' '/usr/bin/ld' '/usr/bin/ar' '/usr/bin/nm''/usr/bin/make' '/usr/bin/cmake' '/usr/bin/perl*' '/usr/bin/python' '/usr/bin/python2*' '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb' '/usr/bin/lua' '/usr/bin/luac' '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm' '/usr/bin/php*' '/usr/bin/gdb' '/usr/bin/lldb' '/usr/bin/strace' '/usr/bin/ltrace' '/usr/bin/xxd' '/usr/bin/hexdump' '/usr/bin/objdump' '/usr/bin/readelf' '/usr/bin/nc' '/usr/bin/ncat' '/usr/bin/netcat' '/usr/bin/nmap' '/usr/bin/masscan' '/usr/bin/socat' '/usr/bin/arp*' '/usr/bin/trace*' '/usr/bin/run0' '/usr/bin/su' '/usr/bin/sudoedit' '/usr/bin/sudoreplay' '/usr/bin/pkexec' '/bin/sh' '/bin/dash' '/bin/zsh' '/bin/fish'
-'/bin/tcsh' '/bin/csh' '/bin/ksh' '/bin/ksh93' '/bin/mksh' '/bin/pdksh' '/bin/ash' '/bin/rc' '/bin/es' '/bin/sash' '/bin/yash' '/usr/bin/zsh' '/usr/bin/fish' '/usr/bin/tcsh' '/usr/bin/csh' '/usr/bin/ksh*'
+'/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++''/usr/bin/as' '/usr/bin/ld' '/usr/bin/ar' '/usr/bin/nm''/usr/bin/make' '/usr/bin/cmake' '/usr/bin/perl*' '/usr/bin/python' '/usr/bin/python2*' '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb' '/usr/bin/lua' '/usr/bin/luac' '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm' '/usr/bin/php*' '/usr/bin/gdb' '/usr/bin/lldb' '/usr/bin/strace' '/usr/bin/ltrace' '/usr/bin/xxd' '/usr/bin/hexdump' '/usr/bin/objdump' '/usr/bin/readelf' '/usr/bin/nc' '/usr/bin/ncat' '/usr/bin/netcat' '/usr/bin/nmap' '/usr/bin/masscan' '/usr/bin/socat' '/usr/bin/arp*' '/usr/bin/trace*' '/usr/bin/run0' '/usr/bin/su' '/usr/bin/sudoedit' '/usr/bin/sudoreplay' '/usr/bin/pkexec' '/bin/sh' '/bin/dash' '/bin/zsh' '/bin/fish' '/bin/tcsh' '/bin/csh' '/bin/ksh' '/bin/ksh93' '/bin/mksh' '/bin/pdksh' '/bin/ash' '/bin/rc' '/bin/es' '/bin/sash' '/bin/yash' '/usr/bin/zsh' '/usr/bin/fish' '/usr/bin/tcsh' '/usr/bin/csh' '/usr/bin/ksh*'
 )
 
 for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
-    # shellcheck disable=SC2086
     rm -f $pattern 2>/dev/null || true
 done
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -exec chmod a-s {} \;
-find / \( -perm -4000 -o -perm -2000 \) -exec chmod u-s {} \;
-find / \( -perm -4000 -o -perm -2000 \) -exec chmod g-s {} \;
+find / -xdev \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
 chmod u+s /usr/bin/sudo
 
 apt purge -y  zram* pci* pmount* acpi* anacron* avahi* atmel* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
