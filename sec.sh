@@ -821,6 +821,7 @@ systemctl enable opensnitchd.service
 systemctl start opensnitchd.service
 
 log_info "Installing OpenSnitch blocklists..."
+apt install git --no-install-recommends
 git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
 cd Respect-My-Internet
 chmod +x install.sh
