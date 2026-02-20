@@ -124,9 +124,9 @@ done
 
 # PAM
 log_info "Configuring U2F authentication..."
-pamu2fcfg -u dev -o pam://local -i pam://local > /etc/u2f_mappings
-chmod 0400 /etc/security/u2f_keys
-chown root:root /etc/security/u2f_keys
+pamu2fcfg -u dev -o pam://local -i pam://local > /etc/security/conf
+chmod 0400 /etc/security/conf
+chown root:root /etc/security/conf
 
 log_info "Configuring faillock..."
 mkdir -p /var/log/faillock
@@ -141,21 +141,19 @@ fail_interval = 900
 silent
 EOF
 
-log_info "Configuring PAM modules..."
 cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
-auth      required    pam_faildelay.so delay=3000000
-auth      required    pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-auth      required    pam_u2f.so authfile=/etc/u2f_mappings origin=pam://local appid=pam://local nouserok
-auth    [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      requisite	  pam_deny.so
+auth      required    pam_faildelay.so delay=2000000
+auth      required    pam_faillock.so preauth
+auth      required    pam_u2f.so authfile=/etc/security/conf origin=pam://local appid=pam://local nouserok
+auth      optional    pam_faillock.so authsucc
+auth      requisite   pam_deny.so
 EOF
 
 cat > /etc/pam.d/common-account << 'EOF'
 #%PAM-1.0
-account   required    pam_faillock.so
 account   required    pam_access.so accessfile=/etc/security/access.conf
-account   required    pam_unix.soh
+account   required    pam_unix.so
 EOF
 
 cat > /etc/pam.d/common-password << 'EOF'
@@ -177,6 +175,7 @@ cat > /etc/pam.d/common-session-noninteractive << 'EOF'
 #%PAM-1.0
 session   required    pam_limits.so
 session   required    pam_env.so
+session   optional    pam_systemd.so
 session   optional    pam_umask.so umask=077
 session   optional    pam_tmpdir.so
 session   required    pam_unix.so
@@ -217,9 +216,9 @@ EOF
 cat > /etc/pam.d/login << 'EOF'
 #%PAM-1.0
 auth      required    pam_securetty.so
-auth	  include	  common-auth
-account   required    pam_faillock.so
-account   required    pam_access.so accessfile=/etc/security/access.conf
+auth      requisite   pam_nologin.so
+auth      include     common-auth
+account   required    pam_access.so
 account   include     common-account
 session   required    pam_limits.so
 session   required    pam_loginuid.so
@@ -290,14 +289,14 @@ EOF
 
 cat > /usr/lib/pam.d/systemd-user << 'EOF'
 #%PAM-1.0
-account   include     common-account
 session   required    pam_limits.so
+account   include     common-account
 session   required    pam_env.so user_readenv=0
 session   optional    pam_systemd.so
 session   required    pam_unix.so
 EOF
 
-cat > /usr/lib/pam.d/polkit-1 << 'EOF'
+cat > /usr/lib/pam.d/polkit << 'EOF'
 #%PAM-1.0
 auth      required    pam_deny.so
 account   required    pam_deny.so
