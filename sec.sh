@@ -979,7 +979,7 @@ done
 find / -xdev \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
 chmod u+s /usr/bin/sudo
 
-apt purge -y  zram* pci* pmount* acpi* anacron* avahi* atmel* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
+apt purge -y  zram* pci* pmount* acpi* anacron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
 if [ -n "$RC_PKGS" ]; then
     echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
