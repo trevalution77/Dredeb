@@ -2,15 +2,7 @@
 
 set -euo pipefail
 
-# ══════════════════════════════════════════════════════════════════
-
-# DREDEB — Debian Ultra-Hardening Script
-
-# One-shot deployment. Immutable after completion.
-
-# Changes post-run require external boot media + chattr -i
-
-# ══════════════════════════════════════════════════════════════════
+#-------Debian Hardening Script-------#
 
 # ── Configuration ─────────────────────────────────────────────────
 
@@ -1399,7 +1391,7 @@ chattr +i /etc/passwd /etc/passwd- /etc/shadow /etc/shadow-
 /etc/hosts /etc/hosts.allow /etc/hosts.deny   
 /etc/nsswitch.conf /etc/ld.so.conf 2>/dev/null || true
 
-chattr +i /root/.bashrc “${HARDEN_HOME}/.bashrc”   
+chattr +i /root/.bashrc “${HARDEN_HOME}/.bashrc”  
 /usr/lib/sysctl.d/sysctl.conf 2>/dev/null || true
 
 chattr -R +i /etc/host.conf /etc/sudoers /etc/sudoers.d   
@@ -1421,11 +1413,6 @@ chattr -R +i /etc/host.conf /etc/sudoers /etc/sudoers.d
 chattr -R +i /usr /usr/local 2>/dev/null || true
 
 log_info “Immutable lock applied”
-
-mullvad account login 
-mullvad connect
-mullvad lockdown-mode set on
-mullvad status
 
 # ══════════════════════════════════════════════════════════════════
 
