@@ -100,7 +100,7 @@ EOF
 
 # PACKAGE INSTALLATION
 log_info "Installing required packages..."
-apt install -y rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal adwaita-icon-theme breeze-gtk-theme bibata-cursor-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad librewolf qt5ct opensnitch opensnitch-ebpf-modules python3-opensnitch-ui lxqt-core labwc lxqt-wayland-session sddm xwayland --no-install-recommends
+apt install -y rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct sddm --no-install-recommends
 
 # ACCOUNTS/GROUPS
 log_info "Purging and setting up accounts/groups..."
@@ -108,7 +108,7 @@ for grp in _ssh bluetooth nogroup fax floppy irc kvm voice games; do
 groupdel "$grp" --force
 done
 
-for usr in nobody games irc uucp proxy dhcpcd list news sync man mail lp www-data; do
+for usr in nobody games irc uucp proxy backup dhcpcd list news sync man mail lp www-data; do
 userdel "$usr"
 done
 
@@ -843,7 +843,6 @@ rm -r /usr/sbin/arp* 2>/dev/null || true
 rm -r /usr/bin/passwd* 2>/dev/null || true
 rm -r /usr/bin/gpasswd* 2>/dev/null || true
 rm -r /usr/sbin/ebtables* 2>/dev/null || true
-rm -r /usr/sbin/xtables* 2>/dev/null || true
 rm -r /usr/bin/sudoreplay 2>/dev/null || true
 rm -r /usr/bin/sudoedit 2>/dev/null || true
 rm -r /usr/lib/emacs* 2>/dev/null || true
@@ -953,23 +952,8 @@ for binary in $cap_output; do
 done
 
 DANGEROUS_BINARY_PATTERNS=(
-    '/usr/bin/gcc' '/usr/bin/g++' '/usr/bin/cc' '/usr/bin/c++'
-    '/usr/bin/as' '/usr/bin/ld' '/usr/bin/ar' '/usr/bin/nm'
-    '/usr/bin/make' '/usr/bin/cmake' '/usr/bin/python' '/usr/bin/python2*'
-    '/usr/bin/ruby*' '/usr/bin/irb' '/usr/bin/erb' '/usr/bin/lua'
-    '/usr/bin/luac' '/usr/bin/node' '/usr/bin/nodejs' '/usr/bin/npm'
-    '/usr/bin/php*' '/usr/bin/gdb' '/usr/bin/lldb' '/usr/bin/strace'
-    '/usr/bin/ltrace' '/usr/bin/xxd' '/usr/bin/hexdump' '/usr/bin/objdump'
-    '/usr/bin/readelf' '/usr/bin/nc' '/usr/bin/ncat' '/usr/bin/netcat'
-    '/usr/bin/nmap' '/usr/bin/masscan' '/usr/bin/socat' '/usr/bin/arp*'
-    '/usr/bin/trace*' '/usr/bin/run0' '/usr/bin/su' '/usr/bin/sudoedit'
-    '/usr/bin/sudoreplay' '/usr/bin/pkexec'
-    '/bin/zsh' '/bin/fish' '/bin/tcsh' '/bin/csh' '/bin/ksh'
-    '/bin/ksh93' '/bin/mksh' '/bin/pdksh' '/bin/ash' '/bin/rc'
-    '/bin/es' '/bin/sash' '/bin/yash'
-    '/usr/bin/zsh' '/usr/bin/fish' '/usr/bin/tcsh' '/usr/bin/csh' '/usr/bin/ksh*'
+"/usr/bin/gcc" "/usr/bin/g++" "/usr/bin/cc" "/usr/bin/c++" "/usr/bin/as" "/usr/bin/ld" "/usr/bin/ar" "/usr/bin/nm" "/usr/bin/make" "/usr/bin/cmake" "/usr/bin/python" "/usr/bin/python2*" "/usr/bin/ruby*" "/usr/bin/irb" "/usr/bin/erb" "/usr/bin/lua" "/usr/bin/luac" "/usr/bin/node" "/usr/bin/nodejs" "/usr/bin/npm" "/usr/bin/php*" "/usr/bin/gdb" "/usr/bin/lldb" "/usr/bin/strace" "/usr/bin/ltrace" "/usr/bin/xxd" "/usr/bin/hexdump" "/usr/bin/objdump" "/usr/bin/readelf" "/usr/bin/nc" "/usr/bin/ncat" "/usr/bin/netcat" "/usr/bin/nmap" "/usr/bin/masscan" "/usr/bin/socat" "/usr/bin/arp*" "/usr/bin/trace*" "/usr/bin/run0" "/usr/bin/su" "/usr/bin/sudoedit" "/usr/bin/sudoreplay" "/usr/bin/pkexec" "/bin/zsh" "/bin/fish" "/bin/tcsh" "/bin/csh" "/bin/ksh" "/bin/ksh93" "/bin/mksh" "/bin/pdksh" "/bin/ash" "/bin/rc" "/bin/es" "/bin/sash" "/bin/yash" "/usr/bin/zsh" "/usr/bin/fish" "/usr/bin/tcsh" "/usr/bin/csh" "/usr/bin/ksh*"
 )
-
 
 for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
     rm -f $pattern 2>/dev/null || true
@@ -979,13 +963,14 @@ done
 find / -xdev \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
 chmod u+s /usr/bin/sudo
 
-apt purge -y  zram* pci* pmount* acpi* anacron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl git* curl wget traceroute os-prober* dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican tasksel* vim* os-prober* netcat*
+log_step "FINAL CLEANUP"
+apt purge -y ssh* openssh* acpi* anacron* avahi* cups* print* modem* wpa* netcat* os-prober* zram* pci* pmount* acpi* anacron* avahi* bc bind9* dns* fastfetch fonts-noto* fprint* dhcp* lxc* docker* podman* xen* bochs* uml* vagrant* libssh* ssh* openssh* acpi* samba* winbind* qemu* libvirt* virt* cron* avahi* cup* print* rsync* virtual* sane* rpc* nfs* blue* pp* spee* espeak* mobile* wireless* perl git* curl wget traceroute os-prober* dictionaries-common doc-debian iamerican ibritish ienglish-common inet* ispell task-english util-linux-locales wamerican vim* os-prober* netcat*
 RC_PKGS=$(dpkg -l | grep '^rc' | awk '{print $2}' || true)
-if [ -n "$RC_PKGS" ]; then
+if [[ -n "$RC_PKGS" ]]; then
     echo "$RC_PKGS" | xargs apt purge -y 2>/dev/null || true
 fi
 apt autopurge -y 2>/dev/null || true
-apt clean || true
+apt clean
 
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
