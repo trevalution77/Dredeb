@@ -102,19 +102,29 @@ EOF
 
 # PACKAGE INSTALLATION
 log_info "Installing required packages..."
-apt install -y pamu2fcfg libpam-u2f rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct sddm --no-install-recommends
+apt install -y pamu2fcfg libpam-u2f rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct --no-install-recommends
+
+cat > /home/dev/.config/labwc/environment << 'EOF'
+XDG_CURRENT_DESKTOP=LXQt
+QT_QPA_PLATFORMTHEME=lxqt
+QT_QPA_PLATFORM=wayland;xcb
+GDK_BACKEND=wayland,x11
+MOZ_ENABLE_WAYLAND=1
+EOF
+
+chown -R dev:dev /home/dev/.config/labwc
 
 # ACCOUNTS/GROUPS
 log_info "Purging and setting up accounts/groups..."
 for grp in _ssh bluetooth nogroup fax floppy irc kvm voice games; do
-groupdel "$grp" --force
+groupdel "$grp" --force 2>/dev/null || true
 done
 
 for usr in nobody games irc uucp proxy backup dhcpcd list news sync man mail lp www-data; do
-userdel "$usr"
+userdel "$usr" 2>/dev/null || true
 done
 
-for grp in render input video audio tty; do adduser dev "$grp"
+for grp in render input video audio tty seat; do adduser dev "$grp" 2>/dev/null || true
 done
 
 # PAM
@@ -138,11 +148,11 @@ EOF
 
 cat > /etc/pam.d/common-auth << 'EOF'
 #%PAM-1.0
-auth      required            pam_faildelay.so delay=2000000
-auth      required            pam_faillock.so preauth deny=3 unlock_time=900 fail_interval=900
-auth      [success=done default=die]  pam_u2f.so authfile=/etc/security/conf origin=pam://local appid=pam://local nouserok
-auth      [default=die]       pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
-auth      requisite           pam_deny.so
+auth     required     pam_faildelay.so delay=2000000
+auth     required     pam_faillock.so preauth deny=3 unlock_time=900 fail_interval=900
+auth    [success=done default=die] pam_u2f.so authfile=/etc/security/conf origin=pam://local appid=pam://local nouserok
+auth    [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900
+auth     requisite    pam_deny.so
 EOF
 
 cat > /etc/pam.d/common-account << 'EOF'
@@ -291,14 +301,6 @@ session   optional    pam_systemd.so
 session   required    pam_unix.so
 EOF
 
-cat > /usr/lib/pam.d/polkit << 'EOF'
-#%PAM-1.0
-auth      required    pam_deny.so
-account   required    pam_deny.so
-password  required    pam_deny.so
-session   required    pam_deny.so
-EOF
-
 chmod 0644 /etc/pam.d/*
 chown root:root /etc/pam.d/*
 passwd -l dev
@@ -324,7 +326,7 @@ dev          -      maxlogins     1
 dev          -      maxsyslogins  1
 root         -      nproc         65536
 root         -      maxlogins     1
-root         -      maxsyslogin   1
+root         -      maxsyslogins  1
 EOF
 
 mkdir -p /etc/systemd/coredump.conf.d
@@ -354,15 +356,15 @@ sed -i 's|^#DIR_MODE=.*|DIR_MODE=0700|' /etc/adduser.conf
 sed -i 's|^#SYS_DIR_MODE=.*|SYS_DIR_MODE=0750|' /etc/adduser.conf
 sed -i 's|^#ADD_EXTRA_GROUPS=.*|ADD_EXTRA_GROUPS=0|' /etc/adduser.conf
 grep -q "ulimit -c 0" /etc/profile || echo "ulimit -c 0" >> /etc/profile
-echo "UMASK 077" >> /etc/login.defs
-echo "umask 077" >> /etc/profile
-echo "umask 077" >> /etc/bash.bashrc
+grep -q "^UMASK 077" /etc/login.defs || echo "UMASK 077" >> /etc/login.defs
+grep -q "^umask 077" /etc/profile || echo "umask 077" >> /etc/profile
+grep -q "^umask 077" /etc/bash.bashrc || echo "umask 077" >> /etc/bash.bashrc
 echo "ALL: LOCAL, 127.0.0.1" > /etc/hosts.allow
 echo "ALL: ALL" > /etc/hosts.deny
 chmod 0644 /etc/hosts.allow
 chmod 0644 /etc/hosts.deny
 
-cat > /etc/security/access.conf << EOF
+cat > /etc/security/access.conf << 'EOF'
 +:dev:LOCAL
 -:ALL EXCEPT dev:LOCAL
 -:dev:ALL EXCEPT LOCAL
@@ -384,6 +386,7 @@ chmod 640 /etc/default/grub
 
 # SYSCTL 
 log_info "Applying sysctl hardening..."
+# NOTE: This removes ALL vendor sysctl configs - only the values below will apply
 rm -rf /usr/lib/sysctl.d
 mkdir -p /usr/lib/sysctl.d
 cat > /usr/lib/sysctl.d/sysctl.conf << 'EOF'
@@ -639,8 +642,6 @@ blacklist udf
 install udf /bin/false
 blacklist usb_storage
 install usb_storage /bin/false
-blacklist uvcvideo
-install uvcvideo /bin/false
 blacklist vboxdrv
 install vboxdrv /bin/false
 blacklist vboxnetadp
@@ -653,8 +654,6 @@ blacklist vhost_net
 install vhost_net /bin/false
 blacklist vhost_vsock
 install vhost_vsock /bin/false
-blacklist video1394
-install video1394 /bin/false
 blacklist vmmon
 install vmmon /bin/false
 blacklist vmw_vmci
@@ -687,12 +686,12 @@ cp /etc/fstab /etc/fstab.bak
 
 if ! grep -q "proc.*hidepid=2" /etc/fstab; then
     cat >> /etc/fstab << 'EOF'
-proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc    0 0
-tmpfs    /tmp       tmpfs     size=2G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec,mode=1777     0 0
-tmpfs    /dev/shm   tmpfs     size=512M,noatime,nodev,nosuid,noexec,mode=1777   0 0
-tmpfs    /run       tmpfs     size=512M,noatime,nodev,nosuid,mode=0755          0 0
-tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=700,uid=1000,gid=1000    0 0
+proc     /proc      proc      noatime,nodev,nosuid,noexec,hidepid=2,gid=proc 0 0
+tmpfs    /tmp       tmpfs     size=2G,noatime,nodev,nosuid,noexec 0 0
+tmpfs    /var/tmp   tmpfs     size=1G,noatime,nodev,nosuid,noexec 0 0
+tmpfs    /dev/shm   tmpfs     size=512M,noatime,nodev,nosuid,noexec 0 0
+tmpfs    /run       tmpfs     size=512M,noatime,nodev,nosuid 0 0
+tmpfs    /home/dev/.cache    tmpfs    size=2G,noatime,nodev,nosuid,noexec,mode=0700,uid=1000,gid=1000 0 0
 EOF
 fi
 
