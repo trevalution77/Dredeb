@@ -960,7 +960,9 @@ for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
 done
 
 # LOCKDOWN
-find / -xdev \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
+find / \( -perm -4000 -o -perm -2000 \) -exec chmod u-s {} \;
+find / \( -perm -4000 -o -perm -2000 \) -exec chmod g-s {} \;
+find / \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
 chmod u+s /usr/bin/sudo
 
 log_step "FINAL CLEANUP"
@@ -971,6 +973,7 @@ if [[ -n "$RC_PKGS" ]]; then
 fi
 apt autopurge -y 2>/dev/null || true
 apt clean
+apt install -y gstreamer1.0-libav gstreamer1.0-plugins-bad librewolf arc-theme 
 
 chattr +i /etc/passwd 2>/dev/null || true
 chattr +i /etc/passwd- 2>/dev/null || true
