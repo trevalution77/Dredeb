@@ -102,7 +102,7 @@ EOF
 
 # PACKAGE INSTALLATION
 log_info "Installing required packages..."
-apt install -y pamu2fcfg libpam-u2f rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xserver-xorg xinit xserver-xorg-legacy xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin gnome-terminal gnome-brave-icon-theme breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 mesa-vulkan-drivers mesa-va-drivers firmware-amd-graphics qt6ct --no-install-recommends
+apt install -y pamu2fcfg libpam-u2f rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xinit xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg qterminal lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 qt6ct --no-install-recommends
 
 cat > /home/dev/.config/labwc/environment << 'EOF'
 XDG_CURRENT_DESKTOP=LXQt
@@ -888,15 +888,6 @@ sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
 sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
 sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin"|PATH=\"$SECURE_PATH\"|g" /etc/profile
 sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
-
-# BLOCK POLKIT
-mkdir -p /etc/polkit-1/rules.d
-cat > /etc/polkit-1/rules.d/00-deny-all.rules << 'EOF'
-// Deny all polkit requests - hardened system
-polkit.addRule(function(action, subject) {
-    return polkit.Result.NO;
-});
-EOF
 
 chmod 0644 /etc/polkit-1/rules.d/00-deny-all.rules
 
