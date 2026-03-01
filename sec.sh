@@ -95,7 +95,7 @@ apt autopurge -y 2>/dev/null || true
 log_info "Creating package deny list..."
 install -d /etc/apt/preferences.d
 cat >/etc/apt/preferences.d/deny.pref <<'EOF'
-Package: aircrack* aircrack-ng* alpine* anacron* ansible* aoss* apache* apache2 apache2* apache2-bin ar aria2c* arj* arp* as ascii* ash aspell* at atobm* autoconf* automake* autopsy* avahi* avahi-daemon avahi-utils awk* aws* base32* base58* base64* basenc* basez* batcat* bc* bconsole* beef* beef-xss* bettercap* bind* bind9 bind9* binutils* binwalk* bison* blue* bluetooth* bluez* bochs* bpf* bridge* build* build-essential* bundle* burp* burpsuite* busctl* byebug* bz* c89* c99* cabal* cabal-install* cancel capsh* cargo* cdist* certbot* check_by_ssh* check_cups* check_log* check_memory* check_raid* check_ssl_cert* check_statusfile* chef* choom* chroot* clam* clang* cmake* cmp* cobc* cockpit* column comm composer* container* containerd containerd.io containerd.io* courier* courier-mta cow* cowsay* cpan* cpio* cpulimit* crack* crackmapexec* cron* csh* csplit* csv* cup* cups cups* cups-browsed cups-daemon curl* cut dash* date dc* dd* debug* default-jdk* default-jre* dhcp* dhcpcd* dialog* diff dig* dirb* distcc* dm* dma* dnf* dns* dnsmasq docker* docker-ce docker-ce* docker-ce-cli docker-ce-cli* docker.io docker.io* dos2unix* dosbox* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* dropbear dropbear* dropbear-bin dropbear-initramfs dsniff* dstat* dvips* easy_install* eb ed efax* elf* elixir* elvish* emacs* enscript* enum* enum4linux* env eqn* erlang* espeak* ettercap* ettercap-common* ettercap-graphical* ex exif* exim* exim4 exim4* exim4-base exim4-daemon-heavy exim4-daemon-light expect* facter* fastfetch* finger* fish* flatpak* flex* flock* fmt* fold fonts-noto* foremost* fortune* fpc* fping* fprint* fs-kernel-server ftp* ftpd fuzz* g++* gcc* gcloud* gcore* gdb gdb* gdebi* gem* genie* geniso* gfortran* ghc ghc* ghost* gimp* ginsh* gnustep* gobuster* golang* golang-go* grc grep gtester gzip* hash* hashcat* hd* head hex* highlight* hping* hping3* hydra* hydra-gtk* iconv* iftop* image* imagemagick* impacket* impacket-scripts* inet* inetutils-telnetd ionice* irb* ispell* iw* jjs* joe* john* join* jrunscript* jtag* julia* knife* ksh* ksshell* ksu* kube* kubectl* kubernetes* latex* ld. ldconfig* lftp* libfprint* libsql* libtool* libvirt* libvirt-clients libvirt-daemon lighttpd lighttpd* links* lldb lldb* llvm* ln* loginctl* logsave* look lp* ltrace* lua* luajit* lwp* lxc lxc* lxc-utils lxcfs lxd lxd* lxd-client lxd-client* m4* macchanger* mail* make* maltego* man* masscan* medusa* meson* metagoofil* metasploit* metasploit-framework* minicom* mitm* mitmproxy* mobile* modem* mono-complete* more mosquit* mosquitto* msg* msguniq* mtr* multitime* mysql* nasm* nawk* nbtscan* nc ncat* ncdu* nct* neofetch* netcat* nfs* nfs-common nfs-common* nfs-kernel-server* nft* nftables* nginx nginx* nginx-core nice* nikto* ninja* ninja-build* nl nm nmap* node nodejs nodejs* nohup* npm npm* nroff* nsenter* ntpdate* octave* od open-vm* open-vm-tools* openssh* openssh-client openssh-server openssh-sftp-server openssl* opensteg* openstego* openvpn* openvt* opkg* os-prober* outguess* pandoc* paste pax* pdb* pdf* perf perlbug pexec* pg php* php-cli* php-common* pic pico* pip pip3 pipx pipx* pk* pkg* pmount* podman podman* podman-compose posh* postfix postfix* pp* pr print* proftp* proftpd* proftpd-basic proftpd-basic* proxy* proxychains* proxychains4* pry* psftp* psql* ptx* puppet* pure* pure-ftp* pure-ftpd pure-ftpd* pure-ftpd-common pwsh* python python-is-python3* python-pip* python3-pip* qemu* qemu-system-arm qemu-system-x86 qemu-user qemu-utils r-base* radar* radare2* rake* rbdmap* rc* readelf* recon* recon-ng* red redcarpet* redis* responder* restic* rev rl* rlogin rlogin* rpc* rpcbind rpcbind* rpm* rsh* rsh-client rsh-client* rsh-redone-client* rsh-server rsync* rtorrent* ruby* ruby-full* run-mailcap* run-parts* runscript* rust* rustc* rview* rvim* salt-common* salt-minion* samba samba* samba-common-bin sane* sash* scalpel* scan* scapy* scp* screen* script* scrot* sed sendmail sendmail* sendmail-base sendmail-bin service set setarch* setfacl* setlock* sftp* sg* shuf* sleuth* sleuthkit* slsh* smb* smbclient smbclient* smbd* smbmap* snap* snapd* sniff* snmp snmp* snmpd snmpd* snmptrapd* so* socat socat* social-engineer* social-engineer-toolkit* socket* soelim* softlimit* sort spee* spice* spice-vdagent* spiderfoot* split sql* sqlmap* ss* ssh* ssl* sslstrip* stdb* steg* steghide* stegosuite* strace* strings* swig* systemd-resolve* tac tail* tar task tasksel* taskset* tasksh* tbl* tcl* tcp* tcpdump* tdbtool* tee telnet telnet* telnetd telnetd* terraform* tex tftp* tftp-hpa* theharvester* tic tiger* tigervnc* tigervnc-common tigervnc-standalone-server timedatectl* timeout* tinyssh tinyssh* tinyssh-server tk* tmate* tmux* top tor* torsocks* traceroute* tripwire* troff* tshark* ul uml* unattended* unattended-upgrades* unexpand* unicornscan* uniq* unshare* unsquashfs* update-alternatives* util-linux-locales uuen* vagrant* valgrind* varnish* vbox* vigr* vim* vipw* virsh* virt* virt-manager virtinst virtualbox virtualbox-dkms virtualbox-qt vmw* volatil* volatility* vsftp* vsftpd vsftpd* w3m* wall watch* wc webmin* wfuzz* wget* whois* winbind* wireless* wireshark* wireshark-gtk* wireshark-qt* wish* wpa* wpa-supplicant* wpasupplicant* x11vnc x11vnc* xargs* xdotool* xelatex* xen* xen-hypervisor-common xen-utils-common xetex* xinetd* xmod* xmore* xpad* xrdp xrdp* xxd* xz* yarn* yash* yasm* yersinia* yum* zathura* zenmap* zip* zmap* zram* zsh* zsoelim* zypper*
+Package: aircrack* aircrack-ng* alpine* anacron* ansible* aoss* apache* apache2 apache2* apache2-bin ar aria2c* arj* arp* as ascii* ash aspell* at atobm* autoconf* automake* autopsy* avahi* avahi-daemon avahi-utils awk* aws* base32* base58* base64* basenc* basez* batcat* bc* bconsole* beef* beef-xss* bettercap* bind* bind9 bind9* binutils* binwalk* bison* blue* bluetooth* bluez* bochs* bpf* bridge* build* build-essential* bundle* burp* burpsuite* busctl* byebug* bz* c89* c99* cabal* cabal-install* cancel capsh* cargo* cdist* certbot* check_by_ssh* check_cups* check_log* check_memory* check_raid* check_ssl_cert* check_statusfile* chef* choom* chroot* clam* clang* cmake* cmp* cobc* cockpit* column comm composer* container* containerd containerd.io containerd.io* courier* courier-mta cow* cowsay* cpan* cpio* cpulimit* crack* crackmapexec* cron* csh* csplit* csv* cup* cups cups* cups-browsed cups-daemon curl* cut dash* date dc* dd* debug* default-jdk* default-jre* dhcp* dhcpcd* dialog* diff dig* dirb* distcc* dm* dma* dnf* dns* dnsmasq docker* docker-ce docker-ce* docker-ce-cli docker-ce-cli* docker.io docker.io* dos2unix* dosbox* dotnet* dotnet-sdk-6.0* dotnet-sdk-7.0* dotnet-sdk-8.0* dropbear dropbear* dropbear-bin dropbear-initramfs dsniff* dstat* dvips* easy_install* eb ed efax* elf* elixir* elvish* emacs* enscript* enum* enum4linux* env eqn* erlang* espeak* ettercap* ettercap-common* ettercap-graphical* ex exif* exim* exim4 exim4* exim4-base exim4-daemon-heavy exim4-daemon-light expect* facter* fastfetch* finger* fish* flatpak* flex* flock* fmt* fold fonts-noto* foremost* fortune* fpc* fping* fprint* fs-kernel-server ftp* ftpd fuzz* g++* gcc* gcloud* gcore* gdb gdb* gdebi* gem* genie* geniso* gfortran* ghc ghc* ghost* gimp* ginsh* gnustep* gobuster* golang* golang-go* grc grep gtester gzip* hash* hashcat* hd* head hex* highlight* hping* hping3* hydra* hydra-gtk* iconv* iftop* image* imagemagick* impacket* impacket-scripts* inet* inetutils-telnetd ionice* irb* ispell* iw* jjs* joe* john* join* jrunscript* jtag* julia* knife* ksh* ksshell* ksu* kube* kubectl* kubernetes* latex* ld. ldconfig* lftp* libfprint* libsql* libtool* libvirt* libvirt-clients libvirt-daemon lighttpd lighttpd* links* lldb lldb* llvm* ln* loginctl* logsave* look lp* ltrace* lua* luajit* lwp* lxc lxc* lxc-utils lxcfs lxd lxd* lxd-client lxd-client* m4* macchanger* mail* make* maltego* man* masscan* medusa* meson* metagoofil* metasploit* metasploit-framework* minicom* mitm* mitmproxy* mobile* modem* mono-complete* more mosquit* mosquitto* msg* msguniq* mtr* multitime* mysql* nasm* nawk* nbtscan* nc ncat* ncdu* nct* neofetch* netcat* nfs* nfs-common nfs-common* nfs-kernel-server* nft* nftables* nginx nginx* nginx-core nice* nikto* ninja* ninja-build* nl nm nmap* node nodejs nodejs* nohup* npm npm* nroff* nsenter* ntpdate* octave* od open-vm* open-vm-tools* openssh* openssh-client openssh-server openssh-sftp-server openssl* opensteg* openstego* openvpn* openvt* opkg* os-prober* outguess* pandoc* paste pax* pdb* pdf* perf perlbug pexec* pg php* php-cli* php-common* pic pico* pip pip3 pipx pipx* pk* pkg* pmount* podman podman* podman-compose posh* postfix postfix* pp* pr print* proftp* proftpd* proftpd-basic proftpd-basic* proxy* proxychains* proxychains4* pry* psftp* psql* ptx* puppet* pure* pure-ftp* pure-ftpd pure-ftpd* pure-ftpd-common pwsh* python python-is-python3* python-pip* python3-pip* qemu* qemu-system-arm qemu-system-x86 qemu-user qemu-utils r-base* radar* radare2* rake* rbdmap* rc* readelf* recon* recon-ng* red redcarpet* redis* responder* restic* rev rl* rlogin rlogin* rpc* rpcbind rpcbind* rpm* rsh* rsh-client rsh-client* rsh-redone-client* rsh-server rsync* rtorrent* ruby* ruby-full* run-mailcap* run-parts* runscript* rust* rustc* rview* rvim* salt-common* salt-minion* samba samba* samba-common-bin sane* sash* scalpel* scan* scapy* scp* screen* script* scrot* sed sendmail sendmail* sendmail-base sendmail-bin service set setarch* setfacl* setlock* sftp* shuf* sleuth* sleuthkit* slsh* smb* smbclient smbclient* smbd* smbmap* snap* snapd* sniff* snmp snmp* snmpd snmpd* snmptrapd* so* socat socat* social-engineer* social-engineer-toolkit* socket* soelim* softlimit* sort spee* spice* spice-vdagent* spiderfoot* split sql* sqlmap* ss* ssh* ssl* sslstrip* stdb* steg* steghide* stegosuite* strace* strings* swig* systemd-resolve* tac tail* tar task tasksel* taskset* tasksh* tbl* tcl* tcp* tcpdump* tdbtool* tee telnet telnet* telnetd telnetd* terraform* tex tftp* tftp-hpa* theharvester* tic tiger* tigervnc* tigervnc-common tigervnc-standalone-server timedatectl* timeout* tinyssh tinyssh* tinyssh-server tk* tmate* tmux* top tor* torsocks* traceroute* tripwire* troff* tshark* ul uml* unattended* unattended-upgrades* unexpand* unicornscan* uniq* unshare* unsquashfs* update-alternatives* util-linux-locales uuen* vagrant* valgrind* varnish* vbox* vigr* vim* vipw* virsh* virt* virt-manager virtinst virtualbox virtualbox-dkms virtualbox-qt vmw* volatil* volatility* vsftp* vsftpd vsftpd* w3m* wall watch* wc webmin* wfuzz* wget* whois* winbind* wireless* wireshark* wireshark-gtk* wireshark-qt* wish* wpa* wpa-supplicant* wpasupplicant* x11vnc x11vnc* xargs* xdotool* xelatex* xen* xen-hypervisor-common xen-utils-common xetex* xinetd* xmod* xmore* xpad* xrdp xrdp* xxd* xz* yarn* yash* yasm* yersinia* yum* zathura* zenmap* zip* zmap* zram* zsh* zsoelim* zypper*
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -103,6 +103,129 @@ EOF
 # PACKAGE INSTALLATION
 log_info "Installing required packages..."
 apt install -y pamu2fcfg libpam-u2f rsyslog libpam-tmpdir libxfce4ui-utils xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop4 xfwm4 xinit xfce4-pulseaudio-plugin xfce4-whiskermenu-plugin breeze-gtk-theme dbus-user-session featherpad pipewire pipewire-pulse wireplumber gstreamer1.0-libav gstreamer1.0-plugins-bad opensnitch opensnitch-ebpf-modules python3-opensnitch-ui rsyslog labwc swaybg qterminal lxqt-core lxqt-wayland-session pcmanfm-qt xdg-desktop-portal xdg-desktop-portal-wlr xdg-utils layer-shell-qt wayland-protocols xwayland qt6-wayland qtwayland5 qt6ct --no-install-recommends
+
+# X11
+mkdir /home/dev/.config
+mkdir -p /etc/X11/xorg.conf.d
+cat > /etc/X11/xorg.conf.d/99-security.conf << 'EOF'
+Section "ServerFlags"
+    Option "DontVTSwitch" "false"
+    Option "DontZap" "true"
+    Option "DisableVidModeExtension" "true"
+    Option "AllowNonLocalXvidtune" "false"
+EndSection
+
+Section "ServerLayout"
+    Identifier "Default Layout"
+    Option "IsolateDevice" "true"
+EndSection
+EOF
+
+cat > /etc/X11/Xwrapper.config << 'EOF'
+allowed_users=console
+needs_root_rights=no
+EOF
+
+cat > /home/dev/.xinitrc << 'EOF'
+#!/bin/sh
+xhost -
+exec startxfce4
+EOF
+chown dev:dev /home/dev/.xinitrc
+chmod 700 /home/dev/.xinitrc
+
+cat > /etc/profile.d/xhost-deny.sh << 'EOF'
+alias xhost='echo "xhost disabled for security"'
+EOF
+chmod 644 /etc/profile.d/xhost-deny.sh
+
+# WAYLAND
+systemctl enable seatd.service
+systemctl start seatd.service
+systemctl enable rtkit-daemon.service
+systemctl start rtkit-daemon.service
+
+# Create environment file for Wayland sessions
+mkdir -p /etc/environment.d
+cat > /etc/environment.d/90-wayland.conf << 'EOF'
+# Wayland session configuration
+XDG_SESSION_TYPE=wayland
+QT_QPA_PLATFORM=wayland;xcb
+QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+GDK_BACKEND=wayland,x11
+SDL_VIDEODRIVER=wayland,x11
+CLUTTER_BACKEND=wayland
+MOZ_ENABLE_WAYLAND=1
+_JAVA_AWT_WM_NONREPARENTING=1
+EOF
+
+# LXQt-specific Wayland configuration
+mkdir -p /home/dev/.config/lxqt
+cat > /home/dev/.config/lxqt/session.conf << 'EOF'
+[General]
+__userfile__=true
+
+[Environment]
+QT_QPA_PLATFORM=wayland;xcb
+QT_QPA_PLATFORMTHEME=lxqt
+XDG_CURRENT_DESKTOP=LXQt
+XDG_SESSION_DESKTOP=LXQt
+EOF
+chown -R dev:dev /home/dev/.config
+
+# LABWC
+mkdir -p /home/dev/.config/labwc
+cat > /home/dev/.config/labwc/autostart << 'EOF'
+# LXQt session components for Wayland
+lxqt-session &
+EOF
+
+cat > /home/dev/.config/labwc/rc.xml << 'EOF'
+<?xml version="1.0"?>
+<labwc_config>
+  <core>
+    <decoration>server</decoration>
+    <gap>0</gap>
+    <adaptiveSync>no</adaptiveSync>
+    <reuseOutputMode>no</reuseOutputMode>
+  </core>
+  <focus>
+    <followMouse>no</followMouse>
+    <raiseOnFocus>no</raiseOnFocus>
+  </focus>
+  <theme>
+    <name>Arc-Dark</name>
+    <cornerRadius>8</cornerRadius>
+  </theme>
+  <keyboard>
+    <keybind key="A-F4">
+      <action name="Close"/>
+    </keybind>
+    <keybind key="A-Tab">
+      <action name="NextWindow"/>
+    </keybind>
+    <keybind key="W-Return">
+      <action name="Execute"><command>qterminal</command></action>
+    </keybind>
+    <keybind key="W-e">
+      <action name="Execute"><command>pcmanfm-qt</command></action>
+    </keybind>
+    <keybind key="W-r">
+      <action name="Execute"><command>lxqt-runner</command></action>
+    </keybind>
+  </keyboard>
+  <mouse>
+    <context name="Frame">
+      <mousebind button="A-Left" action="Drag">
+        <action name="Move"/>
+      </mousebind>
+      <mousebind button="A-Right" action="Drag">
+        <action name="Resize"/>
+      </mousebind>
+    </context>
+  </mouse>
+</labwc_config>
+EOF
 
 cat > /home/dev/.config/labwc/environment << 'EOF'
 XDG_CURRENT_DESKTOP=LXQt
@@ -299,6 +422,14 @@ account   include     common-account
 session   required    pam_env.so user_readenv=0
 session   optional    pam_systemd.so
 session   required    pam_unix.so
+EOF
+
+cat > /usr/lib/pam.d/polkit << 'EOF'
+#%PAM-1.0
+auth      required    pam_deny.so
+account   required    pam_deny.so
+password  required    pam_deny.so
+session   required    pam_deny.so
 EOF
 
 chmod 0644 /etc/pam.d/*
@@ -789,8 +920,8 @@ log_info "Configuring OpenSnitch application firewall..."
 cat > /etc/systemd/system/opensnitchd.service << 'EOF'
 [Unit]
 Description=OpenSnitch Firewall Daemon
-After=network.target
-After=netfilter-persistent.service
+Before=network.target
+Before=netfilter-persistent.service
 Wants=network.target
 
 [Service]
@@ -813,14 +944,6 @@ chmod 640 /var/log/opensnitchd.log
 systemctl daemon-reload
 systemctl enable opensnitchd.service
 systemctl start opensnitchd.service
-
-log_info "Installing OpenSnitch blocklists..."
-apt install -y git --no-install-recommends
-git clone --depth 1 https://github.com/DXC-0/Respect-My-Internet.git
-cd Respect-My-Internet
-chmod +x install.sh
-./install.sh
-cd
 
 # PRIVILEGE ESCALATION HARDENING
 echo "" > /etc/securetty
@@ -885,11 +1008,7 @@ SECURE_SUPATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 SECURE_PATH="/usr/local/bin:/usr/bin"
 sed -i "s|^ENV_SUPATH.*|ENV_SUPATH      PATH=$SECURE_SUPATH|" /etc/login.defs
 sed -i "s|^ENV_PATH.*|ENV_PATH        PATH=$SECURE_PATH|" /etc/login.defs
-sed -i "s|PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"|PATH=\"$SECURE_SUPATH\"|g" /etc/profile
-sed -i "s|PATH=\"/usr/local/bin:/usr/bin:/bin"|PATH=\"$SECURE_PATH\"|g" /etc/profile
 sed -i "s|^PATH=.*|PATH=\"$SECURE_SUPATH\"|" /etc/environment
-
-chmod 0644 /etc/polkit-1/rules.d/00-deny-all.rules
 
 # SUDO
 log_info "Configuring sudo..."
@@ -952,9 +1071,12 @@ for pattern in "${DANGEROUS_BINARY_PATTERNS[@]}"; do
 done
 
 # LOCKDOWN
-find / \( -perm -4000 -o -perm -2000 \) -exec chmod u-s {} \;
-find / \( -perm -4000 -o -perm -2000 \) -exec chmod g-s {} \;
-find / \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} \;
+find / \( -perm -4000 -exec chmod u-s {} \;
+find / \( -perm -4000 -exec chmod g-s {} \;
+find / \( -perm -4000 -exec chmod a-s {} \;
+find / \( -perm -2000 -exec chmod u-s {} \;
+find / \( -perm -2000 -exec chmod g-s {} \;
+find / \( -perm -2000 -exec chmod a-s {} \;
 chmod u+s /usr/bin/sudo
 
 log_step "FINAL CLEANUP"
